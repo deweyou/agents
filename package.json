@@ -4,10 +4,19 @@
   "description": "Dewey Ou's skills library",
   "author": "Dewey Ou <oushihao97@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "lint:skills": "node scripts/lint-skills.mjs",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm run lint:skills"
+  },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@typescript/native-preview": "7.0.0-dev.20260328.1",
     "bumpp": "^11.0.1",
+    "js-yaml": "^4.1.0",
+    "simple-git-hooks": "^2.13.0",
     "typescript": "^6.0.2",
     "vite-plus": "latest"
   },

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-`deweyou-skills` is oushihao's personal TypeScript skills library, built with vite-plus (`vp`). It uses **tsdown** for library bundling, **oxlint** for linting, and **vitest** for testing.
+`skills` is Dewey Ou's personal TypeScript skills library, built with vite-plus (`vp`). It uses **tsdown** for library bundling, **oxlint** for linting, and **vitest** for testing.
 
 ## Common Commands
 
@@ -18,25 +18,40 @@ vp lint           # lint only
 vp fmt            # format only
 ```
 
-## Vite+ Notes
-
-- Import from `vite-plus`, not `vite`/`vitest` directly: `import { defineConfig } from 'vite-plus'`, `import { expect, test } from 'vite-plus/test'`
-- Do not install vitest, oxlint, oxfmt, or tsdown directly — they are managed by vite-plus
-- Use `vp dlx` instead of `npx`
-- `vp run <script>` to run package.json scripts that conflict with built-in vp commands
-
 ## Architecture
 
-- `skills/` — all skill implementations live here, one file (or subdir) per skill
+- `skills/` — all skill implementations live here, one directory per skill
 - `vite.config.ts` — unified config: pack (tsdown + dts), lint (oxlint, type-aware), fmt (singleQuote)
 - `dist/` — build output (`index.mjs` + type declarations), listed in `exports`
 
-## Adding a New Skill
+## Managing Skills
 
-**IMPORTANT: All new skills added to `skills/` MUST go through the `skill-creator` workflow.**
+### Creating a new skill
 
-Use the `/skill-creator` skill to scaffold, draft, test, and iterate on any new skill before adding it to the `skills/` directory. Do not create skill files manually — always invoke skill-creator first.
+Use the `/new-skill` skill — it handles the full workflow:
 
-The skill-creator is installed at `.claude/skills/skill-creator` and handles the full lifecycle:
-1. Intent capture → draft → test cases → evaluation → iteration → description optimization
-2. Only after skill-creator signs off, place the final skill file under `skills/`
+```
+/new-skill
+```
+
+Then describe what you want the skill to do. It will scaffold the skill via `skill-creator`,
+enforce naming/versioning conventions, generate a `README.md` inside the skill directory,
+and update `CLAUDE.md` and `README.md` when done.
+
+### Updating an existing skill
+
+Use the `/update-skill` skill:
+
+```
+/update-skill
+```
+
+Point it at the skill path under `skills/`. It will run the `skill-creator` iteration loop,
+bump the semver version, and sync `CLAUDE.md` and `README.md`.
+
+### Conventions (enforced by the skills above)
+
+- Skills live under `skills/<kebab-name>/`
+- Directory name and `name` frontmatter must be **kebab-case**
+- Every `SKILL.md` must have a `version` field (semver, starts at `1.0.0`)
+- Every skill directory must have a `README.md` with description and install instructions

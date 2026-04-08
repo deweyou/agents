@@ -55,3 +55,10 @@ bump the semver version, and sync `CLAUDE.md` and `README.md`.
 - Directory name and `name` frontmatter must be **kebab-case**
 - Every `SKILL.md` must have a `version` field (semver, starts at `1.0.0`)
 - Every skill directory must have a `README.md` with description and install instructions
+
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| `harness-init` | One-time project setup: `knowledge/` structure, constitution, scripts, hooks |
+| `harness-dev` | Spec-driven feature workflow: specify → plan → tasks → implement → archive |

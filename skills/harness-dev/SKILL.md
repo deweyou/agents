@@ -1,6 +1,6 @@
 ---
 name: harness-dev
-description: Spec-driven feature development workflow for frontend projects. Runs the full pipeline: specify → plan → tasks → implement → archive. Reads project constitution from knowledge/constitution.md and accumulates learnings after each feature. Use when the user says "build feature X", "implement Y", "develop Z", "/harness-dev <description>", or wants to start a new feature using the spec-driven workflow. Requires harness-init to have been run first.
+description: "Spec-driven feature development workflow for frontend projects. Runs the full pipeline: specify → plan → tasks → implement → archive. Reads project constitution from knowledge/constitution.md and accumulates learnings after each feature. Use when the user says \"build feature X\", \"implement Y\", \"develop Z\", \"/harness-dev <description>\", or wants to start a new feature using the spec-driven workflow. Requires harness-init to have been run first."
 version: 1.0.0
 ---
 

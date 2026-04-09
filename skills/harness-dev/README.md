@@ -154,6 +154,22 @@ knowledge/<topic>.md            ← created on demand (promoted patterns only)
 CLAUDE.md                       ← pointer added when a topic file is created
 ```
 
+## Step files
+
+Each pipeline step delegates to a detailed instruction file in `steps/`:
+
+| File | Purpose |
+|------|---------|
+| `steps/specify.md` | Fill in spec.md with user stories, FRs, success criteria, and quality validation |
+| `steps/clarify.md` | Ask up to 5 targeted questions to reduce spec ambiguity |
+| `steps/plan.md` | Generate plan.md: tech context, constitution check, research, data model |
+| `steps/tasks.md` | Generate tasks.md organized by user story with strict checklist format |
+| `steps/analyze.md` | Cross-artifact consistency analysis (read-only) |
+| `steps/implement.md` | Execute tasks phase by phase with build validation |
+| `steps/checklist.md` | Generate requirements quality checklist ("unit tests for English") |
+
+These files are adapted from the spec-kit command prompts with paths aligned to the `knowledge/` directory structure used by harness-init.
+
 ## Version
 
-`1.0.0` — see [SKILL.md](./SKILL.md) for the full workflow specification.
+`2.0.0` — see [SKILL.md](./SKILL.md) for the full workflow specification.

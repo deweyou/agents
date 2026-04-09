@@ -13,7 +13,7 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 | Skill | Version | Description |
 |-------|---------|-------------|
 | `harness-init` | `1.0.0` | One-time setup: creates `knowledge/` structure, installs scripts/templates, builds project constitution, configures hooks. |
-| `harness-dev` | `1.0.0` | Spec-driven feature development: specify → plan → tasks → implement → archive, with learnings fed back to constitution. |
+| `harness-dev` | `2.0.0` | Spec-driven feature development: specify → plan → tasks → implement → archive, with learnings fed back to constitution. Each step delegates to a detailed instruction file in `steps/`, adapted from spec-kit command prompts. |
 
 ## Development
 

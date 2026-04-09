@@ -147,11 +147,11 @@ For each finding:
       └── YES ──→  Is it a reusable pattern, design rule, or API convention?
                         │
                         ├── YES ──→  Create a named topic file (see below)
-                        │            + append summary to constitution.md §VII
+                        │            + add a principle to constitution.md
                         │
-                        └── NO ──→  Is it a principle update or architecture clarification?
+                        └── NO ──→  Is it a genuine principle or architecture rule?
                                           │
-                                          ├── YES ──→  Append to constitution.md §VII only
+                                          ├── YES ──→  Add to constitution.md only
                                           │
                                           └── NO ──→  Stay in archive.md only. Done.
 ```
@@ -187,24 +187,67 @@ Only create a topic file when the finding is substantial enough to stand alone a
    - **[Topic name]**: [knowledge/topic.md](knowledge/topic.md)
    ```
 
-### Appending to constitution.md
+### Updating constitution.md
 
-**Always** append a section to `knowledge/constitution.md` under `## VII. Accumulated Learnings` (create the section if it doesn't exist):
+Only update `knowledge/constitution.md` when a finding represents a **genuine principle** — a durable rule that should govern future features. Do not append changelogs or per-feature summaries.
+
+Add the principle to the appropriate existing section, or create a new named section if it doesn't fit anywhere:
 
 ```markdown
-### [BRANCH_NAME] — [YYYY-MM-DD]
-- **Type**: [feature / bugfix / refactor]
-- **Summary**: [one sentence describing what was built]
-- **Key findings**:
-  - [Most important generalizable learning from this feature]
-  - [Second most important, if any — otherwise omit]
-- **Pitfalls**: [one-line description of the most notable pitfall, or "none worth noting"]
-- **Promoted**: [name of topic file created, if any — otherwise "none"]
+### [Principle Name]
+[Declarative statement of the rule]
+<!-- Example: CSS custom properties do not cross Shadow DOM boundaries; re-declare tokens on :host. -->
 ```
 
-Write the findings as declarative statements, not as observations:
+Write principles as declarative statements, not as observations:
 - ✅ "CSS custom properties do not cross Shadow DOM boundaries; re-declare tokens on `:host`."
 - ❌ "We discovered that CSS custom properties don't work in shadow DOM."
+
+### Update spec index
+
+Check whether `knowledge/specs/index.md` exists:
+
+```bash
+ls knowledge/specs/index.md 2>/dev/null || echo "MISSING"
+```
+
+**If MISSING — first-time migration:**
+
+The index does not exist yet. Before adding the current feature, backfill all past specs so the index is complete. For each directory under `knowledge/specs/` that contains an `archive.md`:
+
+1. Read its `archive.md` — extract the delivery date (from the archive header or git log) and the one-sentence delivery summary from the "Delivery Summary" section.
+2. Append one line per past spec in chronological order (oldest first).
+
+Then append the current feature's line last.
+
+Create the file with this header:
+
+```markdown
+# Spec Index
+
+Past feature archives. Read individual archive.md files for full details.
+
+```
+
+**If EXISTS — normal append:**
+
+Append one line for the current feature only.
+
+**In both cases**, the line format is:
+
+```markdown
+- [BRANCH_NAME](specs/BRANCH_NAME/archive.md) — YYYY-MM-DD — [one sentence: what was built]
+```
+
+**After writing the index**, scan `knowledge/constitution.md` and `CLAUDE.md` for any inline spec lists (e.g. a `## VII. Accumulated Learnings` changelog section, a `## Recent Changes` section, or a bullet list enumerating past feature branches). If found:
+
+- Remove the inline list entirely.
+- Add a single pointer in its place (or near the top of the relevant section):
+  ```markdown
+  > Past feature specs are indexed at [knowledge/specs/index.md](knowledge/specs/index.md).
+  ```
+
+This keeps agent context lean — the index is a lightweight reference loaded on demand, not automatically.
 
 ## Step 5 — Final summary
 
@@ -220,9 +263,10 @@ knowledge/specs/BRANCH_NAME/
 ├── checklists/     ✓
 └── archive.md      ✓ (new)
 
-knowledge/constitution.md   ✓ (§VII updated)
+knowledge/specs/index.md    ✓ (created + backfilled — if first time; otherwise entry appended)
 knowledge/<topic>.md        ✓ (if promoted — otherwise omit this line)
-CLAUDE.md                   ✓ (pointer added — if topic file created)
+knowledge/constitution.md   ✓ (principle added / inline spec list removed — if applicable)
+CLAUDE.md                   ✓ (pointer added / inline spec list removed — if applicable)
 ```
 
 Then prompt:
@@ -240,5 +284,7 @@ Before marking the archive step done, check:
 - [ ] Reusable patterns are written as standalone guidance, not as observations
 - [ ] Constitution feedback is specific enough to be directly incorporated
 - [ ] No section says "N/A" — if it doesn't apply, write a one-sentence explanation of why
-- [ ] constitution.md §VII has been updated
+- [ ] knowledge/specs/index.md updated (backfilled from all past specs if newly created)
+- [ ] constitution.md and CLAUDE.md checked — inline spec lists removed and replaced with index pointer if found
+- [ ] constitution.md updated only if a genuine principle was identified (not a changelog entry)
 - [ ] Agent context has been synced via update-agent-context.sh

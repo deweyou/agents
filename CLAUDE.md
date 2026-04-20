@@ -60,5 +60,4 @@ bump the semver version, and sync `CLAUDE.md` and `README.md`.
 
 | Skill | Description |
 |-------|-------------|
-| `harness-init` | One-time project setup: `knowledge/` structure, constitution, scripts, hooks |
-| `harness-dev` | Spec-driven feature workflow: specify → plan → tasks → implement → archive |
+| `code-knowledge` | Build and maintain a repository knowledge base (init + update modes) |

@@ -1,0 +1,109 @@
+{
+  "skill_name": "code-knowledge",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "我有一个 Node.js 后端项目，代码写了挺久了但是没有任何知识库文档。帮我初始化一个知识库，把这个项目里值得沉淀的东西整理出来。项目在 /tmp/eval-legacy-node。",
+      "expected_output": "探索仓库结构，识别关键模块，向用户提问业务语义和设计决策，然后在 knowledge/ 目录下创建针对具体问题域的 .md 文件，创建 AGENTS.md，并用软链创建 CLAUDE.md。不应该把代码实现细节抄进文档里。",
+      "files": [],
+      "assertions": [
+        {
+          "id": "agents_md_created",
+          "description": "AGENTS.md is created at the project root"
+        },
+        {
+          "id": "claude_md_is_symlink",
+          "description": "CLAUDE.md exists and is a symlink pointing to AGENTS.md"
+        },
+        {
+          "id": "knowledge_dir_created",
+          "description": "knowledge/ directory is created with at least one .md file"
+        },
+        {
+          "id": "domain_based_naming",
+          "description": "Knowledge doc filenames describe problem domains (e.g. order-lifecycle.md), not code modules (e.g. service-a.md)"
+        },
+        {
+          "id": "no_code_duplication",
+          "description": "Knowledge docs do not copy implementation details (no function bodies, SQL, or call sequences)"
+        },
+        {
+          "id": "agents_md_has_links",
+          "description": "AGENTS.md contains a table or links pointing to knowledge docs"
+        },
+        {
+          "id": "critical_constraint_documented",
+          "description": "The 'only webhook sets PAID status' constraint is captured somewhere in the knowledge base"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "这是个 monorepo，有 packages/api 和 packages/web 两个 package。我想先初始化根目录的知识库，再初始化 api 这个 package 的知识库。项目在 /tmp/eval-monorepo。",
+      "expected_output": "检测到 monorepo 结构，分别为根目录和 packages/api 各创建 AGENTS.md + knowledge/ 目录。根目录 AGENTS.md 包含跨包关系和导航，api 的 AGENTS.md 只聚焦该包。两处都创建 CLAUDE.md 软链。",
+      "files": [],
+      "assertions": [
+        {
+          "id": "root_agents_md_created",
+          "description": "AGENTS.md is created at the monorepo root"
+        },
+        {
+          "id": "root_claude_md_symlink",
+          "description": "Root CLAUDE.md is a symlink to AGENTS.md"
+        },
+        {
+          "id": "api_agents_md_created",
+          "description": "packages/api/AGENTS.md is created"
+        },
+        {
+          "id": "api_claude_md_symlink",
+          "description": "packages/api/CLAUDE.md is a symlink to packages/api/AGENTS.md"
+        },
+        {
+          "id": "root_links_to_packages",
+          "description": "Root AGENTS.md references or links to per-package AGENTS.md files"
+        },
+        {
+          "id": "api_has_knowledge_dir",
+          "description": "packages/api/knowledge/ is created with at least one doc"
+        },
+        {
+          "id": "separation_of_concerns",
+          "description": "Root AGENTS.md covers cross-package concerns; api AGENTS.md focuses on api-specific content (they don't duplicate each other)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我刚改了订单状态机的逻辑，新增了一个 REFUND_PENDING 状态，同时调整了 CANCELLED 状态的流转规则。帮我更新知识库。git diff 如下：\n\n```diff\n--- a/src/order/state-machine.ts\n+++ b/src/order/state-machine.ts\n@@ -12,6 +12,7 @@ export enum OrderStatus {\n   PAID = 'PAID',\n   SHIPPED = 'SHIPPED',\n   DELIVERED = 'DELIVERED',\n+  REFUND_PENDING = 'REFUND_PENDING',\n   CANCELLED = 'CANCELLED',\n }\n \n@@ -31,7 +32,9 @@ export const transitions: Record<OrderStatus, OrderStatus[]> = {\n   [OrderStatus.DELIVERED]: [OrderStatus.CANCELLED],\n-  [OrderStatus.CANCELLED]: [],\n+  [OrderStatus.CANCELLED]: [OrderStatus.REFUND_PENDING],\n+  [OrderStatus.REFUND_PENDING]: [OrderStatus.CANCELLED],\n };\n```\n\n项目知识库在 knowledge/，已有 order-lifecycle.md。",
+      "expected_output": "分析 diff，识别 order-lifecycle.md 需要更新，询问用户关于 REFUND_PENDING 状态的业务语义（触发条件、谁发起、超时怎么处理等），然后更新该文档。不应自行推断业务含义。",
+      "files": [],
+      "assertions": [
+        {
+          "id": "order_lifecycle_updated",
+          "description": "knowledge/order-lifecycle.md was modified (not left unchanged)"
+        },
+        {
+          "id": "refund_pending_documented",
+          "description": "REFUND_PENDING state appears in the updated doc"
+        },
+        {
+          "id": "new_transitions_documented",
+          "description": "Both CANCELLED→REFUND_PENDING and REFUND_PENDING→CANCELLED transitions are documented"
+        },
+        {
+          "id": "cancelled_no_longer_terminal",
+          "description": "Doc notes that CANCELLED is no longer a terminal state (this is a breaking change in the mental model)"
+        },
+        {
+          "id": "no_invented_business_rules",
+          "description": "Doc does NOT invent specific business semantics for REFUND_PENDING (e.g. '30-day window', 'triggered by customer') without a TODO marker indicating it needs confirmation"
+        },
+        {
+          "id": "uncertainty_marked",
+          "description": "Unclear business semantics are marked as TODO or question, not silently assumed"
+        }
+      ]
+    }
+  ]
+}

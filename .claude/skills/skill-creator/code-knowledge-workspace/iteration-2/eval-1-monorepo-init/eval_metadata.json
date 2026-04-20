@@ -1,0 +1,1 @@
+{"eval_id": 1, "eval_name": "monorepo-init", "prompt": "这是个 monorepo，初始化根目录 + packages/api 知识库。", "assertions": []}

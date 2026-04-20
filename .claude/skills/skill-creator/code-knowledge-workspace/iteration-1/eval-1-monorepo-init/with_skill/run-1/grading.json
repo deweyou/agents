@@ -1,0 +1,91 @@
+{
+  "expectations": [
+    {
+      "text": "AGENTS.md is created at the monorepo root",
+      "passed": true,
+      "evidence": "outputs/AGENTS.md exists and contains a well-structured root-level AGENTS.md with a Packages table, Cross-Package Knowledge section, Hard Constraints, and Task Routing."
+    },
+    {
+      "text": "Root CLAUDE.md is a symlink to AGENTS.md",
+      "passed": true,
+      "evidence": "ls -la /tmp/eval-monorepo/CLAUDE.md shows: lrwxr-xr-x CLAUDE.md -> AGENTS.md"
+    },
+    {
+      "text": "packages/api/AGENTS.md is created",
+      "passed": true,
+      "evidence": "outputs/packages/api/AGENTS.md exists and contains @platform/api documentation with Knowledge Base, Hard Constraints, and Task Routing sections."
+    },
+    {
+      "text": "packages/api/CLAUDE.md is a symlink to packages/api/AGENTS.md",
+      "passed": true,
+      "evidence": "ls -la /tmp/eval-monorepo/packages/api/CLAUDE.md shows: lrwxr-xr-x CLAUDE.md -> AGENTS.md"
+    },
+    {
+      "text": "Root AGENTS.md references or links to per-package AGENTS.md files",
+      "passed": true,
+      "evidence": "Root AGENTS.md Packages table has '[\u2192](packages/api/AGENTS.md)' for packages/api, and Task Routing includes 'Working inside packages/api? Start at [packages/api/AGENTS.md](packages/api/AGENTS.md)'."
+    },
+    {
+      "text": "packages/api/knowledge/ is created with at least one doc",
+      "passed": true,
+      "evidence": "outputs/packages/api/knowledge/ contains 3 documents: auth-token-verification.md, graphql-schema-design.md, and rate-limiting.md."
+    },
+    {
+      "text": "Root AGENTS.md covers cross-package concerns; api AGENTS.md focuses on api-specific content",
+      "passed": true,
+      "evidence": "Root AGENTS.md covers shared type contracts, auth boundaries, coordinated change protocol, and cross-package routing. packages/api/AGENTS.md focuses exclusively on JWT verification, GraphQL schema design, rate limiting, and resolver constraints, while correctly linking back to root for cross-package concerns (e.g., '../../knowledge/shared-contracts.md')."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 0
+  },
+  "timing": {
+    "total_duration_seconds": 0.0
+  },
+  "claims": [
+    {
+      "claim": "Root AGENTS.md references two cross-package knowledge docs: shared-contracts.md and auth-boundaries.md",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Root AGENTS.md Cross-Package Knowledge table lists 'knowledge/shared-contracts.md' and 'knowledge/auth-boundaries.md'. The outputs/knowledge/ directory exists confirming these are real output files."
+    },
+    {
+      "claim": "packages/api/AGENTS.md correctly cross-references root-level knowledge docs using relative paths",
+      "type": "quality",
+      "verified": true,
+      "evidence": "packages/api/AGENTS.md uses '../../knowledge/shared-contracts.md' and '../../knowledge/auth-boundaries.md', demonstrating accurate relative navigation to root-level cross-package docs."
+    },
+    {
+      "claim": "Hard constraints in both AGENTS.md files are meaningful and specific",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Root: 'Never change a type in packages/shared without updating both packages/api and packages/web in the same release cycle.' api: 'All resolvers must read identity (userId, role) from request context \u2014 never directly from headers.' Both are concrete and enforceable."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "packages/api/knowledge/ is created with at least one doc",
+        "reason": "Passes trivially with 1 empty file. The assertion does not check whether the knowledge docs have meaningful content. Consider requiring at least N lines of substantive content or verifying coverage of expected topics (e.g., auth, schema, rate limiting)."
+      },
+      {
+        "reason": "No assertion checks the root-level knowledge/ directory. Root AGENTS.md references knowledge/shared-contracts.md and knowledge/auth-boundaries.md \u2014 if those files were absent the links would be broken and the output would be misleading. An assertion like 'root knowledge/ contains at least one doc' would catch this."
+      },
+      {
+        "reason": "No assertion verifies that packages/api/AGENTS.md back-links to the root AGENTS.md for cross-package navigation. This bidirectional linking is present in the output and is an important quality signal, but is not checked."
+      }
+    ],
+    "overall": "Core structure checks are solid. Main gaps: no assertion covers the root knowledge/ directory (referenced but unchecked), and file-existence checks don't verify doc content quality."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "monorepo-init",
+  "prompt": "这是个 monorepo，有 packages/api 和 packages/web 两个 package。我想先初始化根目录的知识库，再初始化 api 这个 package 的知识库。项目在 /tmp/eval-monorepo。",
+  "assertions": []
+}

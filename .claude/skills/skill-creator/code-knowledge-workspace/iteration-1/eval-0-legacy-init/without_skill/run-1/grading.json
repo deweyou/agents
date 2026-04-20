@@ -1,0 +1,92 @@
+{
+  "expectations": [
+    {
+      "text": "AGENTS.md is created at the project root",
+      "passed": true,
+      "evidence": "AGENTS.md exists at outputs/AGENTS.md (1402 bytes). It contains a project overview, a knowledge index table, key rules, and known legacy issues."
+    },
+    {
+      "text": "CLAUDE.md exists and is a symlink pointing to AGENTS.md",
+      "passed": false,
+      "evidence": "/tmp/eval-legacy-node-baseline/CLAUDE.md does not exist. `ls -la /tmp/eval-legacy-node-baseline/` shows only AGENTS.md, knowledge/, package.json, README.md, and src/ \u2014 no CLAUDE.md at all."
+    },
+    {
+      "text": "knowledge/ directory is created with at least one .md file",
+      "passed": true,
+      "evidence": "outputs/knowledge/ contains three .md files: architecture.md (1797 bytes), order-module.md (2560 bytes), payment-module.md (2034 bytes)."
+    },
+    {
+      "text": "Knowledge doc filenames describe problem domains (e.g. order-lifecycle.md), not code modules (e.g. service-a.md)",
+      "passed": false,
+      "evidence": "The filenames are: architecture.md, order-module.md, payment-module.md. 'order-module' and 'payment-module' directly reference code modules (the src/order/ and src/payment/ directories). Better problem-domain names would be 'order-lifecycle.md' and 'payment-processing.md'. 'architecture.md' is acceptable as it describes a concern, not a file."
+    },
+    {
+      "text": "Knowledge docs do not copy implementation details (no function bodies, SQL, or call sequences)",
+      "passed": true,
+      "evidence": "None of the three docs contain function bodies or SQL. payment-module.md has a textual flow diagram (ASCII arrows) describing the PaymentIntent flow, but this describes the conceptual process rather than copying code. No raw function signatures, no SQL queries, and no verbatim call sequences are present. The state machine in order-module.md is represented as a table of transitions, not as code."
+    },
+    {
+      "text": "AGENTS.md contains a table or links pointing to knowledge docs",
+      "passed": true,
+      "evidence": "AGENTS.md lines 11-15 contain a markdown table with three rows, each linking to a knowledge doc: knowledge/architecture.md, knowledge/order-module.md, knowledge/payment-module.md, each with a description of the content."
+    },
+    {
+      "text": "The 'only webhook sets PAID status' constraint is captured somewhere in the knowledge base",
+      "passed": true,
+      "evidence": "Captured in three places: (1) AGENTS.md rule #2: 'only Stripe Webhook can set PAID status'; (2) order-module.md rule #2: 'PAID status can only be written by Stripe Webhook'; (3) payment-module.md: 'only this Webhook handler can update order status to PAID, no other code path is allowed to manually write PAID'."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 2,
+    "total": 7,
+    "pass_rate": 0.71
+  },
+  "execution_metrics": {
+    "total_tool_calls": 0
+  },
+  "timing": {
+    "total_duration_seconds": 0.0
+  },
+  "claims": [
+    {
+      "claim": "The knowledge base covers order, payment, and architecture domains",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Three docs exist: architecture.md (tech stack, directory structure, module boundaries), order-module.md (state machine, APIs, known bugs), payment-module.md (Stripe integration, webhook flow, security constraints)."
+    },
+    {
+      "claim": "Known legacy bugs are documented",
+      "type": "quality",
+      "verified": true,
+      "evidence": "AGENTS.md has a known issues section listing 2 items. order-module.md has a legacy bug table with 5 entries. payment-module.md has a legacy issues table with 3 entries."
+    },
+    {
+      "claim": "Architecture doc describes the module responsibility boundary for PAID writes",
+      "type": "factual",
+      "verified": true,
+      "evidence": "architecture.md explicitly states the payment module's responsibility: PAID status updates can only go through this module's Webhook handler."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "CLAUDE.md exists and is a symlink pointing to AGENTS.md",
+        "reason": "This assertion cannot be verified from outputs/ alone \u2014 the outputs dir only captures files the executor explicitly copied there. The actual symlink lives in the project root (/tmp/eval-legacy-node-baseline/). The eval correctly directs checking /tmp/eval-legacy-node-baseline/CLAUDE.md, but the eval setup should ensure that directory persists post-execution for grading. In this run CLAUDE.md was simply never created \u2014 a clear and discriminating failure."
+      },
+      {
+        "assertion": "Knowledge doc filenames describe problem domains (e.g. order-lifecycle.md), not code modules (e.g. service-a.md)",
+        "reason": "The example of a bad filename ('service-a.md') is very easy to avoid. The boundary between 'order-module.md' (failed here) and 'order-lifecycle.md' (would pass) is subtle. The assertion would be more discriminating if it required filenames to use domain nouns (lifecycle, flow, policy, constraints) rather than structural nouns (module, service, handler, controller)."
+      },
+      {
+        "reason": "No assertion checks that known bugs and incomplete implementations from the source are documented in the knowledge base. These are important constraints for AI agents not to accidentally remove or 'fix' in breaking ways. The output did capture them well, but the eval doesn't enforce it."
+      }
+    ],
+    "overall": "The two failures are meaningful: the symlink was not created, and filenames reflect code structure rather than problem domains. The 5 passing assertions cover the most important knowledge content outcomes. Consider adding an assertion for legacy-bug documentation coverage."
+  }
+}

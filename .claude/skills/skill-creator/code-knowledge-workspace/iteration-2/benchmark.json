@@ -1,0 +1,413 @@
+{
+  "metadata": {
+    "skill_name": "code-knowledge",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-04-20T02:36:29Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AGENTS.md is created at the project root",
+          "passed": true,
+          "evidence": "/tmp/eval-legacy-node/AGENTS.md exists as a regular file (1513 bytes) with proper content: project description, Knowledge Base table, Hard Constraints, and Task Routing sections."
+        },
+        {
+          "text": "CLAUDE.md exists and is a symlink pointing to AGENTS.md",
+          "passed": true,
+          "evidence": "ls -la /tmp/eval-legacy-node/ shows: lrwxr-xr-x CLAUDE.md -> AGENTS.md. The symlink exists and correctly points to AGENTS.md."
+        },
+        {
+          "text": "knowledge/ directory is created with at least one .md file",
+          "passed": true,
+          "evidence": "knowledge/ directory exists under outputs/ with three .md files: order-lifecycle.md, payment-stripe-integration.md, and project-structure.md."
+        },
+        {
+          "text": "knowledge/project-structure.md exists and describes the top-level directory layout",
+          "passed": true,
+          "evidence": "knowledge/project-structure.md exists and contains a '## Directory Layout' section with an ASCII tree showing src/, src/index.js, src/order/, src/payment/, src/user/, src/notification/, and package.json \u2014 clearly describing the top-level directory layout."
+        },
+        {
+          "text": "Knowledge doc filenames describe problem domains, not code modules",
+          "passed": true,
+          "evidence": "The three filenames are: order-lifecycle.md (lifecycle domain), payment-stripe-integration.md (integration domain), project-structure.md (structural domain). None are named after code files like 'service.md', 'router.md', or 'state-machine.md'."
+        },
+        {
+          "text": "Knowledge docs do not copy implementation details (no function bodies, SQL, or call sequences)",
+          "passed": true,
+          "evidence": "All three knowledge docs contain only conceptual descriptions, state diagrams in ASCII art, and business rules. There are no function bodies, no SQL queries, and no code-level call sequences. The webhook flow in payment-stripe-integration.md describes the business-level event sequence (4 numbered steps), not internal code calls \u2014 this is domain knowledge, not implementation detail."
+        },
+        {
+          "text": "AGENTS.md Task Routing uses conditional sentence form ('\u5982\u679c\u8981\u2026\uff0c\u5148\u8bfb\u2026'), NOT question form ('\u4fee\u6539X\uff1f\u5148\u8bfbY')",
+          "passed": true,
+          "evidence": "AGENTS.md Task Routing section contains: '\u5982\u679c\u8981\u4fee\u6539\u8ba2\u5355\u72b6\u6001\u6d41\u8f6c\u903b\u8f91\uff0c\u5148\u8bfb...', '\u5982\u679c\u8981\u6539\u52a8\u652f\u4ed8\u6216\u9000\u6b3e\u76f8\u5173\u4ee3\u7801\uff0c\u5148\u8bfb...', '\u5982\u679c\u4e0d\u786e\u5b9a\u67d0\u4e2a\u529f\u80fd\u5e94\u8be5\u653e\u5728\u54ea\u4e2a\u6a21\u5757\uff0c\u5148\u8bfb...', '\u5982\u679c\u8981\u65b0\u589e\u8ba2\u5355\u72b6\u6001\u6216\u4fee\u6539\u72b6\u6001\u673a\uff0c\u5148\u786e\u8ba4...'. All four entries use conditional '\u5982\u679c\u8981\u2026\uff0c\u5148\u2026' form, not question form."
+        },
+        {
+          "text": "AGENTS.md contains links pointing to knowledge docs",
+          "passed": true,
+          "evidence": "AGENTS.md Knowledge Base table contains markdown links: [knowledge/project-structure.md](knowledge/project-structure.md), [knowledge/order-lifecycle.md](knowledge/order-lifecycle.md), [knowledge/payment-stripe-integration.md](knowledge/payment-stripe-integration.md). Task Routing section also contains inline links to these same docs."
+        },
+        {
+          "text": "The 'only webhook sets PAID status' constraint is captured somewhere in the knowledge base",
+          "passed": true,
+          "evidence": "Captured in two places: (1) order-lifecycle.md: '**PAID \u72b6\u6001\u53ea\u80fd\u7531 Stripe webhook \u5199\u5165**\uff0c\u7edd\u5bf9\u4e0d\u80fd\u5728\u4e1a\u52a1\u4ee3\u7801\u4e2d\u624b\u52a8\u8bbe\u7f6e `status: PAID`'; (2) payment-stripe-integration.md: '**\u8ba2\u5355\u7684 PAID \u72b6\u6001\u53ea\u80fd\u7531 webhook \u5199\u5165**\uff0c\u4e0d\u5f97\u624b\u52a8\u8bbe\u7f6e' and '**\u5173\u952e**\uff1a\u8fd9\u662f\u7cfb\u7edf\u4e2d\u552f\u4e00\u5408\u6cd5\u7684\u5c06\u8ba2\u5355\u7f6e\u4e3a PAID \u7684\u8def\u5f84\u3002'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Root AGENTS.md is created",
+          "passed": true,
+          "evidence": "File exists at /tmp/eval-monorepo/AGENTS.md (1410 bytes). Also present in outputs/AGENTS.md with full content covering packages table, cross-package knowledge, hard constraints, and task routing."
+        },
+        {
+          "text": "Root CLAUDE.md is a symlink to AGENTS.md",
+          "passed": true,
+          "evidence": "ls -la /tmp/eval-monorepo/CLAUDE.md shows: lrwxr-xr-x ... CLAUDE.md -> AGENTS.md"
+        },
+        {
+          "text": "packages/api/AGENTS.md is created",
+          "passed": true,
+          "evidence": "File exists at /tmp/eval-monorepo/packages/api/AGENTS.md (1063 bytes) with content covering knowledge base, hard constraints, and task routing specific to the api package."
+        },
+        {
+          "text": "packages/api/CLAUDE.md is a symlink",
+          "passed": true,
+          "evidence": "ls -la /tmp/eval-monorepo/packages/api/CLAUDE.md shows: lrwxr-xr-x ... CLAUDE.md -> AGENTS.md"
+        },
+        {
+          "text": "Root AGENTS.md links to per-package AGENTS.md files",
+          "passed": true,
+          "evidence": "Root AGENTS.md Packages table contains '[\u2192](packages/api/AGENTS.md)' linking to the api package. (web shows 'TODO', shared shows '\u2014', but api is fully linked.)"
+        },
+        {
+          "text": "packages/api/knowledge/ has at least one doc",
+          "passed": true,
+          "evidence": "packages/api/knowledge/ contains two files: auth-and-rate-limiting.md and project-structure.md. Both have substantive content (JWT auth, rate limiting rules, directory layout)."
+        },
+        {
+          "text": "A project-structure.md exists at either root or package level describing directory layout",
+          "passed": true,
+          "evidence": "knowledge/project-structure.md exists at root level with full directory layout (packages/api, packages/web, packages/shared, src/, package.json). Also a separate project-structure.md exists in packages/api/knowledge/ with api-specific layout. Both contain directory tree diagrams."
+        },
+        {
+          "text": "Root AGENTS.md Task Routing uses conditional form ('\u5982\u679c\u8981\u2026\uff0c\u5148\u8bfb\u2026'), not question form",
+          "passed": true,
+          "evidence": "Root AGENTS.md Task Routing section contains: '\u5982\u679c\u8981\u4fee\u6539\u5171\u4eab\u7c7b\u578b\uff08User\u3001Order \u7b49\uff09\uff0c\u5148\u8bfb [knowledge/shared-contracts.md]...' and '\u5982\u679c\u8981\u4fee\u6539 api \u76f8\u5173\u903b\u8f91\uff08\u9274\u6743\u3001\u9650\u6d41\u3001GraphQL schema\uff09\uff0c\u5148\u8bfb [packages/api/AGENTS.md]...' \u2014 all entries use conditional form."
+        },
+        {
+          "text": "Root AGENTS.md covers cross-package concerns; api AGENTS.md focuses on api-specific content",
+          "passed": true,
+          "evidence": "Root AGENTS.md covers: monorepo overview, cross-package knowledge (shared-contracts.md, project-structure.md), cross-package hard constraints (shared type sync rules, api/web isolation). api/AGENTS.md focuses on: JWT auth, rate limiting, GraphQL schema \u2014 all api-specific content. Clear separation of concerns."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 0.0,
+        "tokens": 2596,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "knowledge/order-lifecycle.md was modified",
+          "passed": true,
+          "evidence": "The file order-lifecycle.md exists in the outputs directory and its content has been modified to include REFUND_PENDING state, updated transitions, and a 'Last updated: 2026-04-20' footer noting the changes."
+        },
+        {
+          "text": "REFUND_PENDING state appears in the updated doc",
+          "passed": true,
+          "evidence": "Line 13 of order-lifecycle.md: '| REFUND_PENDING | TODO: clarify what this state represents (refund request initiated? awaiting approval? awaiting Stripe refund processing?) |'"
+        },
+        {
+          "text": "Both CANCELLED\u2192REFUND_PENDING and REFUND_PENDING\u2192CANCELLED transitions are documented",
+          "passed": true,
+          "evidence": "Lines 24-25 of the Allowed Transitions code block: 'CANCELLED \u2192 REFUND_PENDING' and 'REFUND_PENDING \u2192 CANCELLED' are both explicitly listed."
+        },
+        {
+          "text": "Doc notes that CANCELLED is no longer a terminal state",
+          "passed": true,
+          "evidence": "Line 39 under Common Mistakes: 'Treating CANCELLED as terminal \u2014 it can now transition to REFUND_PENDING.' The footer also states: 'updated CANCELLED transition rules (no longer terminal)'."
+        },
+        {
+          "text": "Doc does NOT invent specific business semantics for REFUND_PENDING without a TODO marker",
+          "passed": true,
+          "evidence": "The REFUND_PENDING state description in the States table uses a TODO marker: 'TODO: clarify what this state represents (refund request initiated? awaiting approval? awaiting Stripe refund processing?)' \u2014 no semantics are assumed without marking them as TODO."
+        },
+        {
+          "text": "Unclear business semantics are marked as TODO or question, not silently assumed",
+          "passed": true,
+          "evidence": "Lines 32-33 in Key Business Rules: 'CANCELLED \u2192 REFUND_PENDING: TODO: clarify the business trigger...' and 'REFUND_PENDING \u2192 CANCELLED: TODO: clarify under what conditions this transition occurs...'. All unclear semantics are explicitly flagged with TODO."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.67,
+        "passed": 6,
+        "failed": 3,
+        "total": 9,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AGENTS.md is created at the project root",
+          "passed": true,
+          "evidence": "AGENTS.md exists at /tmp/eval-legacy-node-baseline2/AGENTS.md (2180 bytes, created Apr 20 10:30) and also copied to outputs/AGENTS.md. The file contains a full project overview with domain knowledge sections."
+        },
+        {
+          "text": "CLAUDE.md exists and is a symlink pointing to AGENTS.md",
+          "passed": true,
+          "evidence": "Verified: 'lrwxr-xr-x /tmp/eval-legacy-node-baseline2/CLAUDE.md -> AGENTS.md'. The symlink target is AGENTS.md (relative path), which resolves correctly within the project root."
+        },
+        {
+          "text": "knowledge/ directory is created with at least one .md file",
+          "passed": true,
+          "evidence": "knowledge/ directory exists in both /tmp/eval-legacy-node-baseline2/knowledge/ and outputs/knowledge/, containing 4 .md files: api-reference.md, architecture.md, order-state-machine.md, payment-integration.md."
+        },
+        {
+          "text": "knowledge/project-structure.md exists and describes the top-level directory layout",
+          "passed": false,
+          "evidence": "No file named project-structure.md exists in knowledge/. The 4 knowledge files are: api-reference.md, architecture.md, order-state-machine.md, payment-integration.md. While architecture.md contains some module layout (src/order/, src/payment/), it does not serve as a dedicated project-structure file, and the top-level directory layout (src/, knowledge/, package.json, README.md) is only briefly noted in AGENTS.md's directory listing, not in a dedicated knowledge/project-structure.md."
+        },
+        {
+          "text": "Knowledge doc filenames describe problem domains, not code modules",
+          "passed": true,
+          "evidence": "Filenames are: architecture.md (domain: system architecture), order-state-machine.md (domain: order lifecycle business rules), payment-integration.md (domain: payment flow and constraints), api-reference.md (domain: API contract). None are named after code files (e.g., not 'service.md' or 'router.md'). The filenames reflect business/problem domains."
+        },
+        {
+          "text": "Knowledge docs do not copy implementation details (no function bodies, SQL, or call sequences)",
+          "passed": false,
+          "evidence": "knowledge/order-state-machine.md (lines 33-37) contains a complete function body with implementation logic: 'function canTransition(from, to) { return transitions[from]?.includes(to) ?? false; }'. This is a direct copy of implementation code from src/order/state-machine.js. payment-integration.md references API method signatures (createPaymentIntent, handleWebhook) but stops short of including bodies. The function body in order-state-machine.md is a clear violation."
+        },
+        {
+          "text": "AGENTS.md Task Routing uses conditional sentence form ('\u5982\u679c\u8981\u2026\uff0c\u5148\u8bfb\u2026'), NOT question form ('\u4fee\u6539X\uff1f\u5148\u8bfbY')",
+          "passed": false,
+          "evidence": "AGENTS.md contains no 'Task Routing' section at all. The document has sections: \u9879\u76ee\u6982\u89c8, \u6280\u672f\u6808, \u76ee\u5f55\u7ed3\u6784, \u5173\u952e\u9886\u57df\u77e5\u8bc6, \u5f00\u53d1\u6ce8\u610f\u4e8b\u9879, \u77e5\u8bc6\u5e93\u6587\u6863. Neither conditional sentence form nor question form task routing guidance exists. The expectation cannot be satisfied because the feature is entirely absent."
+        },
+        {
+          "text": "AGENTS.md contains links pointing to knowledge docs",
+          "passed": true,
+          "evidence": "AGENTS.md lines 67-70 contain markdown links: '[\u67b6\u6784\u6982\u89c8](knowledge/architecture.md)', '[\u8ba2\u5355\u72b6\u6001\u673a](knowledge/order-state-machine.md)', '[\u652f\u4ed8\u96c6\u6210](knowledge/payment-integration.md)', '[API \u63a5\u53e3](knowledge/api-reference.md)'. All 4 knowledge docs are linked."
+        },
+        {
+          "text": "The 'only webhook sets PAID status' constraint is captured somewhere in the knowledge base",
+          "passed": true,
+          "evidence": "Captured in two places: (1) AGENTS.md lines 47-48: '\u8ba2\u5355\u72b6\u6001\u53d8\u4e3a `PAID` **\u53ea\u80fd**\u7531 Stripe Webhook \u89e6\u53d1\uff0c\u7981\u6b62\u624b\u52a8\u8c03\u7528\u4ee3\u7801\u76f4\u63a5\u5199\u5165'. (2) knowledge/payment-integration.md lines 9-11: a callout block explicitly states '**\u7981\u6b62** \u5728\u4ee3\u7801\u4e2d\u624b\u52a8\u5c06\u8ba2\u5355\u72b6\u6001\u8bbe\u7f6e\u4e3a `PAID`\u3002\u8ba2\u5355\u72b6\u6001\u53d8\u4e3a `PAID` **\u53ea\u80fd**\u7531 Stripe Webhook \u89e6\u53d1\u3002\u8fdd\u53cd\u6b64\u7ea6\u5b9a\u4f1a\u5bfc\u81f4\u8ba2\u5355\u72b6\u6001\u4e0e\u5b9e\u9645\u652f\u4ed8\u72b6\u6001\u4e0d\u4e00\u81f4\u3002'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.11,
+        "passed": 1,
+        "failed": 8,
+        "total": 9,
+        "time_seconds": 0.0,
+        "tokens": 3131,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Root AGENTS.md is created",
+          "passed": false,
+          "evidence": "No AGENTS.md file was found anywhere in the outputs directory or in /tmp/eval-monorepo-baseline2. The run created knowledge/project.md and packages/api/knowledge/api.md but did not create AGENTS.md at any level."
+        },
+        {
+          "text": "Root CLAUDE.md is a symlink to AGENTS.md \u2014 check /tmp/eval-monorepo-baseline2/CLAUDE.md",
+          "passed": false,
+          "evidence": "/tmp/eval-monorepo-baseline2/CLAUDE.md does not exist. No symlink was created. 'ls -la /tmp/eval-monorepo-baseline2/' shows no CLAUDE.md file or symlink."
+        },
+        {
+          "text": "packages/api/AGENTS.md is created",
+          "passed": false,
+          "evidence": "No AGENTS.md was found under packages/api/ in either the outputs directory or /tmp/eval-monorepo-baseline2/packages/api/. The api package only has a knowledge/ directory with api.md."
+        },
+        {
+          "text": "packages/api/CLAUDE.md is a symlink \u2014 check /tmp/eval-monorepo-baseline2/packages/api/CLAUDE.md",
+          "passed": false,
+          "evidence": "/tmp/eval-monorepo-baseline2/packages/api/CLAUDE.md does not exist. No symlink was created at this path."
+        },
+        {
+          "text": "Root AGENTS.md links to per-package AGENTS.md files",
+          "passed": false,
+          "evidence": "Root AGENTS.md does not exist, so this expectation cannot be satisfied."
+        },
+        {
+          "text": "packages/api/knowledge/ has at least one doc",
+          "passed": true,
+          "evidence": "packages/api/knowledge/api.md exists and contains substantive content: package identity, authentication details (JWT), rate limiting (100 req/min per user, 1000 req/min per IP), key files table, and dependencies."
+        },
+        {
+          "text": "A project-structure.md exists at either root or package level describing directory layout",
+          "passed": false,
+          "evidence": "No file named project-structure.md was found. The knowledge/project.md file does contain a workspace layout section with a directory tree, but the filename does not match the expected 'project-structure.md'."
+        },
+        {
+          "text": "Root AGENTS.md Task Routing uses conditional form ('\u5982\u679c\u8981\u2026\uff0c\u5148\u8bfb\u2026'), not question form",
+          "passed": false,
+          "evidence": "Root AGENTS.md does not exist, so this expectation cannot be evaluated."
+        },
+        {
+          "text": "Root AGENTS.md covers cross-package concerns; api AGENTS.md focuses on api-specific content",
+          "passed": false,
+          "evidence": "Root AGENTS.md does not exist. While the knowledge docs do follow a reasonable separation (knowledge/project.md covers cross-package concerns including shared types and workspace layout, packages/api/knowledge/api.md is api-specific), neither file is named AGENTS.md so the expectation is not met."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.67,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 0.0,
+        "tokens": 1448,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "knowledge/order-lifecycle.md was modified",
+          "passed": true,
+          "evidence": "The file outputs/order-lifecycle.md exists and contains updated content with REFUND_PENDING state, last-updated footer reading '2026-04-20 | Reason: Added REFUND_PENDING state; updated CANCELLED transition rules (no longer terminal)'"
+        },
+        {
+          "text": "REFUND_PENDING state appears in the updated doc",
+          "passed": true,
+          "evidence": "States table includes '| REFUND_PENDING | Refund request initiated, awaiting processing |' and it appears in transitions and business rules sections"
+        },
+        {
+          "text": "Both CANCELLED\u2192REFUND_PENDING and REFUND_PENDING\u2192CANCELLED transitions are documented",
+          "passed": true,
+          "evidence": "Allowed Transitions block explicitly lists 'CANCELLED \u2192 REFUND_PENDING' and 'REFUND_PENDING \u2192 CANCELLED'"
+        },
+        {
+          "text": "Doc notes that CANCELLED is no longer a terminal state",
+          "passed": true,
+          "evidence": "Key Business Rules states 'REFUND_PENDING is not a terminal state.' Common Mistakes explicitly states 'Treating CANCELLED as terminal \u2014 it can now transition to REFUND_PENDING.' The footer also notes 'updated CANCELLED transition rules (no longer terminal)'"
+        },
+        {
+          "text": "Doc does NOT invent specific business semantics for REFUND_PENDING without a TODO marker",
+          "passed": false,
+          "evidence": "The doc invents specific business semantics for REFUND_PENDING without any TODO marker: 'CANCELLED \u2192 REFUND_PENDING: a cancelled order can enter refund processing if a refund is requested after cancellation' and 'REFUND_PENDING \u2192 CANCELLED: if the refund is rejected or withdrawn, the order returns to CANCELLED.' The diff only introduced the state and transitions \u2014 not the specific reason for entering the state ('a refund is requested after cancellation') or the reason for exiting it ('if the refund is rejected or withdrawn'). These are invented business rules not in the source diff, and no TODO marker is present."
+        },
+        {
+          "text": "Unclear business semantics are marked as TODO or question, not silently assumed",
+          "passed": false,
+          "evidence": "The doc silently assumes specific business meanings without any TODO or question mark. Examples: REFUND_PENDING description says 'Refund request initiated, awaiting processing'; business rules explain the purpose of CANCELLED\u2192REFUND_PENDING and REFUND_PENDING\u2192CANCELLED transitions with confident assertions ('if the refund is rejected or withdrawn'). None of these inferred semantics are flagged as uncertain or marked as TODO."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 865.3333,
+        "stddev": 1498.8013,
+        "min": 0,
+        "max": 2596
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.4833,
+        "stddev": 0.3233,
+        "min": 0.11,
+        "max": 0.67
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 1526.3333,
+        "stddev": 1566.9692,
+        "min": 0,
+        "max": 3131
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.52",
+      "time_seconds": "+0.0",
+      "tokens": "-661"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,109 @@
+{
+  "expectations": [
+    {
+      "text": "Root AGENTS.md is created",
+      "passed": true,
+      "evidence": "File exists at /tmp/eval-monorepo/AGENTS.md (1410 bytes). Also present in outputs/AGENTS.md with full content covering packages table, cross-package knowledge, hard constraints, and task routing."
+    },
+    {
+      "text": "Root CLAUDE.md is a symlink to AGENTS.md",
+      "passed": true,
+      "evidence": "ls -la /tmp/eval-monorepo/CLAUDE.md shows: lrwxr-xr-x ... CLAUDE.md -> AGENTS.md"
+    },
+    {
+      "text": "packages/api/AGENTS.md is created",
+      "passed": true,
+      "evidence": "File exists at /tmp/eval-monorepo/packages/api/AGENTS.md (1063 bytes) with content covering knowledge base, hard constraints, and task routing specific to the api package."
+    },
+    {
+      "text": "packages/api/CLAUDE.md is a symlink",
+      "passed": true,
+      "evidence": "ls -la /tmp/eval-monorepo/packages/api/CLAUDE.md shows: lrwxr-xr-x ... CLAUDE.md -> AGENTS.md"
+    },
+    {
+      "text": "Root AGENTS.md links to per-package AGENTS.md files",
+      "passed": true,
+      "evidence": "Root AGENTS.md Packages table contains '[\u2192](packages/api/AGENTS.md)' linking to the api package. (web shows 'TODO', shared shows '\u2014', but api is fully linked.)"
+    },
+    {
+      "text": "packages/api/knowledge/ has at least one doc",
+      "passed": true,
+      "evidence": "packages/api/knowledge/ contains two files: auth-and-rate-limiting.md and project-structure.md. Both have substantive content (JWT auth, rate limiting rules, directory layout)."
+    },
+    {
+      "text": "A project-structure.md exists at either root or package level describing directory layout",
+      "passed": true,
+      "evidence": "knowledge/project-structure.md exists at root level with full directory layout (packages/api, packages/web, packages/shared, src/, package.json). Also a separate project-structure.md exists in packages/api/knowledge/ with api-specific layout. Both contain directory tree diagrams."
+    },
+    {
+      "text": "Root AGENTS.md Task Routing uses conditional form ('\u5982\u679c\u8981\u2026\uff0c\u5148\u8bfb\u2026'), not question form",
+      "passed": true,
+      "evidence": "Root AGENTS.md Task Routing section contains: '\u5982\u679c\u8981\u4fee\u6539\u5171\u4eab\u7c7b\u578b\uff08User\u3001Order \u7b49\uff09\uff0c\u5148\u8bfb [knowledge/shared-contracts.md]...' and '\u5982\u679c\u8981\u4fee\u6539 api \u76f8\u5173\u903b\u8f91\uff08\u9274\u6743\u3001\u9650\u6d41\u3001GraphQL schema\uff09\uff0c\u5148\u8bfb [packages/api/AGENTS.md]...' \u2014 all entries use conditional form."
+    },
+    {
+      "text": "Root AGENTS.md covers cross-package concerns; api AGENTS.md focuses on api-specific content",
+      "passed": true,
+      "evidence": "Root AGENTS.md covers: monorepo overview, cross-package knowledge (shared-contracts.md, project-structure.md), cross-package hard constraints (shared type sync rules, api/web isolation). api/AGENTS.md focuses on: JWT auth, rate limiting, GraphQL schema \u2014 all api-specific content. Clear separation of concerns."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 0
+  },
+  "timing": {
+    "executor_duration_seconds": 0.0,
+    "grader_duration_seconds": 0.0,
+    "total_duration_seconds": 0.0
+  },
+  "claims": [
+    {
+      "claim": "Root AGENTS.md has a Packages table with links to per-package AGENTS.md",
+      "type": "factual",
+      "verified": true,
+      "evidence": "packages/api links to AGENTS.md. packages/web shows 'TODO' (not yet created), packages/shared shows '\u2014' (no AGENTS.md needed). The table accurately reflects the current state."
+    },
+    {
+      "claim": "Both root knowledge/project-structure.md and packages/api/knowledge/project-structure.md exist with different scopes",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Root project-structure.md covers the full monorepo layout; api project-structure.md covers only packages/api/ internals. No duplication, appropriate scoping."
+    },
+    {
+      "claim": "CLAUDE.md symlinks use relative paths (not absolute)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Symlink target is 'AGENTS.md' (relative, not an absolute path), which is correct for portability."
+    },
+    {
+      "claim": "packages/web and packages/shared have no AGENTS.md yet",
+      "type": "factual",
+      "verified": true,
+      "evidence": "ls /tmp/eval-monorepo/packages/web and /packages/shared only show basic files, no AGENTS.md. Root AGENTS.md honestly marks web as 'TODO'."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Root AGENTS.md links to per-package AGENTS.md files",
+        "reason": "This passes with only one real link (api) while web is marked 'TODO' and shared shows '\u2014'. The assertion doesn't specify coverage requirements. A run that only creates the root file with a partial table (one real link) satisfies it. Consider adding 'Root AGENTS.md links to all packages with AGENTS.md files and those files exist'."
+      },
+      {
+        "reason": "No assertion checks that packages/api/knowledge/project-structure.md is api-scoped (not a duplicate of the root-level one). A lazy implementation could copy the root file verbatim into api/knowledge/. The current output correctly scopes it to api-only content, but this quality aspect goes unchecked."
+      },
+      {
+        "reason": "No assertion checks that packages/web and packages/shared directories were left in a sensible state (e.g., not broken or missing). The skill only touched api, and root AGENTS.md honestly marks web as TODO \u2014 worth checking this honesty is required rather than silently omitting incomplete packages."
+      }
+    ],
+    "overall": "All 9 assertions pass with clear, substantive evidence. The new assertions (7 and 8) are discriminating and well-formed. Minor gaps: link coverage assertion is satisfied by partial table, and api-scoped project-structure.md quality is not explicitly verified."
+  }
+}

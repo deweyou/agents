@@ -1,0 +1,91 @@
+{
+  "expectations": [
+    {
+      "text": "AGENTS.md is created at the monorepo root",
+      "passed": false,
+      "evidence": "No AGENTS.md file exists in outputs/. The outputs directory contains only knowledge/ and packages/ subdirectories. No AGENTS.md or CLAUDE.md at any level."
+    },
+    {
+      "text": "Root CLAUDE.md is a symlink to AGENTS.md",
+      "passed": false,
+      "evidence": "/tmp/eval-monorepo-baseline/CLAUDE.md does not exist. `ls -la /tmp/eval-monorepo-baseline/` shows only: knowledge/, package.json, packages/, README.md \u2014 no CLAUDE.md symlink."
+    },
+    {
+      "text": "packages/api/AGENTS.md is created",
+      "passed": false,
+      "evidence": "outputs/packages/api/ contains only a knowledge/ subdirectory. No AGENTS.md present."
+    },
+    {
+      "text": "packages/api/CLAUDE.md is a symlink to packages/api/AGENTS.md",
+      "passed": false,
+      "evidence": "/tmp/eval-monorepo-baseline/packages/api/CLAUDE.md does not exist. The api directory contains only: knowledge/, package.json, src/."
+    },
+    {
+      "text": "Root AGENTS.md references or links to per-package AGENTS.md files",
+      "passed": false,
+      "evidence": "No AGENTS.md exists at any location in outputs/ or /tmp/eval-monorepo-baseline/. Cannot satisfy this expectation."
+    },
+    {
+      "text": "packages/api/knowledge/ is created with at least one doc",
+      "passed": true,
+      "evidence": "outputs/packages/api/knowledge/overview.md exists (827 chars) with genuine content: GraphQL API overview, auth (JWT), rate limiting, and dependency notes on @platform/shared."
+    },
+    {
+      "text": "Root AGENTS.md covers cross-package concerns; api AGENTS.md focuses on api-specific content",
+      "passed": false,
+      "evidence": "No AGENTS.md files were created anywhere. The executor created knowledge/ docs but none of these are AGENTS.md files."
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 6,
+    "total": 7,
+    "pass_rate": 0.14
+  },
+  "execution_metrics": {
+    "total_tool_calls": 0
+  },
+  "timing": {
+    "total_duration_seconds": 0.0
+  },
+  "claims": [
+    {
+      "claim": "The executor created knowledge/ docs capturing monorepo structure",
+      "type": "quality",
+      "verified": true,
+      "evidence": "outputs/knowledge/overview.md covers package structure, workspace config, cross-package dependency rules. outputs/knowledge/shared-types.md documents User and Order interfaces from @platform/shared. Both are substantive."
+    },
+    {
+      "claim": "The executor created api-specific knowledge docs",
+      "type": "quality",
+      "verified": true,
+      "evidence": "outputs/packages/api/knowledge/overview.md covers GraphQL role, auth (JWT), rate limits, and dep on @platform/shared. Focused and accurate."
+    },
+    {
+      "claim": "The executor created AGENTS.md / CLAUDE.md files as required by the eval",
+      "type": "process",
+      "verified": false,
+      "evidence": "No AGENTS.md or CLAUDE.md files found anywhere in outputs/ or /tmp/eval-monorepo-baseline/. The executor created knowledge/ docs instead, missing the primary deliverable entirely."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "packages/api/knowledge/ is created with at least one doc",
+        "reason": "This assertion passes even though the run failed every other expectation. A run that creates knowledge/ docs but no AGENTS.md scores 1/7 \u2014 this may mislead. Consider gating this expectation on AGENTS.md existing, or whether knowledge/ creation alone deserves credit when the main harness artifact is absent."
+      },
+      {
+        "reason": "No assertion checks the content of AGENTS.md for required sections (e.g., knowledge/ index, agent instructions). An AGENTS.md that is empty or minimal would currently pass expectations 1, 3, 5, and 7."
+      },
+      {
+        "reason": "No assertion checks that the symlinks resolve correctly (CLAUDE.md -> AGENTS.md points to an existing file). A broken symlink would satisfy a symlink-existence check but not be functional."
+      }
+    ],
+    "overall": "The run produced good knowledge/ docs but completely missed the primary deliverable: AGENTS.md files and CLAUDE.md symlinks. The single passing expectation (packages/api/knowledge/ exists) is a weak signal given the overall failure. Assertions 1-5 and 7 all fail cleanly. Eval logic is sound but could add content checks for AGENTS.md."
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "expectations": [
+    {
+      "text": "knowledge/order-lifecycle.md was modified",
+      "passed": true,
+      "evidence": "The file order-lifecycle.md exists in the outputs directory and its content has been modified to include REFUND_PENDING state, updated transitions, and a 'Last updated: 2026-04-20' footer noting the changes."
+    },
+    {
+      "text": "REFUND_PENDING state appears in the updated doc",
+      "passed": true,
+      "evidence": "Line 13 of order-lifecycle.md: '| REFUND_PENDING | TODO: clarify what this state represents (refund request initiated? awaiting approval? awaiting Stripe refund processing?) |'"
+    },
+    {
+      "text": "Both CANCELLED\u2192REFUND_PENDING and REFUND_PENDING\u2192CANCELLED transitions are documented",
+      "passed": true,
+      "evidence": "Lines 24-25 of the Allowed Transitions code block: 'CANCELLED \u2192 REFUND_PENDING' and 'REFUND_PENDING \u2192 CANCELLED' are both explicitly listed."
+    },
+    {
+      "text": "Doc notes that CANCELLED is no longer a terminal state",
+      "passed": true,
+      "evidence": "Line 39 under Common Mistakes: 'Treating CANCELLED as terminal \u2014 it can now transition to REFUND_PENDING.' The footer also states: 'updated CANCELLED transition rules (no longer terminal)'."
+    },
+    {
+      "text": "Doc does NOT invent specific business semantics for REFUND_PENDING without a TODO marker",
+      "passed": true,
+      "evidence": "The REFUND_PENDING state description in the States table uses a TODO marker: 'TODO: clarify what this state represents (refund request initiated? awaiting approval? awaiting Stripe refund processing?)' \u2014 no semantics are assumed without marking them as TODO."
+    },
+    {
+      "text": "Unclear business semantics are marked as TODO or question, not silently assumed",
+      "passed": true,
+      "evidence": "Lines 32-33 in Key Business Rules: 'CANCELLED \u2192 REFUND_PENDING: TODO: clarify the business trigger...' and 'REFUND_PENDING \u2192 CANCELLED: TODO: clarify under what conditions this transition occurs...'. All unclear semantics are explicitly flagged with TODO."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": null,
+    "total_tool_calls": 0,
+    "total_steps": null,
+    "errors_encountered": 0,
+    "output_chars": 2596,
+    "transcript_chars": 0
+  },
+  "timing": {
+    "executor_duration_seconds": null,
+    "grader_duration_seconds": null,
+    "total_duration_seconds": 0.0
+  },
+  "claims": [
+    {
+      "claim": "REFUND_PENDING state was added without inventing business semantics",
+      "type": "quality",
+      "verified": true,
+      "evidence": "State description uses TODO markers to list possible interpretations (refund request initiated? awaiting approval? awaiting Stripe refund processing?) rather than asserting any specific meaning."
+    },
+    {
+      "claim": "The Common Mistakes section was updated to warn about the CANCELLED state change",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Lines 39-40 explicitly warn: 'Treating CANCELLED as terminal \u2014 it can now transition to REFUND_PENDING' and 'Treating REFUND_PENDING as terminal \u2014 it has an outbound transition back to CANCELLED'."
+    },
+    {
+      "claim": "The document footer records the reason for the change",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 43: '*Last updated: 2026-04-20 | Reason: Added REFUND_PENDING state; updated CANCELLED transition rules (no longer terminal). Business semantics for REFUND_PENDING transitions marked as TODO pending clarification.*'"
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "knowledge/order-lifecycle.md was modified",
+        "reason": "This passes if the file exists with any content. A stronger check would verify that the original states (PENDING/PAID/SHIPPED/DELIVERED/CANCELLED) are preserved \u2014 a complete rewrite that only has REFUND_PENDING would also pass this assertion."
+      },
+      {
+        "reason": "No assertion checks that the pre-existing content (original 5 states and their transitions) was preserved correctly. The skill could accidentally drop existing transitions while adding the new one, and all 6 assertions would still pass."
+      }
+    ],
+    "overall": "Strong eval that catches the key risk (inventing semantics without TODO markers). Consider adding a check that existing state machine content was preserved, and tightening the file-modification assertion to require presence of original states."
+  }
+}

@@ -61,3 +61,4 @@ bump the semver version, and sync `CLAUDE.md` and `README.md`.
 | Skill | Description |
 |-------|-------------|
 | `code-knowledge` | Build and maintain a repository knowledge base (init + update modes) |
+| `knowledge-archive` | Post-feature habit check: decide if anything from the work is worth documenting |

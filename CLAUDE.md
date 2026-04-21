@@ -62,3 +62,4 @@ bump the semver version, and sync `CLAUDE.md` and `README.md`.
 |-------|-------------|
 | `code-knowledge` | Build and maintain a repository knowledge base (init + update modes) |
 | `knowledge-archive` | Post-feature habit check: decide if anything from the work is worth documenting |
+| `web-page-debugger` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |

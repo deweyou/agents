@@ -14,6 +14,7 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 |-------|---------|-------------|
 | `code-knowledge` | `1.0.0` | Build and maintain a repository knowledge base — init from scratch or update after code changes. |
 | `knowledge-archive` | `1.0.0` | Post-feature habit check: scan what was done and decide whether anything is worth adding to the knowledge base. |
+| `web-page-debugger` | `1.0.0` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |
 
 ## Development
 

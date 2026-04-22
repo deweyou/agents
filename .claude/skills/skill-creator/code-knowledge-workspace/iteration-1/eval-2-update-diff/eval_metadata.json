@@ -1,6 +1,0 @@
-{
-  "eval_id": 2,
-  "eval_name": "update-from-diff",
-  "prompt": "我刚改了订单状态机的逻辑，新增了一个 REFUND_PENDING 状态，同时调整了 CANCELLED 状态的流转规则。帮我更新知识库。",
-  "assertions": []
-}

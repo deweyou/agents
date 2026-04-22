@@ -26,35 +26,8 @@ vp fmt            # format only
 
 ## Managing Skills
 
-### Creating a new skill
-
-Use the `/new-skill` skill — it handles the full workflow:
-
-```
-/new-skill
-```
-
-Then describe what you want the skill to do. It will scaffold the skill via `skill-creator`,
-enforce naming/versioning conventions, generate a `README.md` inside the skill directory,
-and update `CLAUDE.md` and `README.md` when done.
-
-### Updating an existing skill
-
-Use the `/update-skill` skill:
-
-```
-/update-skill
-```
-
-Point it at the skill path under `skills/`. It will run the `skill-creator` iteration loop,
-bump the semver version, and sync `CLAUDE.md` and `README.md`.
-
-### Conventions (enforced by the skills above)
-
-- Skills live under `skills/<kebab-name>/`
-- Directory name and `name` frontmatter must be **kebab-case**
-- Every `SKILL.md` must have a `version` field (semver, starts at `1.0.0`)
-- Every skill directory must have a `README.md` with description and install instructions
+See [AGENTS.md](./AGENTS.md) for the canonical workflow and conventions for creating
+and updating skills in this repository.
 
 ## Skills
 

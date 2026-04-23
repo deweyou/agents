@@ -13,7 +13,7 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 | Skill | Version | Description |
 |-------|---------|-------------|
 | `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
-| `ui-design` | `1.0.0` | Create HTML-based design artifacts such as landing pages, presentations, animations, and interactive prototypes. |
+| `ui-design` | `2.0.0` | Recreate the original Claude Design workflow for HTML-based design artifacts, including preview-aware iteration, tweak flows, and `done` + verifier handoff. |
 | `web-page-debugger` | `1.0.0` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |
 
 ## Development

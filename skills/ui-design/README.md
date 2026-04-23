@@ -1,17 +1,19 @@
 # ui-design
 
-> Create HTML-based design artifacts such as landing pages, presentations, animations, and interactive prototypes.
+> Recreate the original Claude Design workflow for HTML-based design artifacts, review loops, and preview-aware iteration.
 
 ## What it does
 
-This skill guides Hermes to produce polished visual artifacts in HTML while staying grounded in an existing brand system, UI kit, codebase, or other supplied design context. It emphasizes context gathering, concise planning, controlled file structure, clean deliverables, and a strict finish flow that ends with `done` and `fork_verifier_agent`.
+This skill rewrites `ui-design` to track the original Claude Design system prompt much more closely. It frames the model as an expert designer working with the user as a manager, preserves the distinction between design mode and coding mode, and restores the original finish mechanics, preview-mapping behavior, tweak workflow, slide/deck conventions, and tool-usage patterns.
 
 ## When it triggers
 
 - "Create a landing page in HTML"
 - "Turn this into a prototype"
 - "Make a presentation deck"
-- "Design an animated microsite"
+- "Rewrite this screen to match our design system"
+- "The preview comment points at the wrong element"
+- "Add tweaks / knobs for this prototype"
 - "Explore a few visual directions for this product flow"
 
 ## Installation
@@ -22,4 +24,4 @@ npx skills add https://github.com/deweyou/skills --skill ui-design
 
 ## Version
 
-`1.0.0` — see [SKILL.md](./SKILL.md) for the changelog.
+`2.0.0` — see [SKILL.md](./SKILL.md) for the changelog.

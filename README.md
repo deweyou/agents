@@ -13,7 +13,7 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 | Skill | Version | Description |
 |-------|---------|-------------|
 | `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
-| `ui-design` | `2.0.0` | Recreate the original Claude Design workflow for HTML-based design artifacts, including preview-aware iteration, tweak flows, and `done` + verifier handoff. |
+| `ui-design` | `1.0.0` | HTML-first UI design skill for prototypes, landing pages, decks, and iterative visual exploration with strong design and taste guidance. |
 | `web-page-debugger` | `1.0.0` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |
 
 ## Development
@@ -21,4 +21,4 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 Add or update skills using the workflow documented in [AGENTS.md](./AGENTS.md).
 
 `AGENTS.md` defines the required repository conventions, the create/update flow,
-README requirements, versioning rules, and the expected eval loop.
+README requirements, versioning rules, and the expected validation loop.

@@ -1,6 +1,6 @@
 ---
 name: ui-design
-version: 2.0.0
+version: 1.0.0
 description: >
   Recreate the original Claude Design workflow for HTML-based design work. Use this whenever the
   user wants a landing page, deck, prototype, animation study, visual exploration, UI recreation,
@@ -33,8 +33,8 @@ Follow this sequence unless the request is a tiny follow-up edit:
 6. Make a short plan or todo list.
 7. Build the working structure and copy only the resources actually needed into the current project.
 8. Show work early when useful, especially in design mode.
-9. Finish by calling `done` on the main HTML file. If it reports errors, fix them and call `done` again.
-10. Once `done` is clean, call `fork_verifier_agent`.
+9. Before handing off, verify the main HTML artifact actually loads, the key interactions work, and the browser console is clean.
+10. If verification exposes issues, fix them and re-check.
 11. End with an extremely brief summary: caveats and next steps only.
 
 ## 3. Design mode vs coding mode
@@ -77,26 +77,24 @@ The original prompt is unusually explicit here. Follow it.
 
 ## 6. Tooling patterns from the original prompt
 
-When this skill is used in an environment that exposes Claude Design style tools, prefer the exact tool usage patterns the source prompt describes:
+When this skill is used in a richer design environment, preserve the underlying behaviors from the source prompt, but translate them to the tools that actually exist:
 
-- Use concurrent file-exploration tools where possible.
-- Use `write_to_file` / `write_file` with `asset: ""` for user-facing deliverables so they appear as reviewable assets.
-- Use `copy_files` to preserve major revisions and to copy needed source assets into the current project.
-- Use `read_file_binary` together with `run_script` to inspect zipped document formats like PPTX and DOCX.
-- Use `grep_search` and `glob` to locate relevant source files, components, assets, and examples quickly.
-- Use `show_to_user` for mid-task previews or non-HTML files.
-- Use `done` only for the end-of-turn HTML handoff and console-error check.
-- Use `eval_js_user_view` when preview DOM context needs to be disambiguated before editing.
-- Use `fork_verifier_agent` after a clean `done`, or directly for a targeted verification request.
-- Use the `read_pdf` skill when PDF content matters.
+- Explore files, components, assets, and examples quickly with the environment's file-search and file-read tools.
+- Create reviewable user-facing deliverables with the environment's normal file-writing workflow.
+- Preserve major revisions by copying or versioning only the files and assets you actually need.
+- For PPTX and DOCX, inspect the archive structure and extract only the assets or XML needed to understand the document.
+- Use the environment's preview, browser, or screenshot tools to inspect live output and mid-task states.
+- When preview DOM context is ambiguous, inspect the rendered DOM with the best available browser/JS-evaluation tools instead of guessing.
+- Finish by performing an explicit verification pass: load the artifact, inspect the console, and confirm the important interactions work.
+- When PDF content matters, use the environment's best available document-reading workflow rather than skipping the document.
 
-If those exact tools are not available in the current environment, preserve the behavior and intent using the closest equivalents.
+Prefer behavior-level guidance over tool-name cargo culting. The important part is the review loop, not the exact original tool names.
 
 ## 7. Reading documents and external inputs
 
 - Read Markdown, HTML, plaintext, and images directly.
 - For PPTX and DOCX, extract the archive, inspect XML, and pull only the needed assets or structure.
-- Invoke `read_pdf` for PDFs instead of improvising a weaker workflow.
+- For PDFs, use the best available document-reading or OCR workflow in the current environment instead of ignoring the file.
 - If the user references another project, treat it as read-only context and copy needed assets into the current project rather than linking across projects.
 
 ## 8. Output creation rules
@@ -123,7 +121,7 @@ The original prompt relies on preview attachments that describe the live DOM ele
   - `data-cc-id` in comment mode, knobs mode, and text-edit mode
   - `data-dm-ref` in design mode
 - Do not assume these attributes exist in source files. They are for live preview mapping.
-- If the block does not identify the correct source location unambiguously, probe the preview with `eval_js_user_view` before editing. Do not guess.
+- If the block does not identify the correct source location unambiguously, inspect the live preview DOM or surrounding rendered structure with the best available browser tooling before editing. Do not guess.
 
 ## 10. Modes in the preview
 
@@ -165,7 +163,7 @@ When using inline JSX prototypes:
 
 When the user asks for design work:
 
-- The output of a design exploration is a single HTML document.
+- The output of a design exploration is one primary HTML deliverable. Supporting helper files are fine when they keep the artifact maintainable.
 - Choose the presentation format based on the exploration:
   - purely visual studies can lay multiple options out on a canvas
   - interactive flows or many-option situations should become a hi-fi clickable prototype
@@ -200,13 +198,11 @@ The original prompt treats tweaks as a first-class editing system.
 
 This is the most important operational rule in the original prompt.
 
-- Do not claim completion until the main HTML file has gone through `done`.
-- If `done` returns console errors, fix them and call `done` again.
-- Once `done` is clean, call `fork_verifier_agent`.
-- The verifier is the second half of the finish mechanism.
-- Do not wait for the verifier during the final handoff unless it reports a problem.
-- If the user asks for a specific verification task mid-stream, call `fork_verifier_agent({task: "..."})` directly.
-- Do not perform your own screenshot-heavy verification pass before `done`; rely on the verifier flow instead.
+- Do not claim completion until the main HTML artifact has been loaded and checked in a real preview or browser.
+- If the console shows runtime errors or important interactions fail, fix them and re-run the verification pass.
+- Verify the main user journey, the primary visual states, and any requested motion or interaction details before handing off.
+- Prefer lightweight, targeted verification over elaborate ceremony, but do perform a real check.
+- If the user asks for a specific verification task mid-stream, run that targeted verification before continuing.
 
 ## 17. Section formatting for this skill
 
@@ -216,18 +212,17 @@ Mirror the source prompt's top-level section style when extending this skill:
 - Keep instructions direct and imperative.
 - Keep caveats and closing summaries brief.
 
-## 18. What changed from the previous version
+## 18. Design emphasis retained in this version
 
-This rewrite intentionally adds behavior the old skill was missing:
+This skill intentionally keeps the parts that matter for UI quality and taste:
 
 - explicit manager/designer framing
 - explicit design-mode vs coding-mode distinction
-- the `done` + `fork_verifier_agent` dual-finish flow
-- concrete tool usage patterns from the source prompt
-- `<mentioned-element>` parsing guidance
-- `read_pdf` invocation guidance
+- aggressive context gathering from design systems, screenshots, and existing code
+- concrete guidance for preview-aware iteration and DOM-to-source mapping
 - slide/deck persistence patterns with `cur_slide`, `total_slides`, and `localStorage`
 - transient preview attributes `data-cc-id` and `data-dm-ref`
-- `eval_js_user_view` guidance
 - knobs/comment/text-edit/design mode distinctions
+- strong variation guidance for visual exploration
 - the prohibition on generic global style objects
+- an explicit real-browser verification pass before handoff

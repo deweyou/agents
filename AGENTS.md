@@ -58,14 +58,13 @@ description: >
 
 Then write the skill body: instructions, examples, output format, edge cases.
 
-### 3. Test and iterate
+### 3. Validate and iterate
 
-Use the `skill-creator` eval loop:
-- Write 2–3 realistic test prompts to `evals/evals.json`
-- Spawn with-skill and without-skill subagent runs in the same turn
-- Draft assertions while runs are in progress
-- Generate the eval viewer for the user to review
-- Improve the skill based on feedback; repeat until satisfied
+Use a lightweight validation loop that matches the current repo:
+- Write 2–3 realistic test prompts in `evals/evals.json` when the skill benefits from example-driven checks
+- Review the skill output against those prompts manually or with a helper agent
+- Run the repo linter (`pnpm run lint:skills`) before finalizing
+- Improve the skill based on what the validation run exposes; repeat until satisfied
 
 ### 4. Finalize and place
 
@@ -137,9 +136,7 @@ Ask the user what they want to change:
    cp -r skills/<name> /tmp/<name>-snapshot/
    ```
 2. **Edit** the skill. Apply only what's needed — don't rewrite unrelated sections.
-3. **Test**: write 2–3 test prompts that cover the changed behavior. Spawn with-skill
-   and old-skill (snapshot) runs in the same turn. Grade and generate the eval viewer
-   for the user to review.
+3. **Validate**: write 2–3 test prompts that cover the changed behavior when helpful, review the updated skill against them, and run `pnpm run lint:skills` before finalizing.
 4. **Iterate** based on feedback until the user is happy.
 
 ### 4. Bump the version

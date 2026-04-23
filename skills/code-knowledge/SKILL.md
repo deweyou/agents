@@ -1,244 +1,335 @@
 ---
 name: code-knowledge
-description: Build and maintain a repository knowledge base that gives AI the high-value context it cannot reliably infer from code alone. Trigger this skill when the user wants to initialize a knowledge base ("setup knowledge base", "init knowledge", "初始化知识库", "沉淀知识库", "build docs"), update existing knowledge after code changes ("update knowledge", "update docs", "知识库更新", "沉淀这次改动"), or mentions AGENTS.md, knowledge directory, or repository documentation for AI context. Also trigger when the user finishes a feature and asks whether anything should be documented.
-version: 1.0.0
+version: 2.0.0
+description: >
+  Build, update, archive, and continuously grow a repository knowledge base for
+  humans and future AI agents. Use this skill whenever the user wants to
+  initialize repository docs ("初始化知识库", "setup knowledge base", "build repo
+  docs"), update existing docs after code changes ("更新知识库", "update docs",
+  "沉淀这次改动"), do a post-work archival check ("刚做完", "PR merged", "done
+  with this feature"), or explicitly asks for continuous repository learning
+  ("持续学习这个仓库", "continuous learning", "cron update docs"). Also trigger
+  when the user mentions AGENTS.md, docs/, knowledge/, repository context for
+  AI, or asks whether recent work should be documented.
 ---
 
 # Code Knowledge
 
-Helps you build and maintain a repository knowledge base — the high-value context that AI needs but cannot reliably infer from reading code alone.
+Build and maintain a repository knowledge base that captures the context code alone
+does not reliably preserve: business semantics, design intent, invariants, risky
+boundaries, and navigation for future humans and AI agents.
 
-## Core Philosophy
+## Core Principles
 
-Before starting, internalize these principles — they govern every decision in this skill:
-
-**What the knowledge base IS**: high-value supplements to the code. Business semantics, design decisions, cross-module invariants, known pitfalls, task routing hints for AI.
-
-**What it is NOT**: a mirror of the code. Implementation details, call graphs, SQL/regex internals, and local helpers belong in the code, not the docs.
-
-**The test**: if an AI (or a good engineer) can read the code and reliably recover the same conclusion at low cost, it doesn't need to be in the knowledge base.
-
-**Hard rule**: when the answer requires business knowledge or design intent you don't have — ask the user. Never speculate, never infer from code structure alone.
-
----
+- Document what is expensive to recover from code alone: intent, constraints,
+  ownership, trade-offs, and recurring mistakes.
+- Do not mirror implementation details. Avoid function-by-function summaries,
+  local helper behavior, SQL internals, or call-by-call narration unless they are
+  essential to explain a domain invariant.
+- When business meaning or design intent is unclear, ask the user or leave a
+  clear `TODO`. Do not speculate.
+- Optimize every artifact for two readers: a human engineer onboarding quickly
+  and a future AI agent trying to act safely.
 
 ## Mode Detection
 
-Determine which mode the user wants:
+Map the request into one of four modes:
 
-- **Init** — first-time setup, or bootstrapping knowledge for an existing codebase with no docs
-- **Update** — updating knowledge after changes, given a diff, spec, or description
+- **Init**: first-time setup for a repository or package
+- **Update**: incrementally refresh an existing knowledge base after changes
+- **Archive**: lightweight post-work check that decides whether an update is needed
+- **Continuous**: repeatable autonomous learning loop, usually user-requested or cron-triggered
 
-If unclear, ask: "Do you want to initialize a new knowledge base, or update an existing one?"
+If the request is ambiguous, ask one short disambiguation question.
 
----
+## Directory Contract
+
+Use `docs/` as the default knowledge directory. Detect `knowledge/` for backward
+compatibility:
+
+- If `docs/` exists, use it.
+- Else if `knowledge/` exists, keep using it unless the user wants migration.
+- Else create `docs/`.
+
+Required files for the knowledge directory and repo root:
+
+```text
+docs/                        # knowledge base directory
+├── .state.md
+├── .todo.md
+├── project-structure.md
+└── <topic>.md
+
+repo root/
+└── AGENTS.md               # navigation page (not inside docs/)
+```
+
+### File Purposes
+
+- `AGENTS.md`: navigation page at repo root, under 200 lines, links to the important docs
+- `project-structure.md`: top-level layout plus how the application starts
+- `.state.md`: learning state such as last reviewed commit, iteration count, covered modules
+- `.todo.md`: prioritized backlog of unresolved or not-yet-learned topics
+- `<topic>.md`: domain docs organized by problem space, not source folder
+
+## Quality Bar For Every Knowledge Doc
+
+Every knowledge document must satisfy all of these:
+
+- Start with a Mermaid diagram, then explain the diagram in prose
+- Include at least one Mermaid diagram
+- Link critical file paths using relative repo paths plus `#L` line anchors when known
+- Make it obvious which modules, boundaries, or flows the doc covers
+- Stay concise and decision-oriented
+
+### Mermaid Guidance
+
+Choose the diagram type that best matches the document:
+
+- Business flow or request chain: `flowchart` or `sequenceDiagram`
+- State transitions or lifecycle rules: `stateDiagram-v2`
+- Architecture and module relationships: `graph TD`
+- Class or interface relationships: `classDiagram`
+- Cross-service timing or handoffs: `sequenceDiagram`
+
+Keep node labels short. Split large flows into multiple diagrams. Highlight only
+the critical path rather than styling everything.
+
+### Link Guidance
+
+- Use repo-relative links such as `docs/order-lifecycle.md` or `src/server.ts#L1`
+- Prefer line anchors for source references when they are stable enough to be useful
+- Never use machine-local absolute paths
+- Never handwrite full Git hosting URLs
 
 ## Init Mode
 
-### Step 0 — Check existing state
+### Step 1: Check Existing State
 
-```bash
-ls AGENTS.md CLAUDE.md 2>/dev/null
-ls -d knowledge/ docs/ 2>/dev/null
-```
+Inspect the repo for:
 
-- If AGENTS.md or CLAUDE.md already exists: read it and use as context for what's already documented
-- Ask the user which directory to use for knowledge docs — default is `knowledge/`, but `docs/` or a custom name is fine
+- `AGENTS.md` or `CLAUDE.md`
+- `docs/` or `knowledge/`
+- monorepo markers such as `apps/`, `packages/`, `pnpm-workspace.yaml`, `turbo.json`
 
-Then check for monorepo:
+Read any existing navigation or knowledge docs before writing.
 
-```bash
-ls packages/ apps/ 2>/dev/null
-```
+### Step 2: Explore The Repository
 
-If monorepo detected, ask: "I see this is a monorepo. Do you want to initialize: (1) root only, (2) a specific package, or (3) all?"
+Build a high-level mental model by reading:
 
-For option 3, run the init steps once for root and once per package, treating each as its own scope.
+- root README and package/build manifests
+- entry points: server bootstrap, CLI main, app root, router registration, worker startup
+- a small set of representative source files that define module boundaries
+- recent git history for major themes
 
----
+Trace how the application starts and record enough information to explain
+"how this system gets from entry point to useful work."
 
-### Step 1 — Explore the repository
+### Step 3: Stop At Intent Boundaries
 
-Run these in parallel to understand the codebase:
+Separate what code reveals from what it does not:
 
-```bash
-# Structure overview
-find . -maxdepth 3 \( -name "*.md" -o -name "*.json" -o -name "*.toml" -o -name "*.mod" \) \
-  | grep -v node_modules | grep -v .git | grep -v dist
-ls -la
-# Entry points and key files
-cat README.md 2>/dev/null || true
-cat package.json 2>/dev/null || cat go.mod 2>/dev/null || cat Cargo.toml 2>/dev/null || true
-# Git history for context
-git log --oneline -20 2>/dev/null || true
-```
+- Infer structure, modules, stacks, and startup paths from code
+- Ask the user about business rules, domain terms, invariants, and non-obvious design decisions
+- If the user does not know yet, capture that gap in `.todo.md` and mark the relevant doc with `TODO`
 
-Also read a few key source files to understand module boundaries — focus on entry points, routers, main interfaces, and any existing architecture docs.
+### Step 4: Create Or Refresh The Core Files
 
----
+Create or update:
 
-### Step 2 — Initial analysis (stop at business logic)
+- `AGENTS.md` at repo root
+- `project-structure.md` under the active knowledge directory (`docs/` by default)
+- `.state.md` under the active knowledge directory (`docs/` by default)
+- `.todo.md` under the active knowledge directory (`docs/` by default)
+- one or more domain docs under the active knowledge directory (`docs/` by default, or compatible `knowledge/`)
 
-From the exploration, form a working picture of:
-- What the codebase does at a high level
-- Key modules / packages and their rough responsibilities
-- Technology stack and major dependencies
-- Any structural patterns that stand out
+`project-structure.md` must include:
 
-**Stop here** for anything involving business logic, domain concepts, design intent, or "why" questions. Those go to Step 3.
+- the top-level directory map
+- where business logic lives versus infrastructure/tooling
+- how the application starts or boots
+- monorepo scope rules when relevant
 
----
+### Step 5: Write Domain Docs
 
-### Step 3 — User interview
+Organize by question or problem domain, not by source folder name.
 
-Ask targeted questions about the knowledge gaps that matter most. Adapt based on what you already learned — don't read off a checklist.
+Good filenames:
 
-Good areas to cover:
-- Core business concepts a newcomer would misunderstand
-- Invariants or constraints the code must always maintain
-- Cross-module or cross-system dependencies not obvious from imports
-- Design decisions that look odd but have a good reason
-- Areas most dangerous to modify, and why
-- Mistakes that AI or new engineers repeatedly make in this codebase
-- Bugs or incidents that have happened more than once
+- `order-lifecycle.md`
+- `auth-boundaries.md`
+- `knowledge-sync-rules.md`
 
-If the user doesn't know an answer: record it as a `TODO:` in the doc. Never fill gaps with speculation.
+Bad filenames:
 
----
+- `services.md`
+- `utils.md`
+- `packages-api.md`
 
-### Step 4 — Write directory structure overview
+Each doc should contain:
 
-Create `<knowledge-dir>/project-structure.md` with a high-level map of the repository layout.
+1. A title that answers a real question
+2. A Mermaid diagram first
+3. Concise explanation of concepts, boundaries, invariants, and pitfalls
+4. Relative links to the key files
+5. A footer with update date and reason
 
-The goal is to give AI a stable orientation: where does what kind of code live, and what's the intent behind the top-level structure. It does NOT need to list every file or subdirectory — only the directories and files that carry meaningful structural intent.
+### Step 6: Initialize State Tracking
 
-A good structure doc covers:
-- Top-level directories and their purpose (e.g., `src/`, `packages/`, `internal/`, `cmd/`, `scripts/`)
-- Which directories contain the main business logic vs. infrastructure vs. tooling
-- Any non-obvious conventions (e.g., "all domain services live under `src/services/`, shared utilities under `src/lib/`")
-- For monorepo: how packages are organized and what the naming convention means
+Write `docs/.state.md` (or compatible path) with lightweight structured sections:
 
-Keep it at depth 1–2. Anything deeper is usually recoverable from the code directly.
+- current commit hash
+- initialization or update iteration number
+- covered modules or domains
+- last mode run
+- outstanding risks or unknowns
 
----
+Write `docs/.todo.md` with concrete next learning items. Prefer specific items over
+generic placeholders.
 
-### Step 5 — Write knowledge documents
+### Step 7: Create Navigation
 
-Create `<knowledge-dir>/` with documents organized by **problem domain**, not by code directory.
+`AGENTS.md` is a routing document, not a dump. Keep it under 200 lines and include:
 
-**Directory structure**:
-- Default: flat — all docs directly under `knowledge/*.md`
-- When a clear parent-child relationship exists (you always read DocA before DocB), group them in a subfolder: `knowledge/<topic>/docA.md` + `knowledge/<topic>/docB.md`. DocA is the entry point linked from AGENTS.md; DocB is referenced from within DocA.
-- Maximum **one level** of nesting. From AGENTS.md, any doc should be reachable in at most two hops.
+- short repo summary
+- docs table with each knowledge document path under `docs/` (or compatible `knowledge/`) and what it answers
+- hard constraints if known
+- task routing guidance using conditional phrasing
 
-**Naming**: `<problem-domain>.md` — e.g., `order-lifecycle.md`, `auth-boundaries.md`, `cache-invalidation.md`. Not `service-a.md` or `utils.md`.
-
-**Each document should**:
-- Answer one specific question (put the question in the title if helpful)
-- Be self-contained — useful even when read in isolation
-- Stay concise — a few paragraphs is usually enough
-- End with a metadata footer: `*Last updated: YYYY-MM-DD | Reason: <why this was written>*`
-
-**Contents that belong here**:
-- Business concepts and domain terminology
-- Module responsibilities and what crosses their boundaries
-- Invariants and constraints the code must uphold
-- Historical design decisions and trade-offs
-- Common review feedback / recurring mistakes
-- Boundaries where AI or newcomers typically make wrong assumptions
-
-**Contents that do NOT belong here**:
-- Specific function implementations or call sequences
-- Parameter forwarding logic
-- SQL, regex, or serialization details
-- Local helper internals
-- Anything already accurate and clear in the code
-
----
-
-### Step 6 — Create AGENTS.md
-
-Create `AGENTS.md` at the repo root (or package root for monorepo scopes).
-
-AGENTS.md is a **navigation page**, not a knowledge dump. Keep it under **200 lines**. If it's growing beyond that, content is leaking in that belongs in `knowledge/` docs.
-
-**Task Routing phrasing**: use conditional sentences, not rhetorical questions. Write "If you're modifying X, read Y first" — not "Modifying X? Read Y."
-
-For a monorepo root: focus on cross-package concerns, how packages relate, and link to per-package AGENTS.md files.
-
----
-
-### Step 7 — Create CLAUDE.md symlink
-
-```bash
-ln -sf AGENTS.md CLAUDE.md
-```
-
-If CLAUDE.md already exists and is **not** a symlink:
-- Offer to merge its content into AGENTS.md first
-- Then ask before replacing it with a symlink
-
----
-
-### Step 8 — Summary
-
-Show what was created. List any TODOs (unanswered questions). Suggest next focus areas if coverage is partial.
-
----
+Create `CLAUDE.md` as a symlink to the repo-root `AGENTS.md` only if that is safe.
+If `CLAUDE.md` already exists and is a real file, ask before replacing it.
 
 ## Update Mode
 
-### Step 0 — Locate existing knowledge base
+### Step 1: Locate The Current Knowledge Base
 
-Read AGENTS.md (fall back to CLAUDE.md) to find which directory and files the knowledge base uses. That's the source of truth for where knowledge lives.
+Read `AGENTS.md` first. Fall back to `CLAUDE.md` only if needed. Use those docs to
+identify the active knowledge directory and what is already covered.
 
----
+### Step 2: Gather Change Input
 
-### Step 1 — Understand what changed
+Accept any of:
 
-Accept one or more of:
-- **Git diff**: ask the user for a range, or run `git diff main...HEAD`
-- **Spec file**: a path the user provides — read it
-- **User description**: the user explains what changed
+- git diff or commit range
+- spec or PRD path
+- user summary of what changed
+- archive-mode findings
+- continuous-mode pending work from `.todo.md`
 
-If nothing provided, ask: "What changed? You can share a git diff, a spec file path, or just describe it."
+If no change source is provided, inspect a reasonable diff such as `main...HEAD`.
 
----
+### Step 3: Perform Incremental Impact Analysis
 
-### Step 2 — Impact analysis
+Compare the current `HEAD` with the commit recorded in `.state.md`.
 
-Read the changes and existing knowledge docs together. Ask yourself:
+Update only the affected knowledge areas:
 
-- Which existing docs are now outdated or incomplete?
-- Were any business concepts, invariants, or module boundaries changed?
-- Did any design decision get made explicit, reversed, or refined?
-- Were known pitfalls resolved — or new ones introduced?
-- Did new domain concepts emerge that have no doc yet?
+- changed startup or architecture paths
+- changed invariants or domain lifecycles
+- new modules or ownership boundaries
+- resolved or newly discovered pitfalls
+- new work that satisfies a previously open `.todo.md` item
 
-For ambiguous cases — especially anything touching business logic or intent — ask the user.
+If the diff changes code but not the knowledge base, say so explicitly instead of
+forcing a doc edit.
 
----
+### Step 4: Apply Focused Updates
 
-### Step 3 — Apply updates
+For each affected area:
 
-Update affected docs. For each change:
-- Edit in place if the scope is narrow
-- Create a new `<problem-domain>.md` if a genuinely new domain emerged
-- Remove content that is now obsolete (with a brief note if the removal is non-obvious)
+- update an existing doc in place if the topic already exists
+- create a new doc only when a truly new domain emerges
+- update `AGENTS.md` if routing or doc coverage changed
+- update `.state.md` with the new commit hash and iteration number
+- close or add items in `.todo.md`
 
-Follow the same writing principles as Init mode.
+Every edited doc must still meet the diagram and link standards.
 
----
+## Archive Mode
 
-### Step 4 — Update AGENTS.md
+Use this after a feature, fix, or refactor is done.
 
-If new docs were added, or the scope/focus of existing ones shifted, update the AGENTS.md table and task routing hints to reflect the current state.
+### Step 1: Understand The Finished Work
 
----
+Gather context from:
+
+- diff, commit range, or PR summary
+- task or spec doc
+- user description
+
+### Step 2: Check Existing Knowledge
+
+Read the relevant existing docs so you can avoid duplicate or low-value updates.
+
+### Step 3: Judge Archival Value
+
+Look for:
+
+- new business rules or domain terms
+- non-obvious design decisions
+- changed ownership boundaries or invariants
+- recurring pitfalls discovered during the work
+- anything future agents would likely misunderstand
+
+Ignore:
+
+- code changes that are fully obvious from the diff
+- one-off implementation detail with no broader consequence
+- noisy refactors that do not alter knowledge-level understanding
+
+### Step 4: Hand Off To Update Or Close
+
+- If there is archival value, call Update mode with concrete findings and affected docs
+- If there is not, say so plainly in one sentence
+
+Archive mode stays lightweight. It is a filter, not a full audit.
+
+## Continuous Mode
+
+Use this only when the user explicitly asks for continuous learning or when the run
+is clearly automated, such as a cron-triggered maintenance loop.
+
+### Operational Rules
+
+- Work on a dedicated learning branch for doc updates
+- Before each run, rebase or otherwise sync that branch onto the latest mainline
+- Read `.state.md` and `.todo.md`
+- Inspect the diff since the last recorded commit
+- Continue from the highest-value pending topics instead of restarting broad exploration
+
+### Learning Behavior
+
+- Avoid interrupting the user frequently
+- After the first broad survey, report only concise checkpoints
+- Try to cover multiple related modules per run when context is already warm
+- Use `.todo.md` to queue deeper follow-up questions instead of blocking the run
+
+### Bad-Case Protection
+
+If the code changed while learning was in progress:
+
+- sync to the latest main branch again
+- re-check the changed files against in-progress notes
+- discard stale assumptions, not the whole knowledge base
+
+## Output Standards
+
+When you finish any mode, provide:
+
+- what changed
+- which docs were created or updated
+- which unknowns were left as `TODO`
+- what should be learned next, if coverage is partial
+
+Do not claim completeness if `.todo.md` still contains unresolved core topics.
 
 ## References
 
-Read [`references/templates.md`](references/templates.md) for:
-- AGENTS.md template (standard repo + monorepo variant)
-- project-structure.md template
-- Knowledge doc template
+Read [`references/templates.md`](references/templates.md) for starter templates for:
+
+- `AGENTS.md`
+- `project-structure.md`
+- knowledge docs
+- `.state.md`
+- `.todo.md`

@@ -12,15 +12,12 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 
 | Skill | Version | Description |
 |-------|---------|-------------|
-| `code-knowledge` | `1.0.0` | Build and maintain a repository knowledge base — init from scratch or update after code changes. |
-| `knowledge-archive` | `1.0.0` | Post-feature habit check: scan what was done and decide whether anything is worth adding to the knowledge base. |
+| `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
 | `web-page-debugger` | `1.0.0` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |
 
 ## Development
 
-Add or update skills using Claude Code:
+Add or update skills using the workflow documented in [AGENTS.md](./AGENTS.md).
 
-- **Create a new skill** — `/new-skill` then describe what you want
-- **Update an existing skill** — `/update-skill` then point it at the skill path under `skills/`
-
-Both skills enforce conventions automatically (kebab-case naming, semver version, `README.md` per skill) and keep this file in sync.
+`AGENTS.md` defines the required repository conventions, the create/update flow,
+README requirements, versioning rules, and the expected eval loop.

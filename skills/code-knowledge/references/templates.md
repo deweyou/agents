@@ -1,6 +1,6 @@
 # Templates
 
-## AGENTS.md — Standard Repo
+## AGENTS.md - Standard Repo
 
 ```markdown
 # <Project Name>
@@ -11,23 +11,21 @@
 
 | Document | What it covers |
 |----------|----------------|
-| [knowledge/foo.md](knowledge/foo.md) | <description> |
-| [knowledge/bar.md](knowledge/bar.md) | <description> |
+| [docs/project-structure.md](docs/project-structure.md) | Top-level structure and how the app boots |
+| [docs/<topic>.md](docs/<topic>.md) | <description> |
 
 ## Hard Constraints
 
-- <constraint — one line, no explanation needed if the name is self-evident>
+- <constraint>
 - <constraint>
 
 ## Task Routing
 
-- If you're modifying <domain X>, read [knowledge/x.md](knowledge/x.md) first.
-- If you're touching <risky area>, check the constraints in [knowledge/boundaries.md](knowledge/boundaries.md).
+- If you're modifying <domain X>, read [docs/<topic>.md](docs/<topic>.md) first.
+- If you're touching <risky area>, check [docs/<topic>.md](docs/<topic>.md).
 ```
 
----
-
-## AGENTS.md — Monorepo Root
+## AGENTS.md - Monorepo Root
 
 ```markdown
 # <Monorepo Name>
@@ -38,15 +36,15 @@
 
 | Package | AGENTS.md | What it does |
 |---------|-----------|--------------|
-| `packages/api` | [→](packages/api/AGENTS.md) | <description> |
-| `packages/web` | [→](packages/web/AGENTS.md) | <description> |
-| `packages/shared` | [→](packages/shared/AGENTS.md) | <description> |
+| `packages/api` | [->](packages/api/AGENTS.md) | <description> |
+| `packages/web` | [->](packages/web/AGENTS.md) | <description> |
 
 ## Cross-Package Knowledge
 
 | Document | What it covers |
 |----------|----------------|
-| [knowledge/shared-contracts.md](knowledge/shared-contracts.md) | API contracts between packages |
+| [docs/project-structure.md](docs/project-structure.md) | Root layout and app startup map |
+| [docs/<topic>.md](docs/<topic>.md) | Shared contracts or cross-package rules |
 
 ## Hard Constraints
 
@@ -54,54 +52,95 @@
 
 ## Task Routing
 
-- If you're changing a shared type, read [knowledge/shared-contracts.md](knowledge/shared-contracts.md) first.
-- If you're unsure which package owns X, check the Packages table above, then that package's AGENTS.md.
+- If you're changing a shared type, read [docs/<topic>.md](docs/<topic>.md) first.
+- If you're unsure which package owns X, check the Packages table, then that package's AGENTS.md.
 ```
-
----
 
 ## project-structure.md
 
-```markdown
+````markdown
 # Project Structure
 
-<1 sentence: what this repo is and how it's organized overall>
+<1 sentence: what this repo is and how it is organized>
+
+## Startup Path
+
+```mermaid
+flowchart TD
+    A[Entry point] --> B[Bootstrap]
+    B --> C[Router / worker / app root]
+    C --> D[Core modules]
+```
 
 ## Directory Layout
 
-```
-<top-level dir>/          <purpose>
-<top-level dir>/          <purpose>
-  <sub-dir>/              <purpose, if non-obvious>
-<top-level dir>/          <purpose>
+```text
+src/                    application code
+src/<module>/           domain area
+scripts/                developer tooling
+docs/                   repository knowledge base
 ```
 
 ## Conventions
 
-- <any non-obvious naming or placement convention>
-- <where to add new X vs new Y>
+- <where business logic lives>
+- <where to add new code>
+
+## Key Files
+
+- [src/main.ts#L1](../src/main.ts#L1) - entry point
 
 ---
 *Last updated: YYYY-MM-DD | Reason: initial knowledge base setup*
-```
-
----
+````
 
 ## Knowledge Doc
 
-```markdown
+````markdown
 # <Question this document answers>
 
-<1-2 sentences of context — why this exists, what it's for>
+```mermaid
+flowchart TD
+    A[Concept] --> B[Decision]
+    B --> C[Boundary]
+```
 
-## <Section>
+<1-2 sentences of context>
 
-<Content — concise, factual, self-contained>
+## Key Rules
 
-## <Section>
+- <rule or invariant>
+- <pitfall>
 
-<Content>
+## Key Files
+
+- [src/<path>.ts#L1](../src/<path>.ts#L1) - <why it matters>
+
+## Open Questions
+
+- TODO: <unknown that needs confirmation>
 
 ---
 *Last updated: YYYY-MM-DD | Reason: <why this was written or updated>*
+````
+
+## .state.md
+
+```markdown
+# Knowledge State
+
+- Last reviewed commit: `<sha>`
+- Iteration: `1`
+- Last mode: `init`
+- Covered areas: `<area>`, `<area>`
+- Open risks: `<risk>`
+```
+
+## .todo.md
+
+```markdown
+# Knowledge TODO
+
+- [ ] Trace refund lifecycle from API request to settlement job
+- [ ] Confirm ownership boundary between billing and order state transitions
 ```

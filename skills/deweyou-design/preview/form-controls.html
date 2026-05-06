@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Form controls</title>
+<link rel="stylesheet" href="../colors_and_type.css?v=3">
+<style>
+  body { padding: 22px 28px; background: var(--ui-color-canvas); }
+  .eyebrow { font-family: system-ui, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ui-color-text-muted); margin-bottom: 16px; }
+  .row { display: flex; gap: 18px; align-items: center; margin-bottom: 12px; }
+  .lbl { font-family: system-ui, sans-serif; font-size: 9px; letter-spacing: 0.08em; color: var(--ui-color-text-muted); width: 64px; text-transform: uppercase; }
+
+  .chk { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 0.9rem; }
+  .chk .box { width: 16px; height: 16px; border: 1px solid var(--ui-color-border-strong); border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; background: var(--ui-color-surface); }
+  .chk.on .box { background: var(--ui-color-brand-bg); border-color: var(--ui-color-brand-bg); color: var(--ui-color-text-on-brand); }
+  .chk .box svg { width: 11px; height: 11px; display: none; }
+  .chk.on .box svg { display: block; }
+
+  .sw { position: relative; width: 36px; height: 20px; background: var(--ui-color-border-strong); border-radius: 999px; display: inline-block; transition: background 140ms ease; }
+  .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 999px; transition: left 140ms ease; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+  .sw.on { background: var(--ui-color-brand-bg); }
+  .sw.on::after { left: 18px; }
+
+  .rd { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+  .rd .dot { width: 16px; height: 16px; border-radius: 999px; border: 1px solid var(--ui-color-border-strong); display: inline-flex; align-items: center; justify-content: center; }
+  .rd.on .dot { border-color: var(--ui-color-brand-bg); }
+  .rd.on .dot::after { content: ""; width: 8px; height: 8px; border-radius: 999px; background: var(--ui-color-brand-bg); }
+</style></head>
+<body>
+  <div class="eyebrow">Checkbox · Switch · Radio</div>
+  <div class="row"><span class="lbl">Checkbox</span>
+    <label class="chk on"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"><path d="M5 12l5 5L20 7"/></svg></span>已勾选</label>
+    <label class="chk"><span class="box"></span>未勾选</label>
+  </div>
+  <div class="row"><span class="lbl">Switch</span>
+    <span style="display:inline-flex; gap:8px; align-items:center; font-size:0.9rem;"><span class="sw on"></span>开启</span>
+    <span style="display:inline-flex; gap:8px; align-items:center; font-size:0.9rem;"><span class="sw"></span>关闭</span>
+  </div>
+  <div class="row"><span class="lbl">Radio</span>
+    <label class="rd on"><span class="dot"></span>选项 A</label>
+    <label class="rd"><span class="dot"></span>选项 B</label>
+    <label class="rd"><span class="dot"></span>选项 C</label>
+  </div>
+</body></html>

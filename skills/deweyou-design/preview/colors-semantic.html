@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Colors · Semantic</title>
+<link rel="stylesheet" href="../colors_and_type.css?v=3">
+<style>
+  body { padding: 22px 28px; background: var(--ui-color-canvas); }
+  .eyebrow { font-family: system-ui, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ui-color-text-muted); margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .tile { border: 1px solid var(--ui-color-border); border-radius: var(--ui-radius-auto); padding: 14px 14px 12px; background: var(--ui-color-surface); }
+  .swatch { height: 56px; border-radius: var(--ui-radius-float); margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.04); }
+  .role { font-family: var(--ui-font-display); font-weight: 600; font-size: 1.05rem; color: var(--ui-color-text); }
+  .fam { font-family: var(--ui-font-mono); font-size: 11px; color: var(--ui-color-text-muted); margin-top: 2px; }
+</style></head>
+<body>
+  <div class="eyebrow">Semantic roles · three only</div>
+  <div class="grid">
+    <div class="tile">
+      <div class="swatch" style="background: var(--ui-color-brand-bg);"></div>
+      <div class="role">primary</div>
+      <div class="fam">emerald-900 · brand</div>
+    </div>
+    <div class="tile">
+      <div class="swatch" style="background: var(--ui-color-text);"></div>
+      <div class="role">neutral</div>
+      <div class="fam">stone-950 · text + border base</div>
+    </div>
+    <div class="tile">
+      <div class="swatch" style="background: var(--ui-color-danger-bg);"></div>
+      <div class="role">danger</div>
+      <div class="fam">red-700 · destructive</div>
+    </div>
+  </div>
+</body></html>

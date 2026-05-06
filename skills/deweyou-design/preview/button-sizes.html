@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Button · sizes</title>
+<link rel="stylesheet" href="../colors_and_type.css?v=3">
+<style>
+  body { padding: 24px 28px; background: var(--ui-color-canvas); }
+  .eyebrow { font-family: system-ui, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ui-color-text-muted); margin-bottom: 18px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; background: var(--ui-color-brand-bg); color: var(--ui-color-text-on-brand); border: 1px solid var(--ui-color-brand-bg); border-radius: var(--ui-radius-float); font-family: var(--ui-font-body); font-weight: 600; cursor: pointer; }
+  .xs { padding: 0.22rem 0.46rem; font-size: 0.75rem; }
+  .sm { padding: 0.28rem 0.58rem; font-size: 0.8125rem; }
+  .md { padding: 0.34rem 0.72rem; font-size: 0.875rem; }
+  .lg { padding: 0.40rem 0.84rem; font-size: 0.9375rem; }
+  .xl { padding: 0.48rem 0.98rem; font-size: 1rem; }
+  .meta { font-family: var(--ui-font-mono); font-size: 10px; color: var(--ui-color-text-muted); margin-top: 10px; }
+</style></head>
+<body>
+  <div class="eyebrow">Button · sizes · xs → xl</div>
+  <div class="row">
+    <button class="btn xs">xs · 24</button>
+    <button class="btn sm">sm · 32</button>
+    <button class="btn md">md · 40</button>
+    <button class="btn lg">lg · 48</button>
+    <button class="btn xl">xl · 56</button>
+  </div>
+  <div class="meta">md is the default. Same tokens apply to Input, Select, Tabs.</div>
+</body></html>

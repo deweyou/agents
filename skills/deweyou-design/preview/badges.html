@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Badges</title>
+<link rel="stylesheet" href="../colors_and_type.css?v=3">
+<style>
+  body { padding: 22px 28px; background: var(--ui-color-canvas); }
+  .eyebrow { font-family: system-ui, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ui-color-text-muted); margin-bottom: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+  .lbl { font-family: system-ui, sans-serif; font-size: 9px; letter-spacing: 0.08em; color: var(--ui-color-text-muted); width: 60px; text-transform: uppercase; }
+  .bd { display: inline-flex; align-items: center; padding: 2px 10px; font-family: var(--ui-font-body); font-size: 0.75rem; font-weight: 500; border-radius: var(--ui-radius-pill); border: 1px solid transparent; line-height: 1.4; }
+  .solid.neutral { background: var(--ui-color-text); color: var(--ui-color-canvas); }
+  .solid.primary { background: var(--ui-color-brand-bg); color: var(--ui-color-text-on-brand); }
+  .solid.danger { background: var(--ui-color-danger-bg); color: var(--ui-color-text-on-danger); }
+  .soft.neutral { background: color-mix(in srgb, var(--ui-color-text) 10%, transparent); color: var(--ui-color-text); }
+  .soft.primary { background: color-mix(in srgb, var(--ui-color-brand-bg) 12%, var(--ui-color-surface)); color: var(--ui-color-brand-bg); }
+  .soft.danger { background: color-mix(in srgb, var(--ui-color-danger-bg) 12%, var(--ui-color-surface)); color: var(--ui-color-danger-text); }
+  .outline.neutral { border-color: var(--ui-color-border-strong); color: var(--ui-color-text); }
+  .outline.primary { border-color: color-mix(in srgb, var(--ui-color-brand-bg) 32%, var(--ui-color-surface)); color: var(--ui-color-brand-bg); }
+  .outline.danger { border-color: color-mix(in srgb, var(--ui-color-danger-bg) 30%, var(--ui-color-surface)); color: var(--ui-color-danger-text); }
+</style></head>
+<body>
+  <div class="eyebrow">Badge · 3 variants × 3 colors</div>
+  <div class="row"><span class="lbl">Solid</span>
+    <span class="bd solid neutral">中性</span>
+    <span class="bd solid primary">主要</span>
+    <span class="bd solid danger">危险</span>
+  </div>
+  <div class="row"><span class="lbl">Soft</span>
+    <span class="bd soft neutral">中性</span>
+    <span class="bd soft primary">主要</span>
+    <span class="bd soft danger">危险</span>
+  </div>
+  <div class="row"><span class="lbl">Outline</span>
+    <span class="bd outline neutral">中性</span>
+    <span class="bd outline primary">主要</span>
+    <span class="bd outline danger">危险</span>
+  </div>
+</body></html>

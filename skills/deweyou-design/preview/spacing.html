@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Spacing</title>
+<link rel="stylesheet" href="../colors_and_type.css?v=3">
+<style>
+  body { padding: 22px 28px; background: var(--ui-color-canvas); }
+  .eyebrow { font-family: system-ui, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ui-color-text-muted); margin-bottom: 16px; }
+  .row { display: flex; align-items: center; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--ui-color-border); }
+  .row:last-child { border-bottom: none; }
+  .name { width: 46px; font-family: var(--ui-font-display); font-weight: 600; font-size: 0.95rem; }
+  .bar { height: 14px; background: var(--ui-color-text); }
+  .meta { font-family: var(--ui-font-mono); font-size: 11px; color: var(--ui-color-text-muted); margin-left: auto; }
+</style></head>
+<body>
+  <div class="eyebrow">Spacing · 4px grid</div>
+  <div class="row"><span class="name">xs</span><span class="bar" style="width:4px;"></span><span class="meta">0.25rem · 4</span></div>
+  <div class="row"><span class="name">sm</span><span class="bar" style="width:8px;"></span><span class="meta">0.5rem · 8</span></div>
+  <div class="row"><span class="name">md</span><span class="bar" style="width:16px;"></span><span class="meta">1rem · 16</span></div>
+  <div class="row"><span class="name">lg</span><span class="bar" style="width:24px;"></span><span class="meta">1.5rem · 24</span></div>
+  <div class="row"><span class="name">xl</span><span class="bar" style="width:40px;"></span><span class="meta">2.5rem · 40</span></div>
+</body></html>

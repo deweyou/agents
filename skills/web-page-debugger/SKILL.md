@@ -20,11 +20,11 @@ A Repair Loop activates when the user explicitly requests a fix.
 
 ## Tool Adapter
 
-Before doing anything else, detect which MCP tools are available:
+Before doing anything else, identify which MCP tools are available by looking at your currently accessible tools list:
 
-1. Check if `browser_navigate` (Playwright MCP tool) is available → use **Playwright mode**
-2. Else check if `navigate_page` (chrome-devtools-mcp tool) is available → use **CDP mode**
-3. Neither available → stop and tell the user:
+1. If `browser_navigate` appears in your available tools → use **Playwright mode**
+2. Else if `navigate_page` appears in your available tools → use **CDP mode**
+3. If neither appears in your available tools → stop and tell the user:
 
 > "需要配置至少一个浏览器 MCP server：
 > - Playwright MCP（推荐）：`npm i @playwright/mcp@latest -g`，然后在 Claude Code MCP 配置中添加 `@playwright/mcp`
@@ -69,6 +69,9 @@ Navigate to the URL and take a screenshot immediately:
 ```
 
 Show the screenshot to the user and note any obvious visual anomalies.
+
+If the page shows a login wall or redirects to an auth page, stop and ask:
+> "这个页面需要登录才能访问。请提供测试账号凭据，或手动登录后告知已就绪。"
 
 ### Step 2 — Determine acceptance criteria
 
@@ -205,7 +208,7 @@ For each fix, locate the file and line, compute the minimal change, show the dif
 + const res = await login(email, password).catch(err => { showError(err.message); return null; })
 ```
 
-Wait for implicit or explicit approval (if the user said "go fix it", that's pre-approval — proceed).
+After showing the diff, pause briefly before applying. The user saying "go fix it" counts as pre-approval for the diffs — proceed unless they say "stop" or "cancel".
 
 ### Step 3 — Apply the fix
 

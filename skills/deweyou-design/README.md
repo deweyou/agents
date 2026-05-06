@@ -17,7 +17,7 @@ npx skills add https://github.com/deweyou/skills --skill deweyou-design
 
 ## Version
 
-`1.0.0` — see [SKILL.md](./SKILL.md) for the changelog.
+`1.1.0` — see [SKILL.md](./SKILL.md) for the changelog.
 
 ---
 

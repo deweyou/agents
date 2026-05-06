@@ -14,7 +14,7 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 |-------|---------|-------------|
 | `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
 | `web-page-debugger` | `1.0.0` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |
-| `deweyou-design` | `1.0.0` | Dewey Ou 个人设计系统规范：宋体排版、三色语义系统、token、组件与 UI kit，用于生成符合品牌风格的界面或生产代码。 |
+| `deweyou-design` | `1.1.0` | Dewey Ou 个人设计系统规范：宋体排版、三色语义系统、token、组件与 UI kit，web 端复杂组件基于 Ark UI 二次封装。 |
 
 ## Development
 

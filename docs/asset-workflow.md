@@ -22,7 +22,7 @@ These rules apply to every agent asset in this repo:
 
 - **Skills** are active workflows. They live in `skills/<name>/SKILL.md`.
 - **Rules** are passive reusable constraints. They live in `rules/<name>.md`.
-- **CLI code** lives in `bin/` and `src/`. The package is published as
+- **CLI code** lives in `bin/` and `cli/`. The package is published as
   `@deweyou/agents`, with the `agents` binary.
 
 Do not rename rule files to `*.rules.md`; this repository owns its own installer and
@@ -151,3 +151,19 @@ pnpm run lint:assets
 ```
 
 Update the root README rules table.
+
+## CLI Release Workflow
+
+Merging changes to `bin/` or `cli/` into `main` triggers the release workflow.
+
+The workflow:
+
+1. Runs asset linting, tests, and `npm pack --dry-run`.
+2. Bumps the package to the next major version.
+3. Prepends a `CHANGELOG.md` entry.
+4. Creates a local `chore(release): vX.0.0` commit and annotated tag.
+5. Publishes `@deweyou/agents` to npm with `--access public`.
+6. Pushes the release commit and tag back to `main`.
+
+The workflow requires the `NPM_TOKEN` repository secret. Release commits only update
+`package.json` and `CHANGELOG.md`, so they do not retrigger the release workflow.

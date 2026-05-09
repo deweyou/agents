@@ -25,10 +25,10 @@
 ### Task 2: Core CLI Modules
 
 **Files:**
-- Create: `src/assets.mjs`
-- Create: `src/install.mjs`
-- Create: `src/source.mjs`
-- Create: `src/prompt.mjs`
+- Create: `cli/assets.mjs`
+- Create: `cli/install.mjs`
+- Create: `cli/source.mjs`
+- Create: `cli/prompt.mjs`
 - Create: `bin/agents.mjs`
 
 - [x] Implement asset scanning for `skills/*/SKILL.md` and `rules/*.md`.

@@ -5,12 +5,12 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
-import { scanAssets } from '../src/assets.mjs'
+import { scanAssets } from '../cli/assets.mjs'
 import {
   installSelectedAssets,
   removeInstalledAssets,
   updateInstalledAssets,
-} from '../src/install.mjs'
+} from '../cli/install.mjs'
 
 async function tempDir() {
   return mkdtemp(join(tmpdir(), 'agents-cli-'))

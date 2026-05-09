@@ -17,7 +17,7 @@ and a small CLI for installing those assets into projects.
 |-------|----------|---------|
 | Skills | `skills/<name>/SKILL.md` | Active workflows that trigger for specific situations. |
 | Rules | `rules/<name>.md` | Passive coding and development preferences shared across projects. |
-| CLI | `bin/`, `src/` | Interactive installer published as `@deweyou/agents`. |
+| CLI | `bin/`, `cli/` | Interactive installer published as `@deweyou/agents`. |
 | Tests | `tests/` | Node test coverage for CLI behavior. |
 
 ## Core Conventions

@@ -9,8 +9,9 @@
   },
   "files": [
     "bin",
-    "src",
-    "README.md"
+    "cli",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "bin": {
     "agents": "./bin/agents.mjs"

@@ -42,7 +42,7 @@ Add `chrome-devtools-mcp` to your Claude Code MCP config.
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/skills --skill web-page-debugger
+npx skills add https://github.com/deweyou/agents --skill web-page-debugger
 ```
 
 ## Version

@@ -6,7 +6,7 @@
 
 **Architecture:** Single SKILL.md with two explicit modes (verify / debug) sharing a Tool Adapter layer that auto-detects `@playwright/mcp` or `chrome-devtools-mcp`, plus a Repair Loop triggered on user request.
 
-**Tech Stack:** Markdown skill, no runtime code. Lint via `npm run lint:skills`.
+**Tech Stack:** Markdown skill, no runtime code. Lint via `npm run lint:assets`.
 
 ---
 
@@ -360,7 +360,7 @@ version: 2.0.0
 - [ ] **Step 3: Run lint to confirm the skill is valid**
 
 ```bash
-npm run lint:skills
+npm run lint:assets
 ```
 
 Expected: `✓ 3 SKILL.md file(s) passed`
@@ -426,7 +426,7 @@ Add `chrome-devtools-mcp` to your Claude Code MCP config.
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/skills --skill web-page-debugger
+npx skills add https://github.com/deweyou/agents --skill web-page-debugger
 ```
 
 ## Version

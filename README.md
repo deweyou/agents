@@ -1,11 +1,34 @@
-# skills
+# Agents
 
-Dewey Ou's skills library. Skills live in `skills/` and are installable via `npx skills add`.
+Dewey Ou's personal agent assets hub: skills, rules, and reusable workflow assets
+for personal projects.
+
+## Assets
+
+| Type | Location | Purpose |
+|------|----------|---------|
+| Skills | [`skills/`](./skills/) | Active workflows that trigger for specific tasks. |
+| Rules | [`rules/`](./rules/) | Passive coding and development preferences shared across projects. |
 
 ## Installation
 
+### CLI
+
+Install, update, or remove assets interactively:
+
 ```bash
-npx skills add https://github.com/deweyou/skills --skill <skill-name>
+npx @deweyou/agents add
+npx @deweyou/agents update
+npx @deweyou/agents remove
+```
+
+The CLI installs assets into `.agents/` for the current project or `~/.agents/`
+globally. It can also link assets into Claude Code and Codex locations.
+
+### Skills CLI
+
+```bash
+npx skills add https://github.com/deweyou/agents --skill <skill-name>
 ```
 
 ## Skills
@@ -14,11 +37,22 @@ npx skills add https://github.com/deweyou/skills --skill <skill-name>
 |-------|---------|-------------|
 | `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
 | `web-page-debugger` | `2.0.0` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
-| `deweyou-design` | `1.1.0` | Dewey Ou 个人设计系统规范：宋体排版、三色语义系统、token、组件与 UI kit，web 端复杂组件基于 Ark UI 二次封装。 |
+| `deweyou-design` | `1.1.0` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
+
+## Rules
+
+| Rule | Version | Description |
+|------|---------|-------------|
+| `code-style` | `1.0.0` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
+| `development-workflow` | `1.0.0` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
 
 ## Development
 
-Add or update skills using the workflow documented in [AGENTS.md](./AGENTS.md).
+Add or update assets using the workflow documented in [AGENTS.md](./AGENTS.md) and
+[docs/asset-workflow.md](./docs/asset-workflow.md).
 
-`AGENTS.md` defines the required repository conventions, the create/update flow,
-README requirements, versioning rules, and the expected eval loop.
+`AGENTS.md` is the navigation page for agents. Detailed repository workflow lives in
+`docs/`.
+
+Rules are maintained in [`rules/`](./rules/). They are stable personal preferences
+that can be installed through the `@deweyou/agents` CLI.

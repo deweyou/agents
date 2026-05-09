@@ -1,21 +1,38 @@
 {
-  "name": "skills",
+  "name": "@deweyou/agents",
+  "version": "0.1.0",
   "type": "module",
-  "description": "Dewey Ou's skills library",
+  "description": "Dewey Ou's personal agent assets hub",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deweyou/agents.git"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "bin": {
+    "agents": "./bin/agents.mjs"
+  },
   "author": "Dewey Ou <oushihao97@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "lint:skills": "node scripts/lint-skills.mjs",
+    "agents": "node bin/agents.mjs",
+    "lint:assets": "node scripts/lint-agent-assets.mjs",
+    "test": "node --test tests/*.test.mjs",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm run lint:skills"
+    "pre-commit": "pnpm run lint:assets"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@typescript/native-preview": "7.0.0-dev.20260328.1",
     "bumpp": "^11.0.1",
-    "js-yaml": "^4.1.0",
     "simple-git-hooks": "^2.13.0",
     "typescript": "^6.0.2",
     "vite-plus": "latest"

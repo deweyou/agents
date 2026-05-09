@@ -26,31 +26,49 @@ function findSkillFiles(dir) {
   return results
 }
 
-const skills = findSkillFiles('skills')
-const errors = []
+function findRuleFiles(dir) {
+  const results = []
+  try {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isFile()) continue
+      if (entry.name === 'README.md') continue
+      if (!entry.name.endsWith('.md')) continue
+      results.push({ path: join(dir, entry.name), fileName: entry.name })
+    }
+  } catch {}
+  return results
+}
 
-for (const { path, dirName } of skills) {
+function parseFrontmatter(path, errors) {
   const content = readFileSync(path, 'utf8')
 
   if (!content.startsWith('---\n')) {
     errors.push(`${path}: missing frontmatter`)
-    continue
+    return null
   }
 
   const end = content.indexOf('\n---\n', 4)
   if (end === -1) {
     errors.push(`${path}: unclosed frontmatter`)
-    continue
+    return null
   }
 
   const fmText = content.slice(4, end)
-  let fm
   try {
-    fm = load(fmText)
+    return load(fmText)
   } catch (e) {
     errors.push(`${path}: YAML parse error: ${e.message}`)
-    continue
+    return null
   }
+}
+
+const skills = findSkillFiles('skills')
+const rules = findRuleFiles('rules')
+const errors = []
+
+for (const { path, dirName } of skills) {
+  const fm = parseFrontmatter(path, errors)
+  if (!fm) continue
 
   for (const field of ['name', 'description', 'version']) {
     if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
@@ -67,10 +85,31 @@ for (const { path, dirName } of skills) {
     errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
 }
 
+for (const { path, fileName } of rules) {
+  const fm = parseFrontmatter(path, errors)
+  if (!fm) continue
+
+  for (const field of ['name', 'description', 'version']) {
+    if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
+  }
+
+  const expectedName = fileName.replace(/\.md$/, '')
+
+  if (fm?.name) {
+    if (!isKebabCase(fm.name))
+      errors.push(`${path}: name '${fm.name}' is not kebab-case`)
+    if (fm.name !== expectedName)
+      errors.push(`${path}: name '${fm.name}' does not match file '${expectedName}'`)
+  }
+
+  if (fm?.version && !isValidSemver(fm.version))
+    errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
+}
+
 if (errors.length) {
-  console.error('SKILL.md lint errors:')
+  console.error('Agent asset lint errors:')
   for (const e of errors) console.error(`  ${e}`)
   process.exit(1)
 } else {
-  console.log(`✓ ${skills.length} SKILL.md file(s) passed`)
+  console.log(`✓ ${skills.length} SKILL.md file(s) and ${rules.length} rule file(s) passed`)
 }

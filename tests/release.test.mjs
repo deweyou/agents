@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
 import {
-  bumpMajorVersion,
+  bumpMinorVersion,
   hasCliChanges,
   prepareRelease,
 } from '../scripts/prepare-release.mjs'
@@ -20,9 +20,9 @@ test('hasCliChanges only releases for bin or cli changes', () => {
   assert.equal(hasCliChanges(['README.md', 'package.json']), false)
 })
 
-test('bumpMajorVersion increments the major version and resets minor and patch', () => {
-  assert.equal(bumpMajorVersion('0.1.0'), '1.0.0')
-  assert.equal(bumpMajorVersion('1.4.9'), '2.0.0')
+test('bumpMinorVersion increments the minor version and resets patch', () => {
+  assert.equal(bumpMinorVersion('0.1.0'), '0.2.0')
+  assert.equal(bumpMinorVersion('1.4.9'), '1.5.0')
 })
 
 test('prepareRelease updates package version and prepends changelog entry', async () => {
@@ -39,13 +39,13 @@ test('prepareRelease updates package version and prepends changelog entry', asyn
     date: '2026-05-10',
   })
 
-  assert.deepEqual(result, { released: true, version: '1.0.0' })
+  assert.deepEqual(result, { released: true, version: '0.2.0' })
 
   const packageJson = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-  assert.equal(packageJson.version, '1.0.0')
+  assert.equal(packageJson.version, '0.2.0')
 
   const changelog = await readFile(join(root, 'CHANGELOG.md'), 'utf8')
-  assert.match(changelog, /^# Changelog\n\n## 1\.0\.0 - 2026-05-10/m)
+  assert.match(changelog, /^# Changelog\n\n## 0\.2\.0 - 2026-05-10/m)
   assert.match(changelog, /- Published CLI changes from `bin\/` or `cli\/`\./)
 })
 

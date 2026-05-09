@@ -8,12 +8,12 @@ export function hasCliChanges(changedFiles) {
   return changedFiles.some((file) => file.startsWith('bin/') || file.startsWith('cli/'))
 }
 
-export function bumpMajorVersion(version) {
-  const [major] = version.split('.').map((part) => Number(part))
-  if (!Number.isInteger(major)) {
+export function bumpMinorVersion(version) {
+  const [major, minor] = version.split('.').map((part) => Number(part))
+  if (!Number.isInteger(major) || !Number.isInteger(minor)) {
     throw new Error(`Invalid semver version: ${version}`)
   }
-  return `${major + 1}.0.0`
+  return `${major}.${minor + 1}.0`
 }
 
 export async function prepareRelease({ root = cwd(), changedFiles, date = today() }) {
@@ -23,7 +23,7 @@ export async function prepareRelease({ root = cwd(), changedFiles, date = today(
 
   const packagePath = join(root, 'package.json')
   const packageJson = JSON.parse(await readFile(packagePath, 'utf8'))
-  const version = bumpMajorVersion(packageJson.version)
+  const version = bumpMinorVersion(packageJson.version)
   packageJson.version = version
   await writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`)
 

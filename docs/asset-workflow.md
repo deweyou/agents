@@ -159,9 +159,9 @@ Merging changes to `bin/` or `cli/` into `main` triggers the release workflow.
 The workflow:
 
 1. Runs asset linting, tests, and `npm pack --dry-run`.
-2. Bumps the package to the next major version.
+2. Bumps the package to the next minor version.
 3. Prepends a `CHANGELOG.md` entry.
-4. Creates a local `chore(release): vX.0.0` commit and annotated tag.
+4. Creates a local `chore(release): vX.Y.0` commit and annotated tag.
 5. Publishes `@deweyou/agents` to npm with `--access public`.
 6. Pushes the release commit and tag back to `main`.
 

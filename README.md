@@ -59,7 +59,7 @@ that can be installed through the `@deweyou/agents` CLI.
 
 ## Release
 
-Merging changes to `bin/` or `cli/` into `main` automatically prepares a major
-release, updates [CHANGELOG.md](./CHANGELOG.md), creates a `vX.0.0` tag, and
+Merging changes to `bin/` or `cli/` into `main` automatically prepares a minor
+release, updates [CHANGELOG.md](./CHANGELOG.md), creates a `vX.Y.0` tag, and
 publishes `@deweyou/agents` to npm. The workflow requires the `NPM_TOKEN`
 repository secret.

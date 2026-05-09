@@ -1,3 +1,33 @@
+# web-page-debugger v2 Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Rewrite `web-page-debugger` from a passive debug-only skill to a unified verify + debug + auto-repair skill (v2.0.0).
+
+**Architecture:** Single SKILL.md with two explicit modes (verify / debug) sharing a Tool Adapter layer that auto-detects `@playwright/mcp` or `chrome-devtools-mcp`, plus a Repair Loop triggered on user request.
+
+**Tech Stack:** Markdown skill, no runtime code. Lint via `npm run lint:assets`.
+
+---
+
+## File Map
+
+| Action | Path | Responsibility |
+|--------|------|----------------|
+| Modify | `skills/web-page-debugger/SKILL.md` | Complete rewrite to v2.0.0 |
+| Modify | `skills/web-page-debugger/README.md` | Update description, prerequisites, version |
+| Modify | `README.md` | Update skills table version + description |
+
+---
+
+### Task 1: Rewrite SKILL.md to v2.0.0
+
+**Files:**
+- Modify: `skills/web-page-debugger/SKILL.md`
+
+- [ ] **Step 1: Replace the entire contents of `skills/web-page-debugger/SKILL.md` with the following**
+
+```markdown
 ---
 name: web-page-debugger
 version: 2.0.0
@@ -20,11 +50,11 @@ A Repair Loop activates when the user explicitly requests a fix.
 
 ## Tool Adapter
 
-Before doing anything else, identify which MCP tools are available by looking at your currently accessible tools list:
+Before doing anything else, detect which MCP tools are available:
 
-1. If `browser_navigate` appears in your available tools → use **Playwright mode**
-2. Else if `navigate_page` appears in your available tools → use **CDP mode**
-3. If neither appears in your available tools → stop and tell the user:
+1. Check if `browser_navigate` (Playwright MCP tool) is available → use **Playwright mode**
+2. Else check if `navigate_page` (chrome-devtools-mcp tool) is available → use **CDP mode**
+3. Neither available → stop and tell the user:
 
 > "需要配置至少一个浏览器 MCP server：
 > - Playwright MCP（推荐）：`npm i @playwright/mcp@latest -g`，然后在 Claude Code MCP 配置中添加 `@playwright/mcp`
@@ -69,9 +99,6 @@ Navigate to the URL and take a screenshot immediately:
 ```
 
 Show the screenshot to the user and note any obvious visual anomalies.
-
-If the page shows a login wall or redirects to an auth page, stop and ask:
-> "这个页面需要登录才能访问。请提供测试账号凭据，或手动登录后告知已就绪。"
 
 ### Step 2 — Determine acceptance criteria
 
@@ -208,7 +235,7 @@ For each fix, locate the file and line, compute the minimal change, show the dif
 + const res = await login(email, password).catch(err => { showError(err.message); return null; })
 ```
 
-After showing the diff, pause briefly before applying. The user saying "go fix it" counts as pre-approval for the diffs — proceed unless they say "stop" or "cancel".
+Wait for implicit or explicit approval (if the user said "go fix it", that's pre-approval — proceed).
 
 ### Step 3 — Apply the fix
 
@@ -315,3 +342,127 @@ After 3 failed rounds, stop:
 1. Performance trace during page load
 2. Network waterfall → identify slowest requests
 3. Check TTFB, LCP, bundle size
+```
+
+- [ ] **Step 2: Verify the file was written correctly**
+
+```bash
+head -5 skills/web-page-debugger/SKILL.md
+```
+
+Expected output starts with:
+```
+---
+name: web-page-debugger
+version: 2.0.0
+```
+
+- [ ] **Step 3: Run lint to confirm the skill is valid**
+
+```bash
+npm run lint:assets
+```
+
+Expected: `✓ 3 SKILL.md file(s) passed`
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/web-page-debugger/SKILL.md
+git commit -m "feat(web-page-debugger): v2.0.0 — verify + debug + repair loop, multi-MCP adapter"
+```
+
+---
+
+### Task 2: Update skills/web-page-debugger/README.md
+
+**Files:**
+- Modify: `skills/web-page-debugger/README.md`
+
+- [ ] **Step 1: Replace the entire contents of `skills/web-page-debugger/README.md` with the following**
+
+```markdown
+# web-page-debugger
+
+> AI-driven web product acceptance testing and debugging — verify a page against a spec, triage anomalies via console/network/DOM, and optionally auto-repair.
+
+## What it does
+
+Two explicit modes sharing a common tool layer:
+
+- **verify** — generates an acceptance checklist from spec files, user descriptions, or AI inference; executes each item; outputs a CI-style pass/fail report with screenshots
+- **debug** — triages page anomalies via symptom-driven inspection (console → network → DOM); identifies root cause; produces an evidence-backed report
+
+A **Repair Loop** activates when the user asks Claude to fix identified issues. It applies minimal code changes, re-runs the relevant mode, and compares before/after. Maximum 3 auto-repair rounds before stopping and requesting human intervention.
+
+## When it triggers
+
+- 中文：「帮我验收」「验收一下」「页面报错」「白屏了」「帮我排查」「这个接口 404」
+- English: "verify this page", "debug this page", "something is broken", "help me QA", "console errors", "page not loading"
+
+## Prerequisites
+
+Requires at least one of:
+
+**Option A — Playwright MCP (recommended, multi-browser):**
+```bash
+npm i @playwright/mcp@latest -g
+```
+Add `@playwright/mcp` to your Claude Code MCP config.
+
+**Option B — Chrome DevTools MCP:**
+```bash
+npm i chrome-devtools-mcp@latest -g
+```
+Add `chrome-devtools-mcp` to your Claude Code MCP config.
+
+## Usage
+
+```
+/web-page-debugger verify <url> [spec or description]
+/web-page-debugger debug <url> [symptom description]
+```
+
+## Installation
+
+```bash
+npx skills add https://github.com/deweyou/agents --skill web-page-debugger
+```
+
+## Version
+
+`2.0.0` — see [SKILL.md](./SKILL.md) for full protocol details.
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add skills/web-page-debugger/README.md
+git commit -m "docs(web-page-debugger): update README for v2.0.0"
+```
+
+---
+
+### Task 3: Update root README.md skills table
+
+**Files:**
+- Modify: `README.md`
+
+- [ ] **Step 1: Update the `web-page-debugger` row in the skills table**
+
+Find this line:
+```
+| `web-page-debugger` | `1.0.0` | Diagnose web page anomalies via Chrome DevTools MCP: console errors, network failures, DOM/JS inspection, performance. |
+```
+
+Replace with:
+```
+| `web-page-debugger` | `2.0.0` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add README.md
+git commit -m "docs: update web-page-debugger entry to v2.0.0 in skills table"
+```

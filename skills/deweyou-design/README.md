@@ -12,7 +12,7 @@
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/skills --skill deweyou-design
+npx skills add https://github.com/deweyou/agents --skill deweyou-design
 ```
 
 ## Version

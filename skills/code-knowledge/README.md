@@ -17,7 +17,7 @@
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/skills --skill code-knowledge
+npx skills add https://github.com/deweyou/agents --skill code-knowledge
 ```
 
 ## Version

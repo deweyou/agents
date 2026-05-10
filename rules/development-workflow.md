@@ -1,6 +1,6 @@
 ---
 name: development-workflow
-version: 1.0.0
+version: 1.0.1
 description: Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture.
 ---
 
@@ -17,6 +17,8 @@ with tests, deliver through a pull request, and capture durable repository knowl
 
 - When Superpowers skills are available, use the relevant Superpowers workflow before
   implementation.
+- Treat Superpowers as a start-of-work gate, not a cleanup step. Invoke the relevant
+  skill before reading deeply, planning privately, writing tests, or editing code.
 - If Superpowers are unavailable, tell the user before implementation. Ask them to
   install or enable Superpowers when the current environment supports it. If
   installation is not possible or the user chooses not to install it, continue with
@@ -29,6 +31,21 @@ with tests, deliver through a pull request, and capture durable repository knowl
 - Use verification-before-completion before claiming work is done.
 - Project-level user instructions still take priority when they intentionally differ
   from a Superpowers workflow.
+
+## Workflow Integrity
+
+- Do not partially follow a required workflow and then describe the missing steps as
+  already satisfied.
+- Do not retrofit Superpowers artifacts after implementation only to make the process
+  appear compliant.
+- For multi-step implementation work, create or update the required spec, plan, test,
+  and verification artifacts before the stage that depends on them.
+- If you realize you skipped a required workflow step, stop the current implementation
+  path, state exactly what was skipped, and ask whether to restart from the strict
+  workflow or continue with a clearly labeled exception.
+- When recovering from a skipped step, finish any already-started verification that is
+  necessary to leave the workspace in a known state, but do not continue expanding
+  the implementation until the user chooses the recovery path.
 
 ## No Guessing
 

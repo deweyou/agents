@@ -44,7 +44,7 @@ npx skills add https://github.com/deweyou/agents --skill <skill-name>
 | Rule | Version | Description |
 |------|---------|-------------|
 | `code-style` | `1.0.0` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
-| `development-workflow` | `1.0.0` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
+| `development-workflow` | `1.0.1` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
 
 ## Development
 

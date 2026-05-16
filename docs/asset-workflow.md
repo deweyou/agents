@@ -16,17 +16,17 @@ These rules apply to every agent asset in this repo:
 3. **Version**: Every skill and rule includes a semver `version` field in YAML
    frontmatter. New assets start at `1.0.0`.
 4. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
-   `pnpm test` after changing CLI code.
+   `pnpm test` after changing registry or asset-scanning behavior.
 
 ## Asset Types
 
 - **Skills** are active workflows. They live in `skills/<name>/SKILL.md`.
 - **Rules** are passive reusable constraints. They live in `rules/<name>.md`.
-- **CLI code** lives in `bin/` and `cli/`. The package is published as
-  `@deweyou/agents`, with the `agents` binary.
+- **Runtime CLI code** lives in the separate `deweyou-cli` package. This repo is
+  only the asset source.
 
-Do not rename rule files to `*.rules.md`; this repository owns its own installer and
-keeps rule filenames plain.
+Do not rename rule files to `*.rules.md`; this repository keeps rule filenames
+plain for registry and CLI consumption.
 
 ## Registry
 
@@ -171,16 +171,5 @@ Update the root README rules table.
 
 ## CLI Release Workflow
 
-Merging changes to `bin/` or `cli/` into `main` triggers the release workflow.
-
-The workflow:
-
-1. Runs asset linting, tests, and `npm pack --dry-run`.
-2. Bumps the package to the next minor version.
-3. Prepends a `CHANGELOG.md` entry.
-4. Creates a local `chore(release): vX.Y.0` commit and annotated tag.
-5. Publishes `@deweyou/agents` to npm with `--access public`.
-6. Pushes the release commit and tag back to `main`.
-
-The workflow requires the `NPM_TOKEN` repository secret. Release commits only update
-`package.json` and `CHANGELOG.md`, so they do not retrigger the release workflow.
+CLI release, changelog, and npm publishing now live in the separate
+`deweyou-cli` package. This repository no longer publishes an installer package.

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 This repository is Dewey's personal agents hub. It contains reusable skills, rules,
-and a small CLI for installing those assets into projects.
+and registry metadata consumed by `deweyou-cli`.
 
 ## Read First
 
@@ -17,8 +17,8 @@ and a small CLI for installing those assets into projects.
 |-------|----------|---------|
 | Skills | `skills/<name>/SKILL.md` | Active workflows that trigger for specific situations. |
 | Rules | `rules/<name>.md` | Passive coding and development preferences shared across projects. |
-| CLI | `bin/`, `cli/` | Interactive installer published as `@deweyou/agents`. |
-| Tests | `tests/` | Node test coverage for CLI behavior. |
+| Registry | `registry.json` | Machine-readable index consumed by `deweyou-cli`. |
+| Tests | `tests/` | Node test coverage for registry and asset scanning. |
 
 ## Core Conventions
 
@@ -26,17 +26,11 @@ and a small CLI for installing those assets into projects.
 - Skills and rules must include `name`, `version`, and `description` frontmatter.
 - Rules use plain `rules/<name>.md` filenames. Do not rename them to `*.rules.md`.
 - Run `pnpm run lint:assets` after changing skills or rules.
-- Run `pnpm test` after changing CLI code.
-- When adding or changing CLI behavior, add or update unit tests for that behavior
-  in the same change.
+- Run `pnpm test` after changing registry or asset-scanning behavior.
 
 ## CLI Commands
 
 ```bash
-pnpm agents
 pnpm test
 pnpm run lint:assets
-npm pack --dry-run
 ```
-
-The npm package is `@deweyou/agents`, with the `agents` binary.

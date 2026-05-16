@@ -15,9 +15,8 @@ used by `deweyou-cli`.
 This repository is the asset source. The preferred runtime entrypoint is
 `deweyou-cli`, which bootstraps repositories with selected skills and rules.
 
-The existing `@deweyou/agents` installer remains available as a legacy installer for
-copying or linking assets directly, but new workflow automation should target
-`deweyou-cli`.
+The legacy `@deweyou/agents` installer has been removed. New workflow automation
+and release packaging live in `deweyou-cli`.
 
 ## Skills
 
@@ -43,11 +42,4 @@ Add or update assets using the workflow documented in [AGENTS.md](./AGENTS.md) a
 `docs/`.
 
 Rules are maintained in [`rules/`](./rules/). They are stable personal preferences
-that can be installed through the `@deweyou/agents` CLI.
-
-## Release
-
-Merging changes to `bin/` or `cli/` into `main` automatically prepares a minor
-release, updates [CHANGELOG.md](./CHANGELOG.md), creates a `vX.Y.0` tag, and
-publishes `@deweyou/agents` to npm. The workflow requires the `NPM_TOKEN`
-repository secret.
+that can be selected through `deweyou-cli`.

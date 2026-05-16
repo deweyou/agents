@@ -2,7 +2,7 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-import { scanAssets } from '../cli/assets.mjs'
+import { scanAssets } from '../scripts/asset-scanner.mjs'
 
 const expectedTags = {
   skills: {

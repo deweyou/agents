@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { load } from 'js-yaml'
 
-import { scanAssets } from '../cli/assets.mjs'
+import { scanAssets } from './asset-scanner.mjs'
 
 function isKebabCase(s) {
   return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(s)

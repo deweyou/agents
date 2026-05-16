@@ -3,6 +3,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { load } from 'js-yaml'
 
+import { scanAssets } from '../cli/assets.mjs'
+
 function isKebabCase(s) {
   return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(s)
 }
@@ -62,6 +64,78 @@ function parseFrontmatter(path, errors) {
   }
 }
 
+function isObject(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function readJson(path, errors) {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'))
+  } catch (error) {
+    errors.push(`${path}: ${error.message}`)
+    return null
+  }
+}
+
+function sameKeys(a, b) {
+  const aKeys = Object.keys(a).sort()
+  const bKeys = Object.keys(b).sort()
+  return aKeys.length === bKeys.length && aKeys.every((key, index) => key === bKeys[index])
+}
+
+function lintRegistryAsset(path, registryAsset, scannedAsset, errors) {
+  if (!isObject(registryAsset)) {
+    errors.push(`${path}: registry entry must be an object`)
+    return
+  }
+
+  for (const field of ['path', 'version', 'description']) {
+    const expected = field === 'path' ? scannedAsset.sourcePath : scannedAsset[field]
+    if (registryAsset[field] !== expected) {
+      errors.push(`${path}: ${field} '${registryAsset[field]}' does not match scanned '${expected}'`)
+    }
+  }
+
+  if (!Array.isArray(registryAsset.tags)) {
+    errors.push(`${path}: tags must be an array`)
+  }
+}
+
+async function lintRegistry(root, errors) {
+  const path = join(root, 'registry.json')
+  const registry = readJson(path, errors)
+  if (!registry) return
+
+  if (!isObject(registry.assets)) {
+    errors.push(`${path}: assets must be an object`)
+    return
+  }
+  if (!isObject(registry.assets.skills)) {
+    errors.push(`${path}: assets.skills must be an object`)
+    return
+  }
+  if (!isObject(registry.assets.rules)) {
+    errors.push(`${path}: assets.rules must be an object`)
+    return
+  }
+
+  const scanned = await scanAssets(root)
+
+  if (!sameKeys(registry.assets.skills, scanned.skills)) {
+    errors.push(`${path}: registry skill keys do not match scanned skills`)
+  }
+  if (!sameKeys(registry.assets.rules, scanned.rules)) {
+    errors.push(`${path}: registry rule keys do not match scanned rules`)
+  }
+
+  for (const [name, asset] of Object.entries(scanned.skills)) {
+    lintRegistryAsset(`${path}: assets.skills.${name}`, registry.assets.skills[name], asset, errors)
+  }
+  for (const [name, asset] of Object.entries(scanned.rules)) {
+    lintRegistryAsset(`${path}: assets.rules.${name}`, registry.assets.rules[name], asset, errors)
+  }
+}
+
 const skills = findSkillFiles('skills')
 const rules = findRuleFiles('rules')
 const errors = []
@@ -105,6 +179,8 @@ for (const { path, fileName } of rules) {
   if (fm?.version && !isValidSemver(fm.version))
     errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
 }
+
+await lintRegistry(process.cwd(), errors)
 
 if (errors.length) {
   console.error('Agent asset lint errors:')

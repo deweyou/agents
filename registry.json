@@ -1,0 +1,39 @@
+{
+  "version": "2026.05.16",
+  "assets": {
+    "skills": {
+      "code-knowledge": {
+        "path": "skills/code-knowledge",
+        "version": "2.0.0",
+        "description": "Build, update, archive, and continuously grow a repository knowledge base for humans and future AI agents. Use this skill whenever the user wants to initialize repository docs (\"初始化知识库\", \"setup knowledge base\", \"build repo docs\"), update existing docs after code changes (\"更新知识库\", \"update docs\", \"沉淀这次改动\"), do a post-work archival check (\"刚做完\", \"PR merged\", \"done with this feature\"), or explicitly asks for continuous repository learning (\"持续学习这个仓库\", \"continuous learning\", \"cron update docs\"). Also trigger when the user mentions AGENTS.md, docs/, knowledge/, repository context for AI, or asks whether recent work should be documented.\n",
+        "tags": ["coding", "knowledge"]
+      },
+      "deweyou-design": {
+        "path": "skills/deweyou-design",
+        "version": "1.1.0",
+        "description": "Use this skill to generate well-branded interfaces and assets for Deweyou Design (Dewey Ou's personal design system), either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping. For web production code, complex components are built on Ark UI primitives with Deweyou tokens layered on top.",
+        "tags": ["design", "frontend"]
+      },
+      "web-page-debugger": {
+        "path": "skills/web-page-debugger",
+        "version": "2.0.0",
+        "description": "AI-driven web product verification and debugging. Two explicit modes: (1) verify — acceptance-test a page against a spec, user description, or AI inference; (2) debug — triage page anomalies via console/network/DOM inspection. Triggers on: \"帮我验收\", \"验收一下\", \"verify this page\", \"debug this page\", \"页面报错\", \"页面白屏\", \"something is broken\", \"help me QA\", \"check if X works\". Requires @playwright/mcp or chrome-devtools-mcp configured as an MCP server.\n",
+        "tags": ["coding", "frontend", "debugging"]
+      }
+    },
+    "rules": {
+      "code-style": {
+        "path": "rules/code-style.md",
+        "version": "1.0.0",
+        "description": "Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code across Dewey's personal projects.",
+        "tags": ["coding", "style"]
+      },
+      "development-workflow": {
+        "path": "rules/development-workflow.md",
+        "version": "1.0.1",
+        "description": "Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture.",
+        "tags": ["coding", "workflow"]
+      }
+    }
+  }
+}

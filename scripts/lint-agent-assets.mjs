@@ -98,6 +98,13 @@ function lintRegistryAsset(path, registryAsset, scannedAsset, errors) {
 
   if (!Array.isArray(registryAsset.tags)) {
     errors.push(`${path}: tags must be an array`)
+    return
+  }
+
+  for (const [index, tag] of registryAsset.tags.entries()) {
+    if (typeof tag !== 'string' || tag.length === 0) {
+      errors.push(`${path}: tags[${index}] must be a non-empty string`)
+    }
   }
 }
 

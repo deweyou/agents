@@ -4,6 +4,18 @@ import { readFile } from 'node:fs/promises'
 
 import { scanAssets } from '../cli/assets.mjs'
 
+const expectedTags = {
+  skills: {
+    'code-knowledge': ['coding', 'knowledge'],
+    'deweyou-design': ['design', 'frontend'],
+    'web-page-debugger': ['coding', 'frontend', 'debugging'],
+  },
+  rules: {
+    'code-style': ['coding', 'style'],
+    'development-workflow': ['coding', 'workflow'],
+  },
+}
+
 describe('registry', () => {
   it('matches scanned skills and rules', async () => {
     const registry = JSON.parse(await readFile(new URL('../registry.json', import.meta.url), 'utf8'))
@@ -25,14 +37,14 @@ describe('registry', () => {
       assert.equal(registry.assets.skills[name].path, asset.sourcePath)
       assert.equal(registry.assets.skills[name].version, asset.version)
       assert.equal(registry.assets.skills[name].description, asset.description)
-      assert.ok(Array.isArray(registry.assets.skills[name].tags))
+      assert.deepEqual(registry.assets.skills[name].tags, expectedTags.skills[name])
     }
 
     for (const [name, asset] of Object.entries(scanned.rules)) {
       assert.equal(registry.assets.rules[name].path, asset.sourcePath)
       assert.equal(registry.assets.rules[name].version, asset.version)
       assert.equal(registry.assets.rules[name].description, asset.description)
-      assert.ok(Array.isArray(registry.assets.rules[name].tags))
+      assert.deepEqual(registry.assets.rules[name].tags, expectedTags.rules[name])
     }
   })
 })

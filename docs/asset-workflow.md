@@ -2,7 +2,7 @@
 
 This document defines how to create and maintain assets in this repository.
 
-*Last updated: 2026-05-10 | Reason: Split detailed asset workflow out of AGENTS.md.*
+*Last updated: 2026-05-16 | Reason: Added registry maintenance workflow.*
 
 ## Repository Conventions
 

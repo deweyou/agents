@@ -28,6 +28,23 @@ These rules apply to every agent asset in this repo:
 Do not rename rule files to `*.rules.md`; this repository owns its own installer and
 keeps rule filenames plain.
 
+## Registry
+
+`registry.json` is the machine-readable index for skills and rules in this hub.
+It must include every active skill and rule, and its version and description fields
+must match asset frontmatter.
+
+When adding, removing, renaming, or changing the version or description of a skill
+or rule, update `registry.json` in the same change.
+
+Run:
+
+```bash
+pnpm run lint:assets
+```
+
+after registry changes.
+
 ## Creating A New Skill
 
 ### 1. Capture Intent

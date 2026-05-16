@@ -1,7 +1,7 @@
 # Agents
 
-Dewey Ou's personal agent assets hub: skills, rules, and reusable workflow assets
-for personal projects.
+Dewey Ou's personal agent asset hub: skills, rules, and reusable workflow assets
+used by `deweyou-cli`.
 
 ## Assets
 
@@ -10,26 +10,14 @@ for personal projects.
 | Skills | [`skills/`](./skills/) | Active workflows that trigger for specific tasks. |
 | Rules | [`rules/`](./rules/) | Passive coding and development preferences shared across projects. |
 
-## Installation
+## Usage Model
 
-### CLI
+This repository is the asset source. The preferred runtime entrypoint is
+`deweyou-cli`, which bootstraps repositories with selected skills and rules.
 
-Install, update, or remove assets interactively:
-
-```bash
-npx @deweyou/agents add
-npx @deweyou/agents update
-npx @deweyou/agents remove
-```
-
-The CLI installs assets into `.agents/` for the current project or `~/.agents/`
-globally. It can also link assets into Claude Code and Codex locations.
-
-### Skills CLI
-
-```bash
-npx skills add https://github.com/deweyou/agents --skill <skill-name>
-```
+The existing `@deweyou/agents` installer remains available as a legacy installer for
+copying or linking assets directly, but new workflow automation should target
+`deweyou-cli`.
 
 ## Skills
 

@@ -20,18 +20,18 @@ and release packaging live in `deweyou-cli`.
 
 ## Skills
 
-| Skill | Version | Description |
-|-------|---------|-------------|
-| `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
-| `web-page-debugger` | `2.0.0` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
-| `deweyou-design` | `1.1.0` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
+| Skill | Description |
+|-------|-------------|
+| `code-knowledge` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
+| `web-page-debugger` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
+| `deweyou-design` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
 
 ## Rules
 
-| Rule | Version | Description |
-|------|---------|-------------|
-| `code-style` | `1.0.0` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
-| `development-workflow` | `1.0.1` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
+| Rule | Description |
+|------|-------------|
+| `code-style` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
+| `development-workflow` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
 
 ## Development
 

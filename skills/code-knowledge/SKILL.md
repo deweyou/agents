@@ -1,6 +1,5 @@
 ---
 name: code-knowledge
-version: 2.0.0
 description: >
   Build, update, archive, and continuously grow a repository knowledge base for
   humans and future AI agents. Use this skill whenever the user wants to

@@ -9,10 +9,6 @@ function isKebabCase(s) {
   return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(s)
 }
 
-function isValidSemver(s) {
-  return /^\d+\.\d+\.\d+$/.test(String(s))
-}
-
 function findSkillFiles(dir) {
   const results = []
   try {
@@ -89,7 +85,7 @@ function lintRegistryAsset(path, registryAsset, scannedAsset, errors) {
     return
   }
 
-  for (const field of ['path', 'version', 'description']) {
+  for (const field of ['path', 'description', 'hash']) {
     const expected = field === 'path' ? scannedAsset.sourcePath : scannedAsset[field]
     if (registryAsset[field] !== expected) {
       errors.push(`${path}: ${field} '${registryAsset[field]}' does not match scanned '${expected}'`)
@@ -151,7 +147,7 @@ for (const { path, dirName } of skills) {
   const fm = parseFrontmatter(path, errors)
   if (!fm) continue
 
-  for (const field of ['name', 'description', 'version']) {
+  for (const field of ['name', 'description']) {
     if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
   }
 
@@ -162,15 +158,13 @@ for (const { path, dirName } of skills) {
       errors.push(`${path}: name '${fm.name}' does not match directory '${dirName}'`)
   }
 
-  if (fm?.version && !isValidSemver(fm.version))
-    errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
 }
 
 for (const { path, fileName } of rules) {
   const fm = parseFrontmatter(path, errors)
   if (!fm) continue
 
-  for (const field of ['name', 'description', 'version']) {
+  for (const field of ['name', 'description']) {
     if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
   }
 
@@ -183,8 +177,6 @@ for (const { path, fileName } of rules) {
       errors.push(`${path}: name '${fm.name}' does not match file '${expectedName}'`)
   }
 
-  if (fm?.version && !isValidSemver(fm.version))
-    errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
 }
 
 await lintRegistry(process.cwd(), errors)

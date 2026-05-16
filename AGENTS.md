@@ -23,7 +23,9 @@ and registry metadata consumed by `deweyou-cli`.
 ## Core Conventions
 
 - Skill directories, rule filenames, and frontmatter `name` values must be kebab-case.
-- Skills and rules must include `name`, `version`, and `description` frontmatter.
+- Skills and rules must include `name` and `description` frontmatter.
+- `registry.json` stores CLI-facing paths, descriptions, tags, and generated
+  content hashes for each asset.
 - Rules use plain `rules/<name>.md` filenames. Do not rename them to `*.rules.md`.
 - Run `pnpm run lint:assets` after changing skills or rules.
 - Run `pnpm test` after changing registry or asset-scanning behavior.

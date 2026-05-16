@@ -21,9 +21,6 @@ describe('registry', () => {
     const registry = JSON.parse(await readFile(new URL('../registry.json', import.meta.url), 'utf8'))
     const scanned = await scanAssets(new URL('..', import.meta.url).pathname)
 
-    assert.equal(typeof registry.version, 'string')
-    assert.ok(registry.version.length > 0)
-
     assert.deepEqual(
       Object.keys(registry.assets.skills).sort(),
       Object.keys(scanned.skills).sort(),
@@ -35,15 +32,15 @@ describe('registry', () => {
 
     for (const [name, asset] of Object.entries(scanned.skills)) {
       assert.equal(registry.assets.skills[name].path, asset.sourcePath)
-      assert.equal(registry.assets.skills[name].version, asset.version)
       assert.equal(registry.assets.skills[name].description, asset.description)
+      assert.equal(registry.assets.skills[name].hash, asset.hash)
       assert.deepEqual(registry.assets.skills[name].tags, expectedTags.skills[name])
     }
 
     for (const [name, asset] of Object.entries(scanned.rules)) {
       assert.equal(registry.assets.rules[name].path, asset.sourcePath)
-      assert.equal(registry.assets.rules[name].version, asset.version)
       assert.equal(registry.assets.rules[name].description, asset.description)
+      assert.equal(registry.assets.rules[name].hash, asset.hash)
       assert.deepEqual(registry.assets.rules[name].tags, expectedTags.rules[name])
     }
   })

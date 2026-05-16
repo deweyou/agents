@@ -2,7 +2,7 @@
 
 This document defines how to create and maintain assets in this repository.
 
-*Last updated: 2026-05-16 | Reason: Added registry maintenance workflow.*
+*Last updated: 2026-05-17 | Reason: Switched asset tracking from semver to content hashes.*
 
 ## Repository Conventions
 
@@ -13,9 +13,7 @@ These rules apply to every agent asset in this repo:
    `rules/code-style.md`.
 2. **Naming**: Directory names, rule filenames, and frontmatter `name` values are
    kebab-case. Good: `data-export`. Bad: `DataExport`, `data_export`.
-3. **Version**: Every skill and rule includes a semver `version` field in YAML
-   frontmatter. New assets start at `1.0.0`.
-4. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
+3. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
    `pnpm test` after changing registry or asset-scanning behavior.
 
 ## Asset Types
@@ -31,11 +29,11 @@ plain for registry and CLI consumption.
 ## Registry
 
 `registry.json` is the machine-readable index for skills and rules in this hub.
-It must include every active skill and rule, and its version and description fields
-must match asset frontmatter.
+It must include every active skill and rule. Paths and descriptions must match
+the scanned assets, and each entry stores a generated `sha256:` content hash.
 
-When adding, removing, renaming, or changing the version or description of a skill
-or rule, update `registry.json` in the same change.
+When adding, removing, renaming, or changing a skill or rule, update
+`registry.json` in the same change.
 
 Run:
 
@@ -65,7 +63,6 @@ Write the draft at `skills/<kebab-name>/SKILL.md`. The frontmatter must include:
 ```yaml
 ---
 name: <kebab-name>
-version: 1.0.0
 description: >
   <What it does and when to trigger. Be specific enough that agents use it.>
 ---
@@ -85,8 +82,8 @@ Use the skill-creator eval loop when the change affects skill behavior:
 
 ### 4. Finalize
 
-Ensure the directory is `skills/<kebab-name>/`, the frontmatter name matches the
-directory, and the `version` field is present.
+Ensure the directory is `skills/<kebab-name>/` and the frontmatter name matches
+the directory.
 
 ### 5. Create Skill README
 
@@ -111,9 +108,9 @@ Every skill directory gets a `README.md` alongside `SKILL.md`:
 npx skills add https://github.com/deweyou/agents --skill <kebab-name>
 \`\`\`
 
-## Version
+## Source
 
-`<version>` - see [SKILL.md](./SKILL.md) for the changelog.
+This skill is maintained in `deweyou/agents` and indexed by `registry.json`.
 ```
 
 ### 6. Update Root README
@@ -132,15 +129,8 @@ Add or update the skill row in the root README skills table.
 
 4. Apply only the necessary edits.
 5. Test with prompts that cover the changed behavior.
-6. Bump `version` after approval:
-
-| Change Type | Bump | Example |
-|-------------|------|---------|
-| Bug fix or small correction | patch | `1.2.3` -> `1.2.4` |
-| New feature or expanded behavior | minor | `1.2.3` -> `1.3.0` |
-| Breaking behavior change | major | `1.2.3` -> `2.0.0` |
-
-7. Update the root README skills table.
+6. Update `registry.json` so the content hash reflects the change.
+7. Update the root README skills table when the public description changes.
 
 ## Creating Or Updating Rules
 
@@ -152,7 +142,6 @@ Each rule is a Markdown file with YAML frontmatter:
 ```yaml
 ---
 name: code-style
-version: 1.0.0
 description: Short description of what the rule governs.
 ---
 ```
@@ -167,7 +156,8 @@ After changing rules:
 pnpm run lint:assets
 ```
 
-Update the root README rules table.
+Update `registry.json` after rule changes. Update the root README rules table
+when the public description changes.
 
 ## CLI Release Workflow
 

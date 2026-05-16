@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFile, readdir } from 'node:fs/promises'
 import { join, basename, relative } from 'node:path'
 import { load } from 'js-yaml'
@@ -38,9 +39,9 @@ async function scanSkills(root) {
     assets[name] = {
       type: 'skill',
       name,
-      version: String(frontmatter.version ?? ''),
       description: String(frontmatter.description ?? ''),
       sourcePath: toPosix(relative(root, skillPath)),
+      hash: await hashDirectory(skillPath),
     }
   }
 
@@ -64,9 +65,9 @@ async function scanRules(root) {
     assets[name] = {
       type: 'rule',
       name,
-      version: String(frontmatter.version ?? ''),
       description: String(frontmatter.description ?? ''),
       sourcePath: toPosix(relative(root, rulePath)),
+      hash: await hashFile(rulePath),
     }
   }
 
@@ -88,4 +89,38 @@ function sortObject(object) {
 
 function toPosix(path) {
   return path.split('\\').join('/')
+}
+
+async function hashDirectory(dir) {
+  const files = await collectFiles(dir)
+  const hash = createHash('sha256')
+
+  for (const file of files) {
+    const relativePath = toPosix(relative(dir, file))
+    hash.update(relativePath)
+    hash.update('\0')
+    hash.update(await readFile(file))
+    hash.update('\0')
+  }
+
+  return `sha256:${hash.digest('hex')}`
+}
+
+async function collectFiles(dir) {
+  const files = []
+
+  for (const entry of await safeReaddir(dir)) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...await collectFiles(path))
+    } else if (entry.isFile()) {
+      files.push(path)
+    }
+  }
+
+  return files.sort((a, b) => a.localeCompare(b))
+}
+
+async function hashFile(path) {
+  return `sha256:${createHash('sha256').update(await readFile(path)).digest('hex')}`
 }

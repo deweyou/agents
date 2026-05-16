@@ -1,6 +1,5 @@
 ---
 name: code-style
-version: 1.0.0
 description: Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code across Dewey's personal projects.
 ---
 

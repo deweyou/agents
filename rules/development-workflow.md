@@ -1,6 +1,5 @@
 ---
 name: development-workflow
-version: 1.0.1
 description: Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture.
 ---
 

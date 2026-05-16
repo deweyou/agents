@@ -27,6 +27,8 @@ and a small CLI for installing those assets into projects.
 - Rules use plain `rules/<name>.md` filenames. Do not rename them to `*.rules.md`.
 - Run `pnpm run lint:assets` after changing skills or rules.
 - Run `pnpm test` after changing CLI code.
+- When adding or changing CLI behavior, add or update unit tests for that behavior
+  in the same change.
 
 ## CLI Commands
 

@@ -1,0 +1,48 @@
+import { parseArgs, usageError } from './args.ts'
+
+export async function main(argv: string[]): Promise<void> {
+  const parsed = parseArgs(argv)
+
+  if (parsed.topic !== 'agent') {
+    printUsageAndThrow()
+  }
+
+  if (parsed.command === 'init') {
+    const { runInit } = await import('./init.ts')
+    await runInit(parsed.flags)
+    return
+  }
+
+  if (parsed.command === 'update') {
+    const { runUpdate } = await import('./cache.ts')
+    await runUpdate(parsed.flags)
+    return
+  }
+
+  if (parsed.command === 'context') {
+    const { runContext } = await import('./context.ts')
+    await runContext(parsed.flags)
+    return
+  }
+
+  if (parsed.command === 'doctor') {
+    const { runDoctor } = await import('./doctor.ts')
+    await runDoctor(parsed.flags)
+    return
+  }
+
+  printUsageAndThrow()
+}
+
+function usage(): string {
+  return `Usage:
+  deweyou agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--yes] [--dry-run] [--force]
+  deweyou agent update
+  deweyou agent context [--format markdown|json]
+  deweyou agent doctor`
+}
+
+function printUsageAndThrow(): never {
+  console.log(usage())
+  throw usageError('', { silent: true })
+}

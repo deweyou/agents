@@ -2,7 +2,7 @@
 
 This document defines how to create and maintain assets in this repository.
 
-*Last updated: 2026-05-17 | Reason: Switched asset tracking from semver to content hashes.*
+*Last updated: 2026-05-17 | Reason: Co-located the CLI package under `cli/`.*
 
 ## Repository Conventions
 
@@ -20,8 +20,7 @@ These rules apply to every agent asset in this repo:
 
 - **Skills** are active workflows. They live in `skills/<name>/SKILL.md`.
 - **Rules** are passive reusable constraints. They live in `rules/<name>.md`.
-- **Runtime CLI code** lives in the separate `deweyou-cli` package. This repo is
-  only the asset source.
+- **Runtime CLI code** lives in `cli/` as a TypeScript npm package.
 
 Do not rename rule files to `*.rules.md`; this repository keeps rule filenames
 plain for registry and CLI consumption.
@@ -161,5 +160,15 @@ when the public description changes.
 
 ## CLI Release Workflow
 
-CLI release, changelog, and npm publishing now live in the separate
-`deweyou-cli` package. This repository no longer publishes an installer package.
+CLI release, changelog, and npm publishing live under `cli/`. The root
+`@deweyou/agents` package stays private and only hosts assets plus workflows.
+
+After changing CLI behavior, run:
+
+```bash
+cd cli
+npm run typecheck
+npm test
+npm run test:coverage
+npm pack --dry-run
+```

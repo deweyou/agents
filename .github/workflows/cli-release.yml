@@ -1,0 +1,76 @@
+name: CLI Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "cli/**"
+      - ".github/workflows/cli-release.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        working-directory: cli
+        run: npm install --no-package-lock --ignore-scripts
+
+      - name: Typecheck
+        working-directory: cli
+        run: npm run typecheck
+
+      - name: Test
+        working-directory: cli
+        run: npm test
+
+      - name: Coverage
+        working-directory: cli
+        run: npm run test:coverage
+
+      - name: Pack dry run
+        working-directory: cli
+        run: npm pack --dry-run
+
+      - name: Prepare release
+        id: release
+        working-directory: cli
+        run: |
+          changed_files="$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | sed -n 's#^cli/##p' | tr '\n' ' ')"
+          version="$(npx tsx scripts/prepare-release.ts $changed_files)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Commit release files
+        if: ${{ steps.release.outputs.version != 'No CLI changes detected.' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cli/package.json cli/CHANGELOG.md
+          git commit -m "chore(release): cli v${{ steps.release.outputs.version }}"
+          git tag -a "cli-v${{ steps.release.outputs.version }}" -m "cli v${{ steps.release.outputs.version }}"
+
+      - name: Publish npm package
+        if: ${{ steps.release.outputs.version != 'No CLI changes detected.' }}
+        working-directory: cli
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push release commit and tag
+        if: ${{ steps.release.outputs.version != 'No CLI changes detected.' }}
+        run: |
+          git push origin HEAD:main
+          git push origin "cli-v${{ steps.release.outputs.version }}"

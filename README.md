@@ -13,10 +13,11 @@ used by `deweyou-cli`.
 ## Usage Model
 
 This repository is the asset source. The preferred runtime entrypoint is
-`deweyou-cli`, which bootstraps repositories with selected skills and rules.
+`deweyou-cli`, which lives in [`cli/`](./cli/) and bootstraps repositories with
+selected skills and rules.
 
 The legacy `@deweyou/agents` installer has been removed. New workflow automation
-and release packaging live in `deweyou-cli`.
+and release packaging live in [`cli/`](./cli/).
 
 ## Skills
 
@@ -43,3 +44,13 @@ Add or update assets using the workflow documented in [AGENTS.md](./AGENTS.md) a
 
 Rules are maintained in [`rules/`](./rules/). They are stable personal preferences
 that can be selected through `deweyou-cli`.
+
+CLI development lives in [`cli/`](./cli/):
+
+```bash
+cd cli
+npm run typecheck
+npm test
+npm run test:coverage
+npm pack --dry-run
+```

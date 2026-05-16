@@ -59,17 +59,12 @@ describe('coverage gaps', () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
     const sourceRoot = await mkdtemp(join(tmpdir(), 'deweyou-assets-'))
 
-    await writeFile(
-      join(sourceRoot, 'registry.json'),
-      JSON.stringify({ assets: {} }, null, 2),
-    )
-
     await updateCache({ homeDir, sourceRoot })
     const paths = cachePaths({ homeDir })
 
     assert.deepEqual(
       JSON.parse(await readFile(join(paths.assetsRoot, 'registry.json'), 'utf8')),
-      { assets: {} },
+      { assets: { skills: {}, rules: {} } },
     )
     await assert.rejects(() => updateCache(), /sourceRoot is required/)
   })
@@ -94,10 +89,6 @@ describe('coverage gaps', () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
     const sourceRoot = await mkdtemp(join(tmpdir(), 'deweyou-assets-'))
 
-    await writeJson(join(sourceRoot, 'registry.json'), {
-      assets: {},
-    })
-
     const output = await captureLog(() => runUpdate({ homeDir, sourceRoot }))
 
     assert.match(output, /Updated Dewey agent assets from local files/)
@@ -107,10 +98,6 @@ describe('coverage gaps', () => {
   it('runUpdate resolves the source root from the environment', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
     const sourceRoot = await mkdtemp(join(tmpdir(), 'deweyou-assets-'))
-
-    await writeJson(join(sourceRoot, 'registry.json'), {
-      assets: {},
-    })
 
     const output = await withEnv(
       'DEWEYOU_AGENTS_SOURCE',
@@ -663,67 +650,40 @@ describe('coverage gaps', () => {
     vi.doUnmock('../src/cli/doctor.ts')
   })
 
-  it('validates registry malformed asset and frontmatter shapes', async () => {
+  it('validates generated registry frontmatter shapes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'deweyou-assets-'))
 
-    await writeJson(join(root, 'registry.json'), [])
-    await assert.rejects(() => loadRegistry(root), /registry must be an object/)
+    await mkdir(join(root, 'skills/demo'), { recursive: true })
+    await writeFile(join(root, 'skills/demo/SKILL.md'), '# Missing frontmatter')
+    await assert.rejects(() => loadRegistry(root), /must include YAML frontmatter/)
 
-    await writeJson(join(root, 'registry.json'), {})
-    await assert.rejects(() => loadRegistry(root), /registry.assets/)
+    await writeFile(
+      join(root, 'skills/demo/SKILL.md'),
+      `---
+name: demo
+description: Demo
+tags: demo
+---
+`,
+    )
+    await assert.rejects(() => loadRegistry(root), /frontmatter tags must be an array/)
 
-    await writeJson(join(root, 'registry.json'), {
-      assets: { skills: { demo: null }, rules: {} },
-    })
-    await assert.rejects(() => loadRegistry(root), /skill demo must be an object/)
-
-    await writeJson(join(root, 'registry.json'), {
-      assets: {
-        skills: {
-          demo: {
-            path: '',
-            description: 'Demo',
-            hash: 'sha256:demo',
-            tags: [],
-          },
-        },
-        rules: {},
-      },
-    })
-    await assert.rejects(() => loadRegistry(root), /path must be a non-empty string/)
-
-    await writeJson(join(root, 'registry.json'), {
-      assets: {
-        skills: {
-          demo: {
-            path: 'skills/demo',
-            description: 'Demo',
-            hash: '',
-            tags: [],
-          },
-        },
-        rules: {},
-      },
-    })
-    await assert.rejects(() => loadRegistry(root), /hash must be a non-empty string/)
-
-    await writeJson(join(root, 'registry.json'), {
-      assets: {
-        skills: {
-          demo: {
-            path: 'skills/demo',
-            description: 'Demo',
-            hash: 'sha256:demo',
-            tags: 'demo',
-          },
-        },
-        rules: {},
-      },
-    })
-    await assert.rejects(() => loadRegistry(root), /tags must be an array/)
+    await writeFile(
+      join(root, 'skills/demo/SKILL.md'),
+      `---
+name: demo
+description: Demo
+tags: [demo, ""]
+---
+`,
+    )
+    await assert.rejects(
+      () => loadRegistry(root),
+      /frontmatter tags\[1\] must be a non-empty string/,
+    )
   })
 
-  it('validates registry frontmatter name and description mismatches', async () => {
+  it('validates generated registry frontmatter names and descriptions', async () => {
     const root = await createAssetHub()
 
     await writeFile(
@@ -740,11 +700,14 @@ description: Demo rule
       join(root, 'rules/demo-rule.md'),
       `---
 name: demo-rule
-description: Other description
+description:
 ---
 `,
     )
-    await assert.rejects(() => loadRegistry(root), /description must match frontmatter/)
+    await assert.rejects(
+      () => loadRegistry(root),
+      /frontmatter description must be a non-empty string/,
+    )
   })
 
   it('validates registry frontmatter edge cases', async () => {
@@ -864,27 +827,6 @@ description: Demo rule
 # Demo rule
 `,
   )
-  await writeJson(join(root, 'registry.json'), {
-    assets: {
-      skills: {
-        demo: {
-          path: 'skills/demo',
-          description: 'Demo skill',
-          hash: 'sha256:demo-skill',
-          tags: ['demo'],
-        },
-      },
-      rules: {
-        'demo-rule': {
-          path: 'rules/demo-rule.md',
-          description: 'Demo rule',
-          hash: 'sha256:demo-rule',
-          tags: ['demo'],
-        },
-      },
-    },
-  })
-
   return root
 }
 

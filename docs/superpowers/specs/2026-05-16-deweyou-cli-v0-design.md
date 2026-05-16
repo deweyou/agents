@@ -1,5 +1,10 @@
 # deweyou-cli v0 Design
 
+> Status note: this was the original design draft. The implemented CLI now lives
+> in this repository under `cli/`, exposes the `deweyou-cli` binary, and
+> generates the cache `registry.json` during `deweyou-cli agent update` instead
+> of maintaining a source `registry.json` in the asset hub.
+
 ## Goal
 
 Create `deweyou-cli` as Dewey's personal agent workflow bootstrapper.

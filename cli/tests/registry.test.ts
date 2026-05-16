@@ -7,109 +7,119 @@ import { tmpdir } from 'node:os'
 import { loadRegistry } from '../src/cli/registry.ts'
 
 describe('loadRegistry', () => {
-  it('loads a valid registry from an asset hub', async () => {
-    const root = await createAssetHub()
+  it('generates a registry from skills and rules in an asset hub', async () => {
+    const root = await createAssetHub({
+      skillFrontmatter: 'tags: [demo, skill]',
+      ruleFrontmatter: 'tags: [demo, rule]',
+    })
+    await mkdir(join(root, 'skills/demo/references'), { recursive: true })
+    await mkdir(join(root, 'rules/nested'), { recursive: true })
+    await writeFile(join(root, 'skills/README.md'), '# Skills')
+    await writeFile(join(root, 'skills/demo/references/note.md'), 'Nested note')
+    await writeFile(join(root, 'rules/README.md'), '# Rules')
+    await writeFile(join(root, 'rules/ignore.txt'), 'ignore me')
+
+    const registry = await loadRegistry(root)
+
+    assert.deepEqual(Object.keys(registry.assets.skills), ['demo'])
+    assert.deepEqual(Object.keys(registry.assets.rules), ['demo-rule'])
+    assert.equal(registry.assets.skills.demo.path, 'skills/demo')
+    assert.equal(registry.assets.skills.demo.description, 'Demo skill')
+    assert.match(registry.assets.skills.demo.hash, /^sha256:[a-f0-9]{64}$/)
+    assert.deepEqual(registry.assets.skills.demo.tags, ['demo', 'skill'])
+
+    assert.equal(registry.assets.rules['demo-rule'].path, 'rules/demo-rule.md')
+    assert.equal(registry.assets.rules['demo-rule'].description, 'Demo rule')
+    assert.match(registry.assets.rules['demo-rule'].hash, /^sha256:[a-f0-9]{64}$/)
+    assert.deepEqual(registry.assets.rules['demo-rule'].tags, ['demo', 'rule'])
+  })
+
+  it('defaults missing asset directories and tags to empty collections', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'deweyou-registry-'))
 
     const registry = await loadRegistry(root)
 
     assert.deepEqual(registry, {
       assets: {
-        skills: {
-          demo: {
-            path: 'skills/demo',
-            description: 'Demo skill',
-            hash: 'sha256:demo-skill',
-            tags: ['demo'],
-          },
-        },
-        rules: {
-          'demo-rule': {
-            path: 'rules/demo-rule.md',
-            description: 'Demo rule',
-            hash: 'sha256:demo-rule',
-            tags: ['demo'],
-          },
-        },
+        skills: {},
+        rules: {},
       },
     })
   })
 
-  it('rejects a registry whose skill hash is missing', async () => {
-    const root = await createAssetHub({
-      includeSkillHash: false,
-    })
-
-    await assert.rejects(
-      () => loadRegistry(root),
-      /hash must be a non-empty string/,
-    )
-  })
-
-  it('rejects frontmatter names that differ from the registry key', async () => {
-    const root = await createAssetHub({
+  it('rejects frontmatter names that differ from asset paths', async () => {
+    const skillRoot = await createAssetHub({
       skillName: 'different-demo',
     })
 
     await assert.rejects(
-      () => loadRegistry(root),
-      /name must match frontmatter/,
+      () => loadRegistry(skillRoot),
+      /skill demo name must match frontmatter/,
     )
-  })
 
-  it('rejects null skill collections', async () => {
-    const root = await createAssetHub({
-      skills: null,
+    const ruleRoot = await createAssetHub({
+      ruleName: 'different-rule',
     })
 
     await assert.rejects(
-      () => loadRegistry(root),
-      /registry\.assets\.skills must be an object/,
+      () => loadRegistry(ruleRoot),
+      /rule demo-rule name must match frontmatter/,
     )
   })
 
-  it('defaults omitted skill collections to an empty object', async () => {
-    const root = await createAssetHub({
-      includeSkills: false,
-    })
-
-    const registry = await loadRegistry(root)
-
-    assert.deepEqual(registry.assets.skills, {})
-  })
-
-  it('rejects missing registry descriptions', async () => {
-    const root = await createAssetHub({
-      includeSkillDescription: false,
+  it('rejects missing and malformed frontmatter fields', async () => {
+    const missingDescriptionRoot = await createAssetHub({
+      skillDescription: '',
     })
 
     await assert.rejects(
-      () => loadRegistry(root),
-      /description must be a non-empty string/,
+      () => loadRegistry(missingDescriptionRoot),
+      /frontmatter description must be a non-empty string/,
+    )
+
+    const malformedTagsRoot = await createAssetHub({
+      skillFrontmatter: 'tags: demo',
+    })
+
+    await assert.rejects(
+      () => loadRegistry(malformedTagsRoot),
+      /frontmatter tags must be an array/,
+    )
+
+    const malformedTagRoot = await createAssetHub({
+      skillFrontmatter: 'tags: [demo, ""]',
+    })
+
+    await assert.rejects(
+      () => loadRegistry(malformedTagRoot),
+      /frontmatter tags\[1\] must be a non-empty string/,
     )
   })
 
-  it('rejects non-sha registry hashes and mismatched descriptions', async () => {
-    const badHashRoot = await createAssetHub({
-      skillHash: 'md5:not-a-sha',
-    })
+  it('rejects invalid frontmatter documents', async () => {
+    const root = await createAssetHub()
 
-    await assert.rejects(
-      () => loadRegistry(badHashRoot),
-      /hash must be a sha256 content hash/,
+    await writeFile(join(root, 'skills/demo/SKILL.md'), '# No frontmatter')
+    await assert.rejects(() => loadRegistry(root), /must include YAML frontmatter/)
+
+    await writeFile(
+      join(root, 'skills/demo/SKILL.md'),
+      `---
+- nope
+---
+`,
     )
-
-    const badDescriptionRoot = await createAssetHub({
-      skillDescription: 'Different description',
-    })
-
-    await assert.rejects(
-      () => loadRegistry(badDescriptionRoot),
-      /description must match frontmatter/,
-    )
+    await assert.rejects(() => loadRegistry(root), /frontmatter must be an object/)
   })
 })
 
-async function createAssetHub(options = {}) {
+async function createAssetHub(options: {
+  skillName?: string
+  skillDescription?: string
+  skillFrontmatter?: string
+  ruleName?: string
+  ruleFrontmatter?: string
+} = {}) {
   const root = await mkdtemp(join(tmpdir(), 'deweyou-registry-'))
 
   await mkdir(join(root, 'skills/demo'), { recursive: true })
@@ -119,7 +129,8 @@ async function createAssetHub(options = {}) {
     join(root, 'skills/demo/SKILL.md'),
     `---
 name: ${options.skillName ?? 'demo'}
-description: Demo skill
+description: ${options.skillDescription ?? 'Demo skill'}
+${options.skillFrontmatter ?? ''}
 ---
 
 # Demo
@@ -129,60 +140,14 @@ description: Demo skill
   await writeFile(
     join(root, 'rules/demo-rule.md'),
     `---
-name: demo-rule
+name: ${options.ruleName ?? 'demo-rule'}
 description: Demo rule
+${options.ruleFrontmatter ?? ''}
 ---
 
 # Demo rule
 `,
   )
 
-  await writeFile(
-    join(root, 'registry.json'),
-    JSON.stringify(createRegistryFixture(options), null, 2),
-  )
-
   return root
-}
-
-function createRegistryFixture(options) {
-  const registry = {
-    assets: {
-      rules: {
-        'demo-rule': {
-          path: 'rules/demo-rule.md',
-          description: 'Demo rule',
-          hash: 'sha256:demo-rule',
-          tags: ['demo'],
-        },
-      },
-    },
-  }
-
-  if (options.includeSkills !== false) {
-    registry.assets.skills =
-      'skills' in options
-        ? options.skills
-        : {
-            demo: createSkillRegistryFixture(options),
-          }
-  }
-
-  return registry
-}
-
-function createSkillRegistryFixture(options) {
-  const skill = {
-    path: 'skills/demo',
-    tags: ['demo'],
-  }
-
-  if (options.includeSkillDescription !== false) {
-    skill.description = options.skillDescription ?? 'Demo skill'
-  }
-  if (options.includeSkillHash !== false) {
-    skill.hash = options.skillHash ?? 'sha256:demo-skill'
-  }
-
-  return skill
 }

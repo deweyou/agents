@@ -24,44 +24,44 @@ the cache:
 
 ```bash
 export DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents
-deweyou agent update
+deweyou-cli agent update
 ```
 
 ## Quick Start
 
 ```bash
 cd /path/to/your/repo
-deweyou agent init
-deweyou agent doctor
-deweyou agent context --format markdown
+deweyou-cli agent init
+deweyou-cli agent doctor
+deweyou-cli agent context --format markdown
 ```
 
 For a non-interactive setup that selects everything:
 
 ```bash
-deweyou agent init --all --mode link --yes
+deweyou-cli agent init --all --mode link --yes
 ```
 
 ## Mental Model
 
-`deweyou/agents` is the asset hub. It owns `registry.json`, `skills/`, and
-`rules/`.
+`deweyou/agents` is the asset hub. It owns `skills/` and `rules/`.
 
-`deweyou-cli` is the workflow manager. It caches the hub assets under your home
-directory, then writes a small `.agents/manifest.json` into each repository so
-the repository knows which assets are active.
+`deweyou-cli` is the workflow manager. It scans the hub assets, generates a
+cache registry under your home directory, then writes a small
+`.agents/manifest.json` into each repository so the repository knows which
+assets are active.
 
 Each repository chooses its own asset set. A coding repo can select coding
 skills and rules; a writing or design repo can select different ones.
 
 ## Commands
 
-### `deweyou agent update`
+### `deweyou-cli agent update`
 
 Refreshes the local Dewey asset cache from `DEWEYOU_AGENTS_SOURCE`.
 
 ```bash
-DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents deweyou agent update
+DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents deweyou-cli agent update
 ```
 
 This command writes the global cache at:
@@ -72,12 +72,12 @@ This command writes the global cache at:
 
 Run this after changing or pulling updates in the asset hub.
 
-### `deweyou agent init`
+### `deweyou-cli agent init`
 
 Initializes the current repository with selected skills and rules.
 
 ```bash
-deweyou agent init
+deweyou-cli agent init
 ```
 
 Without selection flags, this opens an interactive setup where you choose:
@@ -89,9 +89,9 @@ Without selection flags, this opens an interactive setup where you choose:
 Scripted examples:
 
 ```bash
-deweyou agent init --all --mode link --yes
-deweyou agent init --skills code-knowledge,deweyou-design --rules code-style
-deweyou agent init --dry-run
+deweyou-cli agent init --all --mode link --yes
+deweyou-cli agent init --skills code-knowledge,deweyou-design --rules code-style
+deweyou-cli agent init --dry-run
 ```
 
 Flags:
@@ -109,13 +109,13 @@ Flags:
 `--yes` does not guess a default asset set. It only confirms a scripted
 selection you already provided.
 
-### `deweyou agent context`
+### `deweyou-cli agent context`
 
 Prints the active Dewey agent context for the current repository.
 
 ```bash
-deweyou agent context --format markdown
-deweyou agent context --format json
+deweyou-cli agent context --format markdown
+deweyou-cli agent context --format json
 ```
 
 Formats:
@@ -129,12 +129,12 @@ The context output tells an agent which skills and rules are active, where their
 files live, whether the hub commit changed, and whether any selected asset hash
 changed in the local cache.
 
-### `deweyou agent doctor`
+### `deweyou-cli agent doctor`
 
 Checks whether the current repository and local cache are healthy.
 
 ```bash
-deweyou agent doctor
+deweyou-cli agent doctor
 ```
 
 It verifies:
@@ -159,7 +159,7 @@ The command exits with a non-zero status when a check fails.
 
 ## Files Created
 
-Depending on the selected mode, `deweyou agent init` may create or update:
+Depending on the selected mode, `deweyou-cli agent init` may create or update:
 
 ```text
 AGENTS.md
@@ -173,7 +173,7 @@ workflow context. Existing content outside that managed section is preserved.
 
 ## Safety Notes
 
-- Run `deweyou agent update` before `deweyou agent init`.
+- Run `deweyou-cli agent update` before `deweyou-cli agent init`.
 - Asset ids must be kebab-case and must exist in the cached registry.
 - `--force` only replaces destinations that are already Dewey-managed. It
   refuses to overwrite unrelated user-created files or directories.
@@ -203,8 +203,9 @@ version, prepends [CHANGELOG.md](./CHANGELOG.md), tags `vX.Y.0`, and publishes
 
 ## Relationship To `deweyou/agents`
 
-`deweyou/agents` continues to provide the actual skills, rules, registry, and
-asset validation workflow.
+`deweyou/agents` continues to provide the actual skills, rules, and asset
+validation workflow. The CLI generates the cache registry during
+`deweyou-cli agent update`.
 
 `deweyou-cli` does not replace those assets. It gives every repository a
 repeatable way to choose and wire the assets it wants, without manually copying

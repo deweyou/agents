@@ -1,4 +1,4 @@
-import { copyFile, cp, mkdir, rename, rm, stat } from 'node:fs/promises'
+import { cp, mkdir, rename, rm, stat } from 'node:fs/promises'
 import { execFile } from 'node:child_process'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
@@ -31,7 +31,7 @@ export async function updateCache({
     throw new Error('sourceRoot is required to update the Dewey assets cache')
   }
 
-  await loadRegistry(sourceRoot)
+  const registry = await loadRegistry(sourceRoot)
   const source = await resolveSourceSnapshot(sourceRoot)
   const paths = cachePaths({ homeDir })
   const tempAssetsRoot = join(
@@ -43,10 +43,7 @@ export async function updateCache({
     await mkdir(paths.root, { recursive: true })
     await rm(tempAssetsRoot, { recursive: true, force: true })
     await mkdir(tempAssetsRoot, { recursive: true })
-    await copyFile(
-      join(sourceRoot, 'registry.json'),
-      join(tempAssetsRoot, 'registry.json'),
-    )
+    await writeJson(join(tempAssetsRoot, 'registry.json'), registry)
     await copyAssetDirectory(sourceRoot, tempAssetsRoot, 'skills')
     await copyAssetDirectory(sourceRoot, tempAssetsRoot, 'rules')
 

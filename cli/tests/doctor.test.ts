@@ -214,34 +214,6 @@ description: Demo rule
 `,
   )
 
-  await writeFile(
-    join(root, 'registry.json'),
-    `${JSON.stringify(
-      {
-        assets: {
-          skills: {
-            demo: {
-              path: 'skills/demo',
-              description: 'Demo skill',
-              hash: 'sha256:demo-skill',
-              tags: ['demo'],
-            },
-          },
-          rules: {
-            'demo-rule': {
-              path: 'rules/demo-rule.md',
-              description: 'Demo rule',
-              hash: 'sha256:demo-rule',
-              tags: ['demo'],
-            },
-          },
-        },
-      },
-      null,
-      2,
-    )}\n`,
-  )
-
   return root
 }
 

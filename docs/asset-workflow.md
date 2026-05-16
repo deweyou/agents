@@ -14,7 +14,7 @@ These rules apply to every agent asset in this repo:
 2. **Naming**: Directory names, rule filenames, and frontmatter `name` values are
    kebab-case. Good: `data-export`. Bad: `DataExport`, `data_export`.
 3. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
-   `pnpm test` after changing registry or asset-scanning behavior.
+   `pnpm test` after changing asset-scanning behavior.
 
 ## Asset Types
 
@@ -25,14 +25,12 @@ These rules apply to every agent asset in this repo:
 Do not rename rule files to `*.rules.md`; this repository keeps rule filenames
 plain for registry and CLI consumption.
 
-## Registry
+## Generated Registry
 
-`registry.json` is the machine-readable index for skills and rules in this hub.
-It must include every active skill and rule. Paths and descriptions must match
-the scanned assets, and each entry stores a generated `sha256:` content hash.
-
-When adding, removing, renaming, or changing a skill or rule, update
-`registry.json` in the same change.
+The source repository does not commit `registry.json`. `deweyou-cli agent update`
+scans `skills/` and `rules/`, generates a registry with paths, descriptions,
+optional frontmatter tags, and `sha256:` content hashes, then writes that registry
+into the local cache at `~/.deweyou/agents/assets/registry.json`.
 
 Run:
 
@@ -40,7 +38,8 @@ Run:
 pnpm run lint:assets
 ```
 
-after registry changes.
+after asset changes so frontmatter and naming stay valid before the CLI scans
+them.
 
 ## Creating A New Skill
 
@@ -109,7 +108,7 @@ npx skills add https://github.com/deweyou/agents --skill <kebab-name>
 
 ## Source
 
-This skill is maintained in `deweyou/agents` and indexed by `registry.json`.
+This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.
 ```
 
 ### 6. Update Root README
@@ -128,7 +127,7 @@ Add or update the skill row in the root README skills table.
 
 4. Apply only the necessary edits.
 5. Test with prompts that cover the changed behavior.
-6. Update `registry.json` so the content hash reflects the change.
+6. Run `pnpm run lint:assets` so frontmatter and naming stay valid.
 7. Update the root README skills table when the public description changes.
 
 ## Creating Or Updating Rules
@@ -155,8 +154,8 @@ After changing rules:
 pnpm run lint:assets
 ```
 
-Update `registry.json` after rule changes. Update the root README rules table
-when the public description changes.
+Run `pnpm run lint:assets` after rule changes. Update the root README rules
+table when the public description changes.
 
 ## CLI Release Workflow
 

@@ -9,7 +9,7 @@
     "CHANGELOG.md"
   ],
   "bin": {
-    "deweyou": "./dist/deweyou.mjs"
+    "deweyou-cli": "./dist/deweyou.mjs"
   },
   "scripts": {
     "build": "vp pack src/bin/deweyou.ts --out-dir dist --clean",

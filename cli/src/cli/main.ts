@@ -36,10 +36,10 @@ export async function main(argv: string[]): Promise<void> {
 
 function usage(): string {
   return `Usage:
-  deweyou agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--yes] [--dry-run] [--force]
-  deweyou agent update
-  deweyou agent context [--format markdown|json]
-  deweyou agent doctor`
+  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--yes] [--dry-run] [--force]
+  deweyou-cli agent update
+  deweyou-cli agent context [--format markdown|json]
+  deweyou-cli agent doctor`
 }
 
 function printUsageAndThrow(): never {

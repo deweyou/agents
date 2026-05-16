@@ -28,7 +28,7 @@ describe('cachePaths', () => {
 })
 
 describe('updateCache', () => {
-  it('copies registry, skills, and rules into the local assets cache', async () => {
+  it('generates a registry and copies skills and rules into the local assets cache', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
     const sourceRoot = await createAssetHub()
 
@@ -39,10 +39,13 @@ describe('updateCache', () => {
     })
     const paths = cachePaths({ homeDir })
 
-    assert.equal(
-      await readFile(join(paths.assetsRoot, 'registry.json'), 'utf8'),
-      await readFile(join(sourceRoot, 'registry.json'), 'utf8'),
-    )
+    const registry = await readJson(join(paths.assetsRoot, 'registry.json'))
+    assert.equal(registry.assets.skills.demo.path, 'skills/demo')
+    assert.equal(registry.assets.skills.demo.description, 'Demo skill')
+    assert.match(registry.assets.skills.demo.hash, /^sha256:[a-f0-9]{64}$/)
+    assert.deepEqual(registry.assets.skills.demo.tags, [])
+    assert.equal(registry.assets.rules['demo-rule'].path, 'rules/demo-rule.md')
+    assert.match(registry.assets.rules['demo-rule'].hash, /^sha256:[a-f0-9]{64}$/)
     assert.equal(
       await readFile(join(paths.assetsRoot, 'skills/demo/SKILL.md'), 'utf8'),
       await readFile(join(sourceRoot, 'skills/demo/SKILL.md'), 'utf8'),
@@ -98,7 +101,7 @@ describe('updateCache', () => {
 
     const incompleteSourceRoot = await createAssetHub({
       inaccessibleRulesDir: true,
-      skipValidationRule: true,
+      includeRuleFile: false,
     })
 
     await assert.rejects(
@@ -207,38 +210,6 @@ description: Demo rule
   if (options.inaccessibleRulesDir) {
     await chmod(join(root, 'rules'), 0o000)
   }
-
-  await writeFile(
-    join(root, 'registry.json'),
-    JSON.stringify(
-      {
-        assets: {
-          skills: {
-            demo: {
-              path: 'skills/demo',
-              description: 'Demo skill',
-              hash: 'sha256:demo-skill',
-              tags: ['demo'],
-            },
-          },
-          rules: {
-            ...(options.skipValidationRule
-              ? {}
-              : {
-                  'demo-rule': {
-                    path: 'rules/demo-rule.md',
-                    description: 'Demo rule',
-                    hash: 'sha256:demo-rule',
-                    tags: ['demo'],
-                  },
-                }),
-          },
-        },
-      },
-      null,
-      2,
-    ),
-  )
 
   return root
 }

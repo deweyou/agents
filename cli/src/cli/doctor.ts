@@ -27,7 +27,7 @@ export async function checkDoctor({
     path: registryPath,
     checks,
     passMessage: 'local asset cache registry exists',
-    missingMessage: 'Dewey asset cache is missing. Run `deweyou agent update`.',
+    missingMessage: 'Dewey asset cache is missing. Run `deweyou-cli agent update`.',
     invalidMessage: 'Dewey asset cache registry is invalid JSON.',
   })
   const manifest = await readJsonCheck({
@@ -35,7 +35,7 @@ export async function checkDoctor({
     checks,
     passMessage: 'repository manifest exists',
     missingMessage:
-      'repository manifest is missing. Run `deweyou agent init`.',
+      'repository manifest is missing. Run `deweyou-cli agent init`.',
     invalidMessage: 'repository manifest is invalid JSON.',
   })
   const registryValid =
@@ -47,7 +47,7 @@ export async function checkDoctor({
     path: agentsMdPath,
     checks,
     passMessage: 'AGENTS.md exists',
-    missingMessage: 'AGENTS.md is missing. Run `deweyou agent init`.',
+    missingMessage: 'AGENTS.md is missing. Run `deweyou-cli agent init`.',
   })
 
   if (manifestValid && registryValid) {

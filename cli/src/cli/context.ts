@@ -20,9 +20,9 @@ import type {
 } from './types.ts'
 
 const MISSING_REPO_MANIFEST =
-  'This repository has not been initialized. Run `deweyou agent init`.'
+  'This repository has not been initialized. Run `deweyou-cli agent init`.'
 const MISSING_CACHE_REGISTRY =
-  'Dewey asset cache is missing. Run `deweyou agent update`.'
+  'Dewey asset cache is missing. Run `deweyou-cli agent update`.'
 const VALID_FORMATS = new Set<OutputFormat>(['markdown', 'json'])
 
 export async function resolveContext({
@@ -269,7 +269,7 @@ function sourceNotice(
 
   if (!current || !initialized || current === initialized) return null
 
-  return `Dewey asset cache is at commit ${current}; this repo was initialized with ${initialized}. Run \`deweyou agent init\` to refresh selected assets.`
+  return `Dewey asset cache is at commit ${current}; this repo was initialized with ${initialized}. Run \`deweyou-cli agent init\` to refresh selected assets.`
 }
 
 function selectedAssetNotice(
@@ -293,7 +293,7 @@ function selectedAssetNotice(
 
   if (changed.length === 0) return null
 
-  return `Selected Dewey assets changed in cache: ${changed.join(', ')}. Run \`deweyou agent init\` to refresh.`
+  return `Selected Dewey assets changed in cache: ${changed.join(', ')}. Run \`deweyou-cli agent init\` to refresh.`
 }
 
 function changedAssets({

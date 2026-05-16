@@ -2,6 +2,10 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> Status note: this is a historical implementation plan. The shipped direction is
+> co-located under `cli/`, uses the `deweyou-cli` binary, and generates the cache
+> `registry.json` from `skills/` and `rules/` during `deweyou-cli agent update`.
+
 **Goal:** Build `deweyou-cli` v0 as a polished repo onboarding CLI for Dewey's personal skills and rules.
 
 **Architecture:** Keep this repository as the asset hub with a machine-readable `registry.json`. Build `deweyou-cli` as a separate Node ESM package with focused modules for registry loading, cache update, repo init, context rendering, doctor checks, and terminal prompts. Repo onboarding writes `.agents/` wiring and an `AGENTS.md` Dewey section; selected skills and rules come from the local cache.

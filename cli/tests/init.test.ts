@@ -21,6 +21,7 @@ import { cachePaths, updateCache } from '../src/cli/cache.ts'
 import { initRepo, runInit } from '../src/cli/init.ts'
 import { readJson } from '../src/cli/manifest.ts'
 import { promptForInit } from '../src/cli/prompts.ts'
+import { loadRegistry } from '../src/cli/registry.ts'
 
 describe('initRepo', () => {
   it('exports an interactive prompt entrypoint', () => {
@@ -53,6 +54,7 @@ Keep this outro.
       mode: 'link',
     })
     const paths = cachePaths({ homeDir })
+    const registry = await loadRegistry(sourceRoot)
 
     assert.equal(
       await realpath(join(repoRoot, '.agents/skills/demo')),
@@ -85,13 +87,13 @@ Keep this outro.
       skills: {
         demo: {
           description: 'Demo skill',
-          hash: 'sha256:demo-skill',
+          hash: registry.assets.skills.demo.hash,
         },
       },
       rules: {
         'demo-rule': {
           description: 'Demo rule',
-          hash: 'sha256:demo-rule',
+          hash: registry.assets.rules['demo-rule'].hash,
         },
       },
     })
@@ -106,7 +108,7 @@ Keep this outro.
     assert.match(agentsMd, new RegExp(DEWEYOU_SECTION_END))
     assert.doesNotMatch(agentsMd, /Old Dewey section text/)
     assert.match(agentsMd, /\.agents\//)
-    assert.match(agentsMd, /deweyou agent context --format markdown/)
+    assert.match(agentsMd, /deweyou-cli agent context --format markdown/)
     assert.match(agentsMd, /rules/)
     assert.match(agentsMd, /skill index/)
     assert.match(agentsMd, /asset paths/)
@@ -453,15 +455,33 @@ Keep this outro.
     )
   })
 
-  it('rejects malformed registry ids before writing outside .agents', async () => {
+  it('rejects malformed cache registry ids before writing outside .agents', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
     const repoRoot = await mkdtemp(join(tmpdir(), 'deweyou-repo-'))
-    const sourceRoot = await createAssetHub({
-      skillId: '../escape',
-      skillPath: 'skills/escape',
-    })
+    const sourceRoot = await createAssetHub()
 
     await updateCache({ homeDir, sourceRoot, cliVersion: '0.1.0' })
+    const paths = cachePaths({ homeDir })
+    await writeFile(
+      join(paths.assetsRoot, 'registry.json'),
+      `${JSON.stringify(
+        {
+          assets: {
+            skills: {
+              '../escape': {
+                path: 'skills/demo',
+                description: 'Demo skill',
+                hash: 'sha256:demo',
+                tags: [],
+              },
+            },
+            rules: {},
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    )
 
     await assert.rejects(
       () =>
@@ -520,34 +540,6 @@ description: Demo rule
 
 # Demo rule
 `,
-  )
-
-  await writeFile(
-    join(root, 'registry.json'),
-    JSON.stringify(
-      {
-        assets: {
-          skills: {
-            [skillId]: {
-              path: skillPath,
-              description: 'Demo skill',
-              hash: 'sha256:demo-skill',
-              tags: ['demo'],
-            },
-          },
-          rules: {
-            'demo-rule': {
-              path: 'rules/demo-rule.md',
-              description: 'Demo rule',
-              hash: 'sha256:demo-rule',
-              tags: ['demo'],
-            },
-          },
-        },
-      },
-      null,
-      2,
-    ),
   )
 
   return root

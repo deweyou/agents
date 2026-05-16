@@ -5,7 +5,7 @@ describe('bin/deweyou.ts', () => {
   it('runs main and exits with the mapped usage code', async () => {
     const originalArgv = process.argv
     const exitCalls = []
-    process.argv = ['node', 'deweyou', 'nope']
+    process.argv = ['node', 'deweyou-cli', 'nope']
 
     vi.resetModules()
     vi.doMock('node:process', async () => {

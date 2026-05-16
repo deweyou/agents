@@ -194,7 +194,7 @@ async function readCachedRegistry(assetsRoot: string): Promise<AssetRegistry> {
     if (!(error instanceof Error) || !('code' in error)) throw error
     if (error.code === 'ENOENT') {
       throw new Error(
-        'Dewey asset cache is missing. Run `deweyou agent update` first.',
+        'Dewey asset cache is missing. Run `deweyou-cli agent update` first.',
       )
     }
     /* v8 ignore next -- invalid JSON and non-missing read errors should bubble */
@@ -206,7 +206,7 @@ async function readCacheManifest(manifestPath: string): Promise<CacheManifest> {
   const manifest = await readJson<CacheManifest | null>(manifestPath, null)
   if (!manifest?.source || typeof manifest.source.root !== 'string') {
     throw new Error(
-      'Dewey asset cache manifest is missing source metadata. Run `deweyou agent update` first.',
+      'Dewey asset cache manifest is missing source metadata. Run `deweyou-cli agent update` first.',
     )
   }
 

@@ -1,7 +1,7 @@
 # AGENTS.md
 
-This repository is Dewey's personal agents hub. It contains reusable skills, rules,
-and registry metadata consumed by `deweyou-cli`.
+This repository is Dewey's personal agents hub. It contains reusable skills,
+rules, and the `deweyou-cli` package that installs them into other repos.
 
 ## Read First
 
@@ -17,19 +17,16 @@ and registry metadata consumed by `deweyou-cli`.
 |-------|----------|---------|
 | Skills | `skills/<name>/SKILL.md` | Active workflows that trigger for specific situations. |
 | Rules | `rules/<name>.md` | Passive coding and development preferences shared across projects. |
-| Registry | `registry.json` | Machine-readable index consumed by `deweyou-cli`. |
-| CLI | `cli/` | TypeScript package for the `deweyou` binary. |
+| CLI | `cli/` | TypeScript package for the `deweyou-cli` binary. |
 | Asset Tests | `tests/` | Node test coverage for registry and asset scanning. |
 
 ## Core Conventions
 
 - Skill directories, rule filenames, and frontmatter `name` values must be kebab-case.
 - Skills and rules must include `name` and `description` frontmatter.
-- `registry.json` stores CLI-facing paths, descriptions, tags, and generated
-  content hashes for each asset.
 - Rules use plain `rules/<name>.md` filenames. Do not rename them to `*.rules.md`.
 - Run `pnpm run lint:assets` after changing skills or rules.
-- Run `pnpm test` after changing registry or asset-scanning behavior.
+- Run `pnpm test` after changing asset-scanning behavior.
 - Run `npm run typecheck`, `npm test`, and `npm run test:coverage` in `cli/`
   after changing CLI behavior.
 

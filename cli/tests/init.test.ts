@@ -411,6 +411,35 @@ Keep this outro.
     })
   })
 
+  it('preserves explicit non-scripted mode over prompted values', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit(
+      { homeDir, repoRoot, mode: 'copy' },
+      {
+        async promptForInit() {
+          return {
+            mode: 'link',
+            scope: 'project',
+            tools: ['codex'],
+            ruleWiring: 'reference',
+            selected: { skills: ['demo'], rules: [] },
+          }
+        },
+      },
+    )
+
+    assert.equal(manifest.mode, 'copy')
+    assert.deepEqual(manifest.assets, {
+      skills: ['demo'],
+      rules: [],
+    })
+    assert.equal(
+      (await lstat(join(repoRoot, '.agents/skills/demo'))).isSymbolicLink(),
+      false,
+    )
+  })
+
   it('preserves explicit non-scripted scope over prompted values', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 

@@ -268,7 +268,7 @@ export async function runInit(
       tools: flags.tools,
       ruleWiring: flags.ruleWiring,
     })
-    mode = prompted.mode
+    mode = flags.mode ?? prompted.mode
     scope = flags.scope ?? prompted.scope
     tools = flags.tools ?? prompted.tools
     ruleWiring = flags.ruleWiring ?? prompted.ruleWiring

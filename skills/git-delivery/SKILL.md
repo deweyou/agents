@@ -58,7 +58,9 @@ Use this section when the user asks to commit, push, open a PR, or ship the work
    is safe. Resolve straightforward conflicts when the intended result is clear.
    If conflicts are non-trivial, stop and report the conflicting files and exact
    blocker.
-8. Re-run relevant verification after a successful rebase.
+8. After any successful rebase or conflict resolution, re-run relevant verification
+   before pushing. Always say `verification_after_rebase`: commands run, not needed,
+   or blocked with reason.
 9. Push the branch. Use `--force-with-lease` only after a rebase rewrote the branch
    and only for the task branch.
 10. Open a pull request using the repository's normal tool or hosting CLI. If a PR
@@ -80,7 +82,8 @@ base:
 4. If the rebase conflicts, inspect the conflict files. Resolve only when the
    intended result is clear from the code and user request.
 5. After resolving conflicts, continue the rebase, rerun verification, and push with
-   `--force-with-lease`.
+   `--force-with-lease`. The rebase workflow is not complete until
+   `verification_after_rebase` has been run or an exact blocker is reported.
 6. If conflict resolution is ambiguous, abort or pause safely and report the exact
    files plus the decision needed from the user.
 
@@ -90,6 +93,7 @@ Always report:
 - `conflict_check`: clean, rebased, conflicted-resolved, or blocked
 - `rebase`: not needed, completed, or blocked
 - `conflict_files`: list of files, or `none`
+- `verification_after_rebase`: commands run, not needed, or exact blocker
 
 Always report the finish-work boundary:
 
@@ -98,6 +102,7 @@ Always report the finish-work boundary:
 - `staging`: intended files only; unrelated files left unstaged
 - `commit`: hash and message, or exact blocker
 - `base_conflict_check`: base branch, result, rebase status, conflict files
+- `verification_after_rebase`: commands run after rebase, not needed, or exact blocker
 - `push`: destination, or exact blocker
 - `pr`: URL, or exact blocker
 

@@ -1,5 +1,5 @@
-import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join, relative } from 'node:path'
+import { lstat, mkdir, readFile, readlink, writeFile } from 'node:fs/promises'
+import { dirname, join, relative, resolve } from 'node:path'
 
 import { upsertManagedSection } from './managed-section.ts'
 import type { InstallScope, InstallTool, RuleWiring } from './types.ts'
@@ -78,7 +78,7 @@ async function codexOperation(input: RuleInstallInput): Promise<RuleInstallOpera
 async function claudeOperation(input: RuleInstallInput): Promise<RuleInstallOperation | null> {
   if (input.scope === 'project') {
     const claudePath = join(input.repoRoot, 'CLAUDE.md')
-    if (await isSymlinkToAgentsMd(claudePath)) return null
+    if (await isSymlinkToAgentsMd(claudePath, input.repoRoot)) return null
     if (input.tools.includes('codex') && !(await exists(claudePath))) {
       return {
         path: claudePath,
@@ -159,10 +159,13 @@ async function exists(path: string): Promise<boolean> {
   }
 }
 
-async function isSymlinkToAgentsMd(path: string): Promise<boolean> {
+async function isSymlinkToAgentsMd(path: string, repoRoot: string): Promise<boolean> {
   try {
     const stat = await lstat(path)
-    return stat.isSymbolicLink()
+    if (!stat.isSymbolicLink()) return false
+
+    const target = await readlink(path)
+    return target === 'AGENTS.md' || resolve(dirname(path), target) === resolve(repoRoot, 'AGENTS.md')
   } catch (error) {
     if (!(error instanceof Error) || !('code' in error)) throw error
     if (error.code === 'ENOENT') return false

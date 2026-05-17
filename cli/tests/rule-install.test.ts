@@ -67,6 +67,28 @@ describe('rule install adapters', () => {
     assert.deepEqual(plan.files, [])
   })
 
+  it('plans a Claude operation for non-AGENTS symlink targets', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
+    await mkdir(join(root, '.agents/rules'), { recursive: true })
+    await mkdir(join(root, '../shared'), { recursive: true })
+    await writeFile(join(root, '.agents/rules/demo-rule.md'), demoRuleBody())
+    await writeFile(join(root, '../shared/CLAUDE.md'), '# Shared Claude\n')
+    await symlink('../shared/CLAUDE.md', join(root, 'CLAUDE.md'))
+
+    const plan = await planRuleInstall({
+      repoRoot: root,
+      homeDir: root,
+      cacheRoot: join(root, 'cache'),
+      scope: 'project',
+      tools: ['claude'],
+      ruleWiring: 'reference',
+      selectedRules: ['demo-rule'],
+      rulePaths: new Map([['demo-rule', join(root, '.agents/rules/demo-rule.md')]]),
+    })
+
+    assert.deepEqual(plan.files, [join(root, 'CLAUDE.md')])
+  })
+
   it('updates an existing project Claude file directly', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
     await mkdir(join(root, '.agents/rules'), { recursive: true })

@@ -1,6 +1,5 @@
 ---
 name: web-page-debugger
-version: 2.0.0
 description: >
   AI-driven web product verification and debugging. Two explicit modes:
   (1) verify — acceptance-test a page against a spec, user description, or AI inference;

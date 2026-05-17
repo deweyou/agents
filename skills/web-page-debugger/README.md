@@ -45,6 +45,6 @@ Add `chrome-devtools-mcp` to your Claude Code MCP config.
 npx skills add https://github.com/deweyou/agents --skill web-page-debugger
 ```
 
-## Version
+## Source
 
-`2.0.0` — see [SKILL.md](./SKILL.md) for full protocol details.
+Maintained in `deweyou/agents` and indexed by `registry.json`.

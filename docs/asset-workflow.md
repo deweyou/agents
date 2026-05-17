@@ -2,7 +2,7 @@
 
 This document defines how to create and maintain assets in this repository.
 
-*Last updated: 2026-05-10 | Reason: Split detailed asset workflow out of AGENTS.md.*
+*Last updated: 2026-05-17 | Reason: Documented generated registry and CLI release automation.*
 
 ## Repository Conventions
 
@@ -13,20 +13,33 @@ These rules apply to every agent asset in this repo:
    `rules/code-style.md`.
 2. **Naming**: Directory names, rule filenames, and frontmatter `name` values are
    kebab-case. Good: `data-export`. Bad: `DataExport`, `data_export`.
-3. **Version**: Every skill and rule includes a semver `version` field in YAML
-   frontmatter. New assets start at `1.0.0`.
-4. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
-   `pnpm test` after changing CLI code.
+3. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
+   `pnpm test` after changing asset-scanning behavior.
 
 ## Asset Types
 
 - **Skills** are active workflows. They live in `skills/<name>/SKILL.md`.
 - **Rules** are passive reusable constraints. They live in `rules/<name>.md`.
-- **CLI code** lives in `bin/` and `cli/`. The package is published as
-  `@deweyou/agents`, with the `agents` binary.
+- **Runtime CLI code** lives in `cli/` as a TypeScript npm package.
 
-Do not rename rule files to `*.rules.md`; this repository owns its own installer and
-keeps rule filenames plain.
+Do not rename rule files to `*.rules.md`; this repository keeps rule filenames
+plain for registry and CLI consumption.
+
+## Generated Registry
+
+The source repository does not commit `registry.json`. `deweyou-cli agent update`
+scans `skills/` and `rules/`, generates a registry with paths, descriptions,
+optional frontmatter tags, and `sha256:` content hashes, then writes that registry
+into the local cache at `~/.deweyou/agents/assets/registry.json`.
+
+Run:
+
+```bash
+pnpm run lint:assets
+```
+
+after asset changes so frontmatter and naming stay valid before the CLI scans
+them.
 
 ## Creating A New Skill
 
@@ -48,7 +61,6 @@ Write the draft at `skills/<kebab-name>/SKILL.md`. The frontmatter must include:
 ```yaml
 ---
 name: <kebab-name>
-version: 1.0.0
 description: >
   <What it does and when to trigger. Be specific enough that agents use it.>
 ---
@@ -68,8 +80,8 @@ Use the skill-creator eval loop when the change affects skill behavior:
 
 ### 4. Finalize
 
-Ensure the directory is `skills/<kebab-name>/`, the frontmatter name matches the
-directory, and the `version` field is present.
+Ensure the directory is `skills/<kebab-name>/` and the frontmatter name matches
+the directory.
 
 ### 5. Create Skill README
 
@@ -94,9 +106,9 @@ Every skill directory gets a `README.md` alongside `SKILL.md`:
 npx skills add https://github.com/deweyou/agents --skill <kebab-name>
 \`\`\`
 
-## Version
+## Source
 
-`<version>` - see [SKILL.md](./SKILL.md) for the changelog.
+This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.
 ```
 
 ### 6. Update Root README
@@ -115,15 +127,8 @@ Add or update the skill row in the root README skills table.
 
 4. Apply only the necessary edits.
 5. Test with prompts that cover the changed behavior.
-6. Bump `version` after approval:
-
-| Change Type | Bump | Example |
-|-------------|------|---------|
-| Bug fix or small correction | patch | `1.2.3` -> `1.2.4` |
-| New feature or expanded behavior | minor | `1.2.3` -> `1.3.0` |
-| Breaking behavior change | major | `1.2.3` -> `2.0.0` |
-
-7. Update the root README skills table.
+6. Run `pnpm run lint:assets` so frontmatter and naming stay valid.
+7. Update the root README skills table when the public description changes.
 
 ## Creating Or Updating Rules
 
@@ -135,7 +140,6 @@ Each rule is a Markdown file with YAML frontmatter:
 ```yaml
 ---
 name: code-style
-version: 1.0.0
 description: Short description of what the rule governs.
 ---
 ```
@@ -150,20 +154,84 @@ After changing rules:
 pnpm run lint:assets
 ```
 
-Update the root README rules table.
+Run `pnpm run lint:assets` after rule changes. Update the root README rules
+table when the public description changes.
 
 ## CLI Release Workflow
 
-Merging changes to `bin/` or `cli/` into `main` triggers the release workflow.
+CLI release, changelog, and npm publishing live under `cli/`. The root
+`@deweyou/agents` package stays private and only hosts assets plus workflows.
 
+The published npm package is `@deweyou/cli`, and the installed binary is
+`deweyou-cli`.
+
+### Local Verification
+
+After changing CLI behavior, release logic, or CLI tests, run:
+
+```bash
+npm run typecheck:cli
+npm run test:cli
+npm run coverage:cli
+cd cli && npm pack --dry-run
+```
+
+Use `npm pack --dry-run` to confirm the npm tarball only contains CLI package
+files such as `dist/`, `README.md`, `CHANGELOG.md`, and `package.json`. Skills
+and rules are source assets and must not be bundled into the CLI package.
+
+### GitHub Release Flow
+
+Merging CLI package changes into `main` triggers
+[`.github/workflows/cli-release.yml`](../.github/workflows/cli-release.yml).
 The workflow:
 
-1. Runs asset linting, tests, and `npm pack --dry-run`.
-2. Bumps the package to the next minor version.
-3. Prepends a `CHANGELOG.md` entry.
-4. Creates a local `chore(release): vX.Y.0` commit and annotated tag.
-5. Publishes `@deweyou/agents` to npm with `--access public`.
-6. Pushes the release commit and tag back to `main`.
+1. Installs dependencies in `cli/`.
+2. Runs typecheck, tests, coverage, and `npm pack --dry-run`.
+3. Reads changed CLI files and commit subjects for the merge range.
+4. Runs `cli/scripts/prepare-release.ts`.
+5. If a release is needed, commits `cli/package.json` and
+   `cli/CHANGELOG.md`, creates a `cli-vX.Y.Z` tag, publishes
+   `@deweyou/cli`, then pushes the release commit and tag.
 
-The workflow requires the `NPM_TOKEN` repository secret. Release commits only update
-`package.json` and `CHANGELOG.md`, so they do not retrigger the release workflow.
+The workflow requires `NPM_TOKEN` in GitHub Actions secrets. It skips release
+commits whose message starts with `chore(release):` to avoid publish loops.
+
+### Version Rules
+
+Release versioning is inferred from conventional commit subjects in the CLI
+change range:
+
+- `feat:` creates a minor release.
+- `fix:`, `perf:`, and `refactor:` create a patch release.
+- `!` or `BREAKING CHANGE` creates a major release.
+- `docs:` may appear in changelog output, but does not publish by itself.
+- `test:` and `chore:` do not publish by themselves.
+
+If CLI files changed but no releasable commit subject is present, the workflow
+marks `released=false` and does not commit, tag, or publish.
+
+### Changelog Rules
+
+`prepare-release.ts` prepends `cli/CHANGELOG.md` with grouped release notes:
+
+- `Breaking Changes`
+- `Added`
+- `Fixed`
+- `Improved`
+- `Changed`
+- `Dependencies`
+- `Documentation`
+
+Scopes are preserved in changelog items. For example,
+`fix(cache): refresh generated registry` becomes:
+
+```markdown
+### Fixed
+
+- cache: refresh generated registry
+```
+
+Keep CLI-facing commit subjects user-readable. Prefer
+`feat(init): add interactive asset picker` over vague subjects like
+`feat: update stuff`.

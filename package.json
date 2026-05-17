@@ -7,21 +7,16 @@
     "type": "git",
     "url": "git+https://github.com/deweyou/agents.git"
   },
-  "files": [
-    "bin",
-    "cli",
-    "README.md",
-    "CHANGELOG.md"
-  ],
-  "bin": {
-    "agents": "./bin/agents.mjs"
-  },
+  "private": true,
   "author": "Dewey Ou <oushihao97@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "agents": "node bin/agents.mjs",
     "lint:assets": "node scripts/lint-agent-assets.mjs",
     "test": "node --test tests/*.test.mjs",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include='scripts/asset-scanner.mjs' --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90 tests/*.test.mjs",
+    "test:cli": "npm --prefix cli test",
+    "typecheck:cli": "npm --prefix cli run typecheck",
+    "coverage:cli": "npm --prefix cli run test:coverage",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {

@@ -20,6 +20,6 @@
 npx skills add https://github.com/deweyou/agents --skill code-knowledge
 ```
 
-## Version
+## Source
 
-`2.0.0` — see [SKILL.md](./SKILL.md) for the changelog.
+Maintained in `deweyou/agents` and indexed by `registry.json`.

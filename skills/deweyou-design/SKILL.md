@@ -1,6 +1,5 @@
 ---
 name: deweyou-design
-version: 1.1.0
 description: Use this skill to generate well-branded interfaces and assets for Deweyou Design (Dewey Ou's personal design system), either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping. For web production code, complex components are built on Ark UI primitives with Deweyou tokens layered on top.
 user-invocable: true
 ---

@@ -1,0 +1,546 @@
+import { describe, it } from 'vitest'
+import assert from 'node:assert/strict'
+import {
+  lstat,
+  mkdir,
+  mkdtemp,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+
+import {
+  DEWEYOU_SECTION_END,
+  DEWEYOU_SECTION_START,
+} from '../src/cli/agents-md.ts'
+import { cachePaths, updateCache } from '../src/cli/cache.ts'
+import { initRepo, runInit } from '../src/cli/init.ts'
+import { readJson } from '../src/cli/manifest.ts'
+import { promptForInit } from '../src/cli/prompts.ts'
+import { loadRegistry } from '../src/cli/registry.ts'
+
+describe('initRepo', () => {
+  it('exports an interactive prompt entrypoint', () => {
+    assert.equal(typeof promptForInit, 'function')
+  })
+
+  it('link mode creates asset symlinks, writes a manifest, and upserts AGENTS.md', async () => {
+    const { homeDir, repoRoot, sourceRoot } = await createInitFixture()
+
+    await writeFile(
+      join(repoRoot, 'AGENTS.md'),
+      `# Existing Instructions
+
+Keep this intro.
+
+${DEWEYOU_SECTION_START}
+## Dewey Workflow
+
+Old Dewey section text.
+${DEWEYOU_SECTION_END}
+
+Keep this outro.
+`,
+    )
+
+    const manifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      mode: 'link',
+    })
+    const paths = cachePaths({ homeDir })
+    const registry = await loadRegistry(sourceRoot)
+
+    assert.equal(
+      await realpath(join(repoRoot, '.agents/skills/demo')),
+      await realpath(join(paths.assetsRoot, 'skills/demo')),
+    )
+    assert.equal(
+      await realpath(join(repoRoot, '.agents/rules/demo-rule.md')),
+      await realpath(join(paths.assetsRoot, 'rules/demo-rule.md')),
+    )
+    assert.equal(
+      (await lstat(join(repoRoot, '.agents/skills/demo'))).isSymbolicLink(),
+      true,
+    )
+    assert.equal(
+      (await lstat(join(repoRoot, '.agents/rules/demo-rule.md'))).isSymbolicLink(),
+      true,
+    )
+    assert.deepEqual(
+      await readJson(join(repoRoot, '.agents/manifest.json')),
+      manifest,
+    )
+    assert.equal(manifest.mode, 'link')
+    assert.deepEqual(manifest.source, { root: sourceRoot, commit: null })
+    assert.equal(manifest.cacheRoot, paths.assetsRoot)
+    assert.deepEqual(manifest.assets, {
+      skills: ['demo'],
+      rules: ['demo-rule'],
+    })
+    assert.deepEqual(manifest.assetSnapshot, {
+      skills: {
+        demo: {
+          description: 'Demo skill',
+          hash: registry.assets.skills.demo.hash,
+        },
+      },
+      rules: {
+        'demo-rule': {
+          description: 'Demo rule',
+          hash: registry.assets.rules['demo-rule'].hash,
+        },
+      },
+    })
+    assert.equal(Number.isNaN(Date.parse(manifest.initializedAt)), false)
+
+    const agentsMd = await readFile(join(repoRoot, 'AGENTS.md'), 'utf8')
+    assert.match(agentsMd, /# Existing Instructions/)
+    assert.match(agentsMd, /Keep this intro\./)
+    assert.match(agentsMd, /Keep this outro\./)
+    assert.match(agentsMd, /## Dewey Workflow/)
+    assert.match(agentsMd, new RegExp(DEWEYOU_SECTION_START))
+    assert.match(agentsMd, new RegExp(DEWEYOU_SECTION_END))
+    assert.doesNotMatch(agentsMd, /Old Dewey section text/)
+    assert.match(agentsMd, /\.agents\//)
+    assert.match(agentsMd, /deweyou-cli agent context --format markdown/)
+    assert.match(agentsMd, /rules/)
+    assert.match(agentsMd, /skill index/)
+    assert.match(agentsMd, /asset paths/)
+    assert.match(agentsMd, /runtime notices/)
+  })
+
+  it('copy mode creates real copied asset files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      mode: 'copy',
+    })
+
+    assert.equal(
+      (await lstat(join(repoRoot, '.agents/skills/demo'))).isSymbolicLink(),
+      false,
+    )
+    assert.equal(
+      (await lstat(join(repoRoot, '.agents/rules/demo-rule.md'))).isSymbolicLink(),
+      false,
+    )
+    assert.match(
+      await readFile(join(repoRoot, '.agents/rules/demo-rule.md'), 'utf8'),
+      /Demo rule/,
+    )
+    assert.match(
+      await readFile(join(repoRoot, '.agents/skills/demo/SKILL.md'), 'utf8'),
+      /Demo skill/,
+    )
+  })
+
+  it('pointer mode writes a manifest without creating asset files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      mode: 'pointer',
+    })
+
+    assert.equal(manifest.mode, 'pointer')
+    assert.deepEqual(manifest.assets, {
+      skills: ['demo'],
+      rules: ['demo-rule'],
+    })
+    await assert.rejects(() => stat(join(repoRoot, '.agents/skills/demo')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(
+      () => stat(join(repoRoot, '.agents/rules/demo-rule.md')),
+      {
+        code: 'ENOENT',
+      },
+    )
+  })
+
+  it('force refuses to replace non-Dewey user-created asset destinations', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await mkdir(join(repoRoot, '.agents/skills/demo'), { recursive: true })
+    await mkdir(join(repoRoot, '.agents/rules'), { recursive: true })
+    await writeFile(
+      join(repoRoot, '.agents/skills/demo/SKILL.md'),
+      'user skill',
+    )
+    await writeFile(
+      join(repoRoot, '.agents/rules/demo-rule.md'),
+      'user rule',
+    )
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: ['demo'], rules: ['demo-rule'] },
+          mode: 'copy',
+          force: true,
+        }),
+      /Refusing to replace non-Dewey-managed destination/,
+    )
+
+    assert.equal(
+      await readFile(join(repoRoot, '.agents/skills/demo/SKILL.md'), 'utf8'),
+      'user skill',
+    )
+    assert.equal(
+      await readFile(join(repoRoot, '.agents/rules/demo-rule.md'), 'utf8'),
+      'user rule',
+    )
+    await assert.rejects(
+      () => stat(join(repoRoot, '.agents/manifest.json')),
+      { code: 'ENOENT' },
+    )
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('scripted dryRun returns planned files without opening prompts or writing .agents or AGENTS.md', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    let promptCalls = 0
+
+    const plan = await runInit(
+      {
+        homeDir,
+        repoRoot,
+        all: true,
+        mode: 'copy',
+        dryRun: true,
+      },
+      {
+        async promptForInit() {
+          promptCalls += 1
+          throw new Error('scripted dryRun should not prompt')
+        },
+      },
+    )
+
+    assert.equal(promptCalls, 0)
+    assert.equal(plan.dryRun, true)
+    assert.equal(plan.mode, 'copy')
+    assert.deepEqual(plan.assets, {
+      skills: ['demo'],
+      rules: ['demo-rule'],
+    })
+    assert.deepEqual(plan.files, [
+      join(repoRoot, '.agents/skills/demo'),
+      join(repoRoot, '.agents/rules/demo-rule.md'),
+      join(repoRoot, '.agents/manifest.json'),
+      join(repoRoot, 'AGENTS.md'),
+    ])
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('interactive dryRun uses prompted selection without writing .agents or AGENTS.md', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    let promptCalls = 0
+
+    const plan = await runInit(
+      { homeDir, repoRoot, dryRun: true },
+      {
+        async promptForInit({ registry, repoRoot: promptedRepoRoot }) {
+          promptCalls += 1
+          assert.equal(promptedRepoRoot, repoRoot)
+          assert.deepEqual(Object.keys(registry.assets.skills), ['demo'])
+          assert.deepEqual(Object.keys(registry.assets.rules), ['demo-rule'])
+          return {
+            mode: 'pointer',
+            selected: { skills: ['demo'], rules: [] },
+          }
+        },
+      },
+    )
+
+    assert.equal(promptCalls, 1)
+    assert.equal(plan.dryRun, true)
+    assert.equal(plan.mode, 'pointer')
+    assert.deepEqual(plan.assets, {
+      skills: ['demo'],
+      rules: [],
+    })
+    assert.deepEqual(plan.files, [
+      join(repoRoot, '.agents/manifest.json'),
+      join(repoRoot, 'AGENTS.md'),
+    ])
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('interactive mode passes explicit mode to the prompt', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit(
+      { homeDir, repoRoot, mode: 'copy' },
+      {
+        async promptForInit({ mode }) {
+          assert.equal(mode, 'copy')
+          return {
+            mode,
+            selected: { skills: [], rules: ['demo-rule'] },
+          }
+        },
+      },
+    )
+
+    assert.equal(manifest.mode, 'copy')
+    assert.deepEqual(manifest.assets, {
+      skills: [],
+      rules: ['demo-rule'],
+    })
+  })
+
+  it('rejects invalid interactive mode before prompting or writing files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    let promptCalls = 0
+
+    await assert.rejects(
+      () =>
+        runInit(
+          { homeDir, repoRoot, mode: 'typo' },
+          {
+            async promptForInit() {
+              promptCalls += 1
+              return {
+                mode: 'typo',
+                selected: { skills: ['demo'], rules: [] },
+              }
+            },
+          },
+        ),
+      /mode must be one of link, copy, or pointer/,
+    )
+
+    assert.equal(promptCalls, 0)
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('rejects --yes without scripted asset selection before prompting or writing files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    let promptCalls = 0
+
+    await assert.rejects(
+      () =>
+        runInit(
+          { homeDir, repoRoot, yes: true },
+          {
+            async promptForInit() {
+              promptCalls += 1
+              return {
+                mode: 'link',
+                selected: { skills: ['demo'], rules: [] },
+              }
+            },
+          },
+        ),
+      /--yes requires --all, --skills, or --rules/,
+    )
+
+    assert.equal(promptCalls, 0)
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('rejects empty interactive selection before writing files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        runInit(
+          { homeDir, repoRoot },
+          {
+            async promptForInit() {
+              return {
+                mode: 'link',
+                selected: { skills: [], rules: [] },
+              }
+            },
+          },
+        ),
+      /No assets selected/,
+    )
+
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('planning failure preserves existing managed assets and manifest', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    const paths = cachePaths({ homeDir })
+
+    const oldManifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      mode: 'copy',
+    })
+    const oldSkill = await readFile(
+      join(repoRoot, '.agents/skills/demo/SKILL.md'),
+      'utf8',
+    )
+    const oldRule = await readFile(
+      join(repoRoot, '.agents/rules/demo-rule.md'),
+      'utf8',
+    )
+
+    await rm(join(paths.assetsRoot, 'skills/demo'), {
+      recursive: true,
+      force: true,
+    })
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: ['demo'], rules: ['demo-rule'] },
+          mode: 'copy',
+          force: true,
+        }),
+      { code: 'ENOENT' },
+    )
+    assert.equal(
+      await readFile(join(repoRoot, '.agents/skills/demo/SKILL.md'), 'utf8'),
+      oldSkill,
+    )
+    assert.equal(
+      await readFile(join(repoRoot, '.agents/rules/demo-rule.md'), 'utf8'),
+      oldRule,
+    )
+    assert.deepEqual(
+      await readJson(join(repoRoot, '.agents/manifest.json')),
+      oldManifest,
+    )
+    await assert.rejects(
+      () => stat(join(repoRoot, '.agents/skills/.demo.tmp')),
+      { code: 'ENOENT' },
+    )
+  })
+
+  it('rejects malformed cache registry ids before writing outside .agents', async () => {
+    const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
+    const repoRoot = await mkdtemp(join(tmpdir(), 'deweyou-repo-'))
+    const sourceRoot = await createAssetHub()
+
+    await updateCache({ homeDir, sourceRoot, cliVersion: '0.1.0' })
+    const paths = cachePaths({ homeDir })
+    await writeFile(
+      join(paths.assetsRoot, 'registry.json'),
+      `${JSON.stringify(
+        {
+          assets: {
+            skills: {
+              '../escape': {
+                path: 'skills/demo',
+                description: 'Demo skill',
+                hash: 'sha256:demo',
+                tags: [],
+              },
+            },
+            rules: {},
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    )
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: ['../escape'], rules: [] },
+          mode: 'copy',
+        }),
+      /Dewey skill id must be kebab-case/,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(() => stat(join(repoRoot, 'escape')), {
+      code: 'ENOENT',
+    })
+  })
+})
+
+async function createInitFixture() {
+  const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
+  const repoRoot = await mkdtemp(join(tmpdir(), 'deweyou-repo-'))
+  const sourceRoot = await createAssetHub()
+
+  await updateCache({ homeDir, sourceRoot, cliVersion: '0.1.0' })
+
+  return { homeDir, repoRoot, sourceRoot }
+}
+
+async function createAssetHub(options = {}) {
+  const root = await mkdtemp(join(tmpdir(), 'deweyou-assets-'))
+  const skillId = options.skillId ?? 'demo'
+  const skillPath = options.skillPath ?? 'skills/demo'
+
+  await mkdir(join(root, skillPath), { recursive: true })
+  await mkdir(join(root, 'rules'), { recursive: true })
+
+  await writeFile(
+    join(root, skillPath, 'SKILL.md'),
+    `---
+name: ${skillId}
+description: Demo skill
+---
+
+# Demo
+`,
+  )
+
+  await writeFile(
+    join(root, 'rules/demo-rule.md'),
+    `---
+name: demo-rule
+description: Demo rule
+---
+
+# Demo rule
+`,
+  )
+
+  return root
+}

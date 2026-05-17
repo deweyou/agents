@@ -7,10 +7,6 @@ function isKebabCase(s) {
   return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(s)
 }
 
-function isValidSemver(s) {
-  return /^\d+\.\d+\.\d+$/.test(String(s))
-}
-
 function findSkillFiles(dir) {
   const results = []
   try {
@@ -70,9 +66,10 @@ for (const { path, dirName } of skills) {
   const fm = parseFrontmatter(path, errors)
   if (!fm) continue
 
-  for (const field of ['name', 'description', 'version']) {
+  for (const field of ['name', 'description']) {
     if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
   }
+  lintTags(path, fm?.tags, errors)
 
   if (fm?.name) {
     if (!isKebabCase(fm.name))
@@ -81,17 +78,16 @@ for (const { path, dirName } of skills) {
       errors.push(`${path}: name '${fm.name}' does not match directory '${dirName}'`)
   }
 
-  if (fm?.version && !isValidSemver(fm.version))
-    errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
 }
 
 for (const { path, fileName } of rules) {
   const fm = parseFrontmatter(path, errors)
   if (!fm) continue
 
-  for (const field of ['name', 'description', 'version']) {
+  for (const field of ['name', 'description']) {
     if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
   }
+  lintTags(path, fm?.tags, errors)
 
   const expectedName = fileName.replace(/\.md$/, '')
 
@@ -102,8 +98,6 @@ for (const { path, fileName } of rules) {
       errors.push(`${path}: name '${fm.name}' does not match file '${expectedName}'`)
   }
 
-  if (fm?.version && !isValidSemver(fm.version))
-    errors.push(`${path}: version '${fm.version}' is not valid semver (x.y.z)`)
 }
 
 if (errors.length) {
@@ -112,4 +106,18 @@ if (errors.length) {
   process.exit(1)
 } else {
   console.log(`✓ ${skills.length} SKILL.md file(s) and ${rules.length} rule file(s) passed`)
+}
+
+function lintTags(path, tags, errors) {
+  if (tags === undefined) return
+  if (!Array.isArray(tags)) {
+    errors.push(`${path}: tags must be an array`)
+    return
+  }
+
+  for (const [index, tag] of tags.entries()) {
+    if (typeof tag !== 'string' || tag.length === 0) {
+      errors.push(`${path}: tags[${index}] must be a non-empty string`)
+    }
+  }
 }

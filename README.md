@@ -1,7 +1,7 @@
 # Agents
 
-Dewey Ou's personal agent assets hub: skills, rules, and reusable workflow assets
-for personal projects.
+Dewey Ou's personal agent asset hub: skills, rules, and reusable workflow assets
+used by `deweyou-cli`.
 
 ## Assets
 
@@ -10,41 +10,29 @@ for personal projects.
 | Skills | [`skills/`](./skills/) | Active workflows that trigger for specific tasks. |
 | Rules | [`rules/`](./rules/) | Passive coding and development preferences shared across projects. |
 
-## Installation
+## Usage Model
 
-### CLI
+This repository is the asset source. The preferred runtime entrypoint is
+`deweyou-cli`, which lives in [`cli/`](./cli/) and bootstraps repositories with
+selected skills and rules.
 
-Install, update, or remove assets interactively:
-
-```bash
-npx @deweyou/agents add
-npx @deweyou/agents update
-npx @deweyou/agents remove
-```
-
-The CLI installs assets into `.agents/` for the current project or `~/.agents/`
-globally. It can also link assets into Claude Code and Codex locations.
-
-### Skills CLI
-
-```bash
-npx skills add https://github.com/deweyou/agents --skill <skill-name>
-```
+The legacy `@deweyou/agents` installer has been removed. New workflow automation
+and release packaging live in [`cli/`](./cli/).
 
 ## Skills
 
-| Skill | Version | Description |
-|-------|---------|-------------|
-| `code-knowledge` | `2.0.0` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
-| `web-page-debugger` | `2.0.0` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
-| `deweyou-design` | `1.1.0` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
+| Skill | Description |
+|-------|-------------|
+| `code-knowledge` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
+| `web-page-debugger` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
+| `deweyou-design` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
 
 ## Rules
 
-| Rule | Version | Description |
-|------|---------|-------------|
-| `code-style` | `1.0.0` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
-| `development-workflow` | `1.0.1` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
+| Rule | Description |
+|------|-------------|
+| `code-style` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
+| `development-workflow` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
 
 ## Development
 
@@ -55,11 +43,14 @@ Add or update assets using the workflow documented in [AGENTS.md](./AGENTS.md) a
 `docs/`.
 
 Rules are maintained in [`rules/`](./rules/). They are stable personal preferences
-that can be installed through the `@deweyou/agents` CLI.
+that can be selected through `deweyou-cli`.
 
-## Release
+CLI development lives in [`cli/`](./cli/):
 
-Merging changes to `bin/` or `cli/` into `main` automatically prepares a minor
-release, updates [CHANGELOG.md](./CHANGELOG.md), creates a `vX.Y.0` tag, and
-publishes `@deweyou/agents` to npm. The workflow requires the `NPM_TOKEN`
-repository secret.
+```bash
+cd cli
+npm run typecheck
+npm test
+npm run test:coverage
+npm pack --dry-run
+```

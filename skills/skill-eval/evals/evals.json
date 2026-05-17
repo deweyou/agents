@@ -1,0 +1,100 @@
+{
+  "skill_name": "skill-eval",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write eval cases for the code-knowledge skill.",
+      "expected_output": "The agent should trigger skill-eval generation mode, read the target skill, and plan to create or update code-knowledge eval cases.",
+      "expectations": [
+        "Triggered the skill-eval skill",
+        "Planned to read the target skill's SKILL.md before drafting cases",
+        "Planned to write or update skills/code-knowledge/evals/evals.json",
+        "Did NOT plan to run the eval suite"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Complete the missing evals for web-page-debugger.",
+      "expected_output": "The agent should treat this as eval case generation for web-page-debugger and cover trigger boundaries.",
+      "expectations": [
+        "Triggered the skill-eval skill",
+        "Planned to generate or complete eval cases for web-page-debugger",
+        "Planned to cover positive triggers, negative triggers, and workflow constraints",
+        "Did NOT ask the user which agent CLI to use"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run the deweyou-design skill evals and test routing accuracy.",
+      "expected_output": "The agent should trigger skill-eval run mode and plan a routing-mode eval run for deweyou-design.",
+      "expectations": [
+        "Triggered the skill-eval skill",
+        "Planned to run the deweyou-design eval suite",
+        "Planned to use routing mode by default",
+        "Planned to notify the user that running evals invokes LLMs and may cost money"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Evaluate whether prompts are triggering the wrong skill for code-knowledge.",
+      "expected_output": "The agent should treat this as a skill routing evaluation request for code-knowledge.",
+      "expectations": [
+        "Triggered the skill-eval skill",
+        "Planned to evaluate skill trigger accuracy for code-knowledge",
+        "Planned to use the existing eval file if present",
+        "Planned to report case-level PASS/FAIL results after execution"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I changed code-knowledge. Finish the task.",
+      "expected_output": "The agent should not run evals merely because a skill changed, but should ensure eval cases are updated when the change is a skill modification.",
+      "expectations": [
+        "Triggered the skill-eval skill only for generating or updating eval cases, not for executing evals",
+        "Did NOT plan to run LLM-backed evals without an explicit run request",
+        "Planned to update skills/code-knowledge/evals/evals.json if the skill behavior changed"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Lint the assets after my rule change.",
+      "expected_output": "The agent should not trigger skill-eval because the user asked for asset linting, not skill eval generation or execution.",
+      "expectations": [
+        "Did NOT trigger the skill-eval skill",
+        "Planned to run asset linting instead of skill eval generation",
+        "Did NOT plan to write an evals.json file"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Use the web-page-debugger to check localhost:3000.",
+      "expected_output": "The agent should route to web-page-debugger rather than skill-eval.",
+      "expectations": [
+        "Did NOT trigger the skill-eval skill",
+        "Rejected skill-eval as unrelated to running or generating skill evals",
+        "Planned to use web-page-debugger or browser-based verification"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Can you add tests for the CLI asset scanner?",
+      "expected_output": "The agent should treat this as normal repository test work, not skill evaluation, unless the user specifically asks for skill eval cases.",
+      "expectations": [
+        "Did NOT trigger the skill-eval skill",
+        "Planned normal CLI or repository tests instead of skill eval cases",
+        "Did NOT plan to invoke scripts/skill-eval/scripts/run.js"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Run skill-eval for skill-eval itself, but keep the artifacts so I can inspect transcripts.",
+      "expected_output": "The agent should plan a routing eval run for skill-eval and retain artifacts outside skills/skill-eval/evals/runs.",
+      "expectations": [
+        "Triggered the skill-eval skill",
+        "Planned to run the skill-eval eval suite",
+        "Planned to use --keep-runs",
+        "Did NOT plan to retain artifacts under skills/skill-eval/evals/runs"
+      ]
+    }
+  ]
+}

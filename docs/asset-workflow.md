@@ -13,7 +13,16 @@ These rules apply to every agent asset in this repo:
    `rules/code-style.md`.
 2. **Naming**: Directory names, rule filenames, and frontmatter `name` values are
    kebab-case. Good: `data-export`. Bad: `DataExport`, `data_export`.
-3. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
+3. **Implementation language**: Implement skills, rules, MCP assets, and plugin
+   assets in English. Keep frontmatter, instructions, examples, prompts, script
+   help text, and user-facing runtime messages in English unless an asset exists
+   specifically to translate or process non-English content.
+4. **Skill eval coverage**: Every new or modified skill must include an updated
+   eval suite at `skills/<name>/evals/evals.json`. Use the `skill-eval` workflow
+   to generate or complete cases that cover positive triggers, negative triggers,
+   and workflow constraints. Running the eval suite is still a separate,
+   explicit user decision because it invokes LLMs.
+5. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
    `pnpm test` after changing asset-scanning behavior.
 
 ## Asset Types
@@ -21,6 +30,10 @@ These rules apply to every agent asset in this repo:
 - **Skills** are active workflows. They live in `skills/<name>/SKILL.md`.
 - **Rules** are passive reusable constraints. They live in `rules/<name>.md`.
 - **Runtime CLI code** lives in `cli/` as a TypeScript npm package.
+
+Skills, rules, MCP assets, and plugin assets should be authored in English. This
+keeps reusable agent instructions portable across harnesses and avoids mixing
+repository policy with one user's local language preference.
 
 Do not rename rule files to `*.rules.md`; this repository keeps rule filenames
 plain for registry and CLI consumption.
@@ -75,13 +88,13 @@ Then write the skill body: instructions, examples, output format, and edge cases
 
 ### 3. Test And Iterate
 
-Use the skill-creator eval loop when the change affects skill behavior:
+Use `skill-eval` to create the first eval suite:
 
-- Write 2-3 realistic prompts to `evals/evals.json`.
-- Compare with-skill and without-skill runs.
-- Draft assertions while runs are in progress.
-- Generate the eval viewer for review.
-- Improve the skill based on feedback.
+- Write realistic prompts to `skills/<kebab-name>/evals/evals.json`.
+- Cover positive triggers, negative triggers, workflow constraints, and ambiguous
+  prompts when ambiguity matters.
+- Use objectively gradable `expectations[]` entries.
+- Do not run the eval suite unless the user explicitly asks to spend LLM tokens.
 
 ### 4. Finalize
 
@@ -131,9 +144,12 @@ Add or update the skill row in the root README skills table.
    ```
 
 4. Apply only the necessary edits.
-5. Test with prompts that cover the changed behavior.
-6. Run `pnpm run lint:assets` so frontmatter and naming stay valid.
-7. Update the root README skills table when the public description changes.
+5. Use `skill-eval` to update or create `skills/<name>/evals/evals.json` so the
+   changed trigger or workflow behavior is covered.
+6. Test with prompts that cover the changed behavior. Run the eval suite only
+   when the user explicitly requests execution.
+7. Run `pnpm run lint:assets` so frontmatter and naming stay valid.
+8. Update the root README skills table when the public description changes.
 
 ## Creating Or Updating Rules
 
@@ -152,6 +168,8 @@ description: Short description of what the rule governs.
 Rule names must match filenames without `.md`. Keep rule language direct and
 actionable. If a rule becomes a task-specific step-by-step workflow, promote it to a
 skill.
+
+Rules must be authored in English, following the same language policy as skills.
 
 After changing rules:
 

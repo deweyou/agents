@@ -26,6 +26,7 @@ and release packaging live in [`cli/`](./cli/).
 | `code-knowledge` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
 | `web-page-debugger` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
 | `deweyou-design` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
+| `skill-eval` | Skill evaluation workflow for generating eval cases, running agent CLI test cases, grading transcripts, and summarizing routing accuracy. |
 
 ## Rules
 

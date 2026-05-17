@@ -83,6 +83,7 @@ Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包
 | `spec-driven-coding` | 面向功能、行为变更和多步骤实现的 spec-driven coding 工作流。它让 Superpowers spec、plan、TDD、验证和需求更新在编码前后保持一致。 | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | 仓库本地的 skill 评测工作流。它可以生成 eval cases，通过 agent CLI 运行 routing 或 execution 测试，给 transcript 打分并汇总触发准确率。 | [`skills/skill-eval/`](./skills/skill-eval/) |
 | `product-notes` | 产品笔记工作流，用于分类并沉淀产品想法、定位变化、迭代规格、决策、洞察和复盘。 | [`skills/product-notes/`](./skills/product-notes/) |
+| `ui-design` | Dewey 的界面设计工作流，用于跨 Web、移动端、HarmonyOS、小程序、macOS、仪表盘和工具进行 UI 规划、实现、审查和 prompt 生成。 | [`skills/ui-design/`](./skills/ui-design/) |
 
 ### 直接安装 Skills
 
@@ -99,6 +100,7 @@ npx skills add https://github.com/deweyou/agents --skill git-delivery
 npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
 npx skills add https://github.com/deweyou/agents --skill skill-eval
 npx skills add https://github.com/deweyou/agents --skill product-notes
+npx skills add https://github.com/deweyou/agents --skill ui-design
 ```
 
 如果要给整个仓库接入一组选中的 skills 和 rules，更推荐使用

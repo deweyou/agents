@@ -354,6 +354,9 @@ Keep this outro.
           assert.deepEqual(Object.keys(registry.assets.rules), ['demo-rule'])
           return {
             mode: 'pointer',
+            scope: 'project',
+            tools: ['codex'],
+            ruleWiring: 'reference',
             selected: { skills: ['demo'], rules: [] },
           }
         },
@@ -389,6 +392,9 @@ Keep this outro.
           assert.equal(mode, 'copy')
           return {
             mode,
+            scope: 'project',
+            tools: ['claude'],
+            ruleWiring: 'inline',
             selected: { skills: [], rules: ['demo-rule'] },
           }
         },
@@ -396,6 +402,9 @@ Keep this outro.
     )
 
     assert.equal(manifest.mode, 'copy')
+    assert.equal(manifest.scope, 'project')
+    assert.deepEqual(manifest.tools, ['claude'])
+    assert.equal(manifest.ruleWiring, 'inline')
     assert.deepEqual(manifest.assets, {
       skills: [],
       rules: ['demo-rule'],
@@ -457,6 +466,9 @@ Keep this outro.
               promptCalls += 1
               return {
                 mode: 'typo',
+                scope: 'project',
+                tools: ['codex'],
+                ruleWiring: 'reference',
                 selected: { skills: ['demo'], rules: [] },
               }
             },
@@ -487,6 +499,9 @@ Keep this outro.
               promptCalls += 1
               return {
                 mode: 'link',
+                scope: 'project',
+                tools: ['codex'],
+                ruleWiring: 'reference',
                 selected: { skills: ['demo'], rules: [] },
               }
             },
@@ -515,6 +530,9 @@ Keep this outro.
             async promptForInit() {
               return {
                 mode: 'link',
+                scope: 'project',
+                tools: ['codex'],
+                ruleWiring: 'reference',
                 selected: { skills: [], rules: [] },
               }
             },

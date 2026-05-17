@@ -2,9 +2,9 @@ import { describe, it, vi } from 'vitest'
 import assert from 'node:assert/strict'
 
 describe('promptForInit', () => {
-  it('selects all assets after prompting for mode and scope', async () => {
+  it('selects all assets after prompting for scope, tools, mode, and asset scope', async () => {
     const calls = mockClack({
-      selectValues: ['copy', 'all'],
+      selectValues: ['project', 'both', 'copy', 'all', 'reference'],
       confirmValue: true,
     })
     const { promptForInit } = await importPromptModule()
@@ -16,18 +16,46 @@ describe('promptForInit', () => {
 
     assert.deepEqual(result, {
       mode: 'copy',
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
       selected: {
         skills: ['demo'],
         rules: ['demo-rule'],
       },
     })
     assert.deepEqual(calls.intro, ['Dewey Agent Setup'])
-    assert.deepEqual(calls.note, [['/repo', 'Repository']])
+    assert.deepEqual(calls.note[0], ['/repo', 'Repository'])
+  })
+
+  it('prompts for project scope, tools, rule wiring, assets, and confirmation', async () => {
+    const calls = mockClack({
+      selectValues: ['project', 'both', 'rules', 'reference'],
+      multiselectValues: [['demo-rule']],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    const result = await promptForInit({
+      registry: registryFixture(),
+      repoRoot: '/repo',
+      mode: 'link',
+    })
+
+    assert.deepEqual(result, {
+      mode: 'link',
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
+      selected: { skills: [], rules: ['demo-rule'] },
+    })
+    assert.match(calls.note.at(-1)[0], /AGENTS\.md/)
+    assert.match(calls.note.at(-1)[0], /CLAUDE\.md/)
   })
 
   it('uses provided mode and prompts for custom skill and rule selections', async () => {
     mockClack({
-      selectValues: ['custom'],
+      selectValues: ['project', 'both', 'custom', 'reference'],
       multiselectValues: [['demo'], ['demo-rule']],
       confirmValue: true,
     })
@@ -41,6 +69,9 @@ describe('promptForInit', () => {
 
     assert.deepEqual(result, {
       mode: 'pointer',
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
       selected: {
         skills: ['demo'],
         rules: ['demo-rule'],
@@ -50,7 +81,7 @@ describe('promptForInit', () => {
 
   it('supports skills-only and rules-only scopes', async () => {
     mockClack({
-      selectValues: ['skills'],
+      selectValues: ['project', 'codex', 'skills'],
       multiselectValues: [['demo']],
       confirmValue: true,
     })
@@ -63,12 +94,15 @@ describe('promptForInit', () => {
       }),
       {
         mode: 'link',
+        scope: 'project',
+        tools: ['codex'],
+        ruleWiring: 'reference',
         selected: { skills: ['demo'], rules: [] },
       },
     )
 
     mockClack({
-      selectValues: ['rules'],
+      selectValues: ['project', 'claude', 'rules', 'inline'],
       multiselectValues: [['demo-rule']],
       confirmValue: true,
     })
@@ -81,6 +115,9 @@ describe('promptForInit', () => {
       }),
       {
         mode: 'copy',
+        scope: 'project',
+        tools: ['claude'],
+        ruleWiring: 'inline',
         selected: { skills: [], rules: ['demo-rule'] },
       },
     )
@@ -88,7 +125,7 @@ describe('promptForInit', () => {
 
   it('cancels when confirmation is declined', async () => {
     const calls = mockClack({
-      selectValues: ['all'],
+      selectValues: ['project', 'both', 'all', 'reference'],
       confirmValue: false,
     })
     const exit = vi.spyOn(process, 'exit').mockImplementation((code) => {

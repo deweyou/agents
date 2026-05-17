@@ -834,7 +834,7 @@ description: ""
             async promptForInit() {
               return {
                 mode: 'pointer',
-              }
+              } as any
             },
           },
         ),

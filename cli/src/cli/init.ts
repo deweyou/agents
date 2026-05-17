@@ -219,7 +219,13 @@ type PromptForInit = (input: {
   registry: AssetRegistry
   repoRoot: string
   mode?: InstallMode
-}) => Promise<{ mode: InstallMode; selected: SelectedAssets }>
+}) => Promise<{
+  mode: InstallMode
+  scope: InstallScope
+  tools: InstallTool[]
+  ruleWiring: RuleWiring
+  selected: SelectedAssets
+}>
 
 export async function runInit(
   flags: InitFlags = {},
@@ -231,6 +237,9 @@ export async function runInit(
   const registry = await readCachedRegistry(paths.assetsRoot)
   const scripted = hasScriptedSelectionFlags(flags)
   let mode = flags.mode ?? 'link'
+  let scope = flags.scope
+  let tools = flags.tools
+  let ruleWiring = flags.ruleWiring
   let selected: SelectedAssets | undefined
 
   validateMode(mode)
@@ -250,6 +259,9 @@ export async function runInit(
     const prompt = promptForInit ?? (await loadPromptForInit())
     const prompted = await prompt({ registry, repoRoot, mode: flags.mode })
     mode = prompted.mode
+    scope = prompted.scope
+    tools = prompted.tools
+    ruleWiring = prompted.ruleWiring
     selected = prompted.selected
   }
 
@@ -262,9 +274,9 @@ export async function runInit(
   const manifest = await initRepo({
     repoRoot,
     mode,
-    scope: flags.scope,
-    tools: flags.tools,
-    ruleWiring: flags.ruleWiring,
+    scope,
+    tools,
+    ruleWiring,
     selected,
     force: flags.force ?? false,
     dryRun: flags.dryRun ?? false,

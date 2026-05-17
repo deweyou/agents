@@ -121,7 +121,14 @@ export async function initRepo(options: InitRepoOptions = {}): Promise<InitResul
     tools,
     ruleWiring,
     selectedRules: assets.rules,
-    rulePaths: projectRulePathMap(repoRoot, paths.assetsRoot, registry, assets, mode),
+    rulePaths: projectRulePathMap(
+      repoRoot,
+      paths.assetsRoot,
+      registry,
+      assets,
+      mode,
+      ruleWiring,
+    ),
   })
 
   if (dryRun) {
@@ -456,8 +463,11 @@ function projectRulePathMap(
   registry: AssetRegistry,
   assets: SelectedAssets,
   mode: InstallMode,
+  ruleWiring: RuleWiring,
 ): Map<string, string> {
-  if (mode === 'pointer') return rulePathMap(assetsRoot, registry, assets.rules)
+  if (mode === 'pointer' || ruleWiring === 'inline') {
+    return rulePathMap(assetsRoot, registry, assets.rules)
+  }
   return new Map(
     assets.rules.map((rule) => [
       rule,

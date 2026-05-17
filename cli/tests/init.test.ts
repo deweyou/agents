@@ -143,6 +143,50 @@ Keep this outro.
     )
   })
 
+  it.each(['link', 'copy'] as const)(
+    'project inline %s mode reads rule bodies before installing project rule assets',
+    async (mode) => {
+      const { homeDir, repoRoot } = await createInitFixture()
+
+      await initRepo({
+        homeDir,
+        repoRoot,
+        selected: { skills: [], rules: ['demo-rule'] },
+        mode,
+        tools: ['codex'],
+        ruleWiring: 'inline',
+      })
+
+      const agentsMd = await readFile(join(repoRoot, 'AGENTS.md'), 'utf8')
+      assert.match(agentsMd, /Follow these selected Dewey rules:/)
+      assert.match(agentsMd, /description: Demo rule/)
+      assert.match(agentsMd, /# Demo rule/)
+    },
+  )
+
+  it('project inline dryRun plans files without reading missing project rule assets', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const plan = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      mode: 'copy',
+      tools: ['codex'],
+      ruleWiring: 'inline',
+      dryRun: true,
+    })
+
+    assert.equal(plan.dryRun, true)
+    assert.deepEqual(plan.files, [
+      join(repoRoot, '.agents/rules/demo-rule.md'),
+      join(repoRoot, '.agents/manifest.json'),
+      join(repoRoot, 'AGENTS.md'),
+    ])
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), { code: 'ENOENT' })
+  })
+
   it('pointer mode writes a manifest without creating asset files', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 

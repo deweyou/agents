@@ -124,6 +124,11 @@ describe('parseArgs', () => {
     )
 
     assert.throws(
+      () => parseArgs(['agent', 'init', '--tools']),
+      /Missing value for --tools/,
+    )
+
+    assert.throws(
       () => parseArgs(['agent', undefined, '--all']),
       /Flag --all is not valid for agent undefined/,
     )

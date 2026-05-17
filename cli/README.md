@@ -13,10 +13,10 @@ The v0 scope is intentionally small:
 
 ## Install
 
-From this package:
+From npm:
 
 ```bash
-npm install -g .
+npm install -g deweyou-cli
 ```
 
 During v0, point the CLI at your local `deweyou/agents` checkout before updating
@@ -199,7 +199,7 @@ npm pack --dry-run
 Merging CLI package changes into `main` runs the release workflow. It typechecks,
 runs tests, verifies the package with `npm pack --dry-run`, infers the next
 version from conventional commit messages, prepends [CHANGELOG.md](./CHANGELOG.md),
-tags `cli-vX.Y.Z`, and publishes `@deweyou/cli` to npm.
+tags `cli-vX.Y.Z`, and publishes `deweyou-cli` to npm.
 
 Release commit rules:
 

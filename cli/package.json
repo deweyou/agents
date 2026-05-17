@@ -1,5 +1,5 @@
 {
-  "name": "@deweyou/cli",
+  "name": "deweyou-cli",
   "version": "0.2.0",
   "type": "module",
   "description": "Dewey's personal agent workflow bootstrapper",

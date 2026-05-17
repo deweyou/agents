@@ -88,6 +88,11 @@ describe('parseArgs', () => {
       () => parseArgs(['agent', 'context', '--all']),
       /Flag --all is not valid for agent context/,
     )
+
+    assert.throws(
+      () => parseArgs(['agent', 'context', '--scope', 'global']),
+      /Flag --scope is not valid for agent context/,
+    )
   })
 
   it('rejects update and doctor flags', () => {

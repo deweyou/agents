@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0 - 2026-05-17
+
+### Added
+
+- add deweyou-cli help and version flags
 ## 0.4.0 - 2026-05-17
 
 ### Added

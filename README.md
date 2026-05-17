@@ -88,6 +88,7 @@ include references, scripts, assets, previews, or eval cases.
 | `git-delivery` | Dewey's git delivery workflow for branch setup, intentional staging, commits, base-branch conflict checks, safe rebases, pushes, PR creation, and CI follow-up. | [`skills/git-delivery/`](./skills/git-delivery/) |
 | `spec-driven-coding` | Spec-driven coding workflow for features, behavior changes, and multi-step implementation. It keeps Superpowers specs, plans, TDD, verification, and requirement updates aligned before and during coding. | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | Repository-local evaluation workflow for skills. It generates eval cases, runs routing or execution tests through an agent CLI, grades transcripts, and summarizes trigger accuracy. | [`skills/skill-eval/`](./skills/skill-eval/) |
+| `product-notes` | Living product note workflow for classifying and capturing product ideas, positioning changes, iteration specs, decisions, insights, and reviews. | [`skills/product-notes/`](./skills/product-notes/) |
 
 ### Installing Skills Directly
 
@@ -103,6 +104,7 @@ Replace the skill name as needed:
 npx skills add https://github.com/deweyou/agents --skill git-delivery
 npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
 npx skills add https://github.com/deweyou/agents --skill skill-eval
+npx skills add https://github.com/deweyou/agents --skill product-notes
 ```
 
 For repository-wide setup, prefer `deweyou-cli agent init` so the chosen skills

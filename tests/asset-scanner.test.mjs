@@ -12,6 +12,7 @@ describe('asset scanner', () => {
 
     assert.deepEqual(Object.keys(scanned.skills).sort(), [
       'git-delivery',
+      'product-notes',
       'repo-memory',
       'skill-eval',
       'spec-driven-coding',

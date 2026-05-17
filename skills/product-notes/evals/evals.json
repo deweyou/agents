@@ -97,6 +97,18 @@
         "Included the product notes root and relative note-type paths in the persisted convention",
         "Committed to reading the persisted convention before asking for the path in future runs"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "我想沉淀一个新产品想法，但我没说目录，当前仓库里也没有明显的 product notes 结构。",
+      "expected_output": "The agent should not hardcode or invent a product notes root. It should ask the user where product notes should live before writing files, or offer a small set of possible conventions without creating anything.",
+      "files": [],
+      "expectations": [
+        "Did not hardcode any user-specific absolute path from the skill itself",
+        "Did not silently create a default product/ directory",
+        "Asked the user where product notes should live when no root could be resolved",
+        "Offered possible directory conventions only as choices or recommendations"
+      ]
     }
   ]
 }

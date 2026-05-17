@@ -35,6 +35,9 @@ working memory for future positioning, iteration planning, and review.
   iteration plans as superseded instead of deleting them.
 - Prefer small focused notes over one large PRD. A useful product memory system
   is navigable.
+- Never hardcode a user's private absolute product-notes path in this skill. Store
+  user-specific locations only in that user's product workspace or repository
+  convention files.
 
 ## Workflow
 
@@ -54,6 +57,9 @@ Use this precedence order:
    structure below.
 5. If multiple candidates exist, ask the user which product root to use.
 6. If no candidate exists, propose a root path and ask before creating files.
+
+Do not guess silently. If the root cannot be resolved with confidence, ask the
+user where product notes should live before writing any product note.
 
 Common roots include:
 
@@ -239,7 +245,7 @@ Custom roots are first-class. These are all valid:
 docs/product/
 docs/products/weave/
 products/weave/
-<Obsidian vault>/Works/Weave/
+<Obsidian vault>/<project>/
 ```
 
 If the user says "put product notes in X", keep all note-type paths relative to

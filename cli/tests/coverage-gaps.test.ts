@@ -528,6 +528,61 @@ describe('coverage gaps', () => {
     assert.deepEqual(onlyRule.assets, { skills: [], rules: ['demo-rule'] })
   })
 
+  it('validates init scope, tools, rule wiring, and global skill installs', async () => {
+    const { homeDir, repoRoot } = await createFixture({ mode: 'pointer' })
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          scope: 'workspace' as never,
+        }),
+      /scope must be one of project or global/,
+    )
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          tools: ['vim' as never],
+        }),
+      /tool must be one of codex or claude: vim/,
+    )
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          ruleWiring: 'embed' as never,
+        }),
+      /ruleWiring must be one of reference or inline/,
+    )
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: ['demo'], rules: [] },
+          scope: 'global',
+        }),
+      /Global installs currently support rules only/,
+    )
+
+    const allTools = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      mode: 'pointer',
+      tools: ['codex', 'all'],
+      force: true,
+    })
+    assert.deepEqual(allTools.tools, ['codex', 'claude'])
+  })
+
   it('initializes an empty manifest when selected collections are omitted', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
     const repoRoot = await mkdtemp(join(tmpdir(), 'deweyou-repo-'))

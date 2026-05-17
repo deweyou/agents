@@ -169,6 +169,48 @@ Keep this outro.
     )
   })
 
+  it('project init records scope, tools, and rule wiring and creates CLAUDE.md', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      mode: 'link',
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
+    })
+
+    assert.equal(manifest.scope, 'project')
+    assert.deepEqual(manifest.tools, ['codex', 'claude'])
+    assert.equal(manifest.ruleWiring, 'reference')
+    assert.match(await readFile(join(repoRoot, 'AGENTS.md'), 'utf8'), /demo-rule/)
+    assert.match(await readFile(join(repoRoot, 'CLAUDE.md'), 'utf8'), /@AGENTS\.md/)
+  })
+
+  it('global init writes tool instruction files and a global manifest', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      scope: 'global',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'inline',
+    })
+
+    assert.equal(manifest.scope, 'global')
+    assert.match(await readFile(join(homeDir, '.codex/AGENTS.md'), 'utf8'), /Demo rule/)
+    assert.match(await readFile(join(homeDir, '.claude/CLAUDE.md'), 'utf8'), /Demo rule/)
+    assert.deepEqual(
+      await readJson(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      manifest,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
   it('force refuses to replace non-Dewey user-created asset destinations', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 
@@ -244,6 +286,7 @@ Keep this outro.
       join(repoRoot, '.agents/rules/demo-rule.md'),
       join(repoRoot, '.agents/manifest.json'),
       join(repoRoot, 'AGENTS.md'),
+      join(repoRoot, 'CLAUDE.md'),
     ])
     await assert.rejects(() => stat(join(repoRoot, '.agents')), {
       code: 'ENOENT',

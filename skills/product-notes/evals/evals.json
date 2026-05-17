@@ -61,6 +61,30 @@
         "Included hypotheses to validate",
         "Did not prematurely convert the feedback into a full iteration spec"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "以后 Weave 的产品笔记都放在 /Users/deweyou/Library/Mobile Documents/iCloud~md~obsidian/Documents/Dewey Ou/作品/Weave，不要新建 product 目录。帮我把这个目录规范也沉淀进文档体系。",
+      "expected_output": "The agent should treat the provided path as the product notes root, keep note paths relative to that root, update or propose the doc-system/index convention there, and avoid creating a separate top-level product/ directory.",
+      "files": [],
+      "expectations": [
+        "Resolved the explicit path as the product notes root",
+        "Kept product note locations relative to the custom root",
+        "Updated or proposed a workspace convention document such as doc-system or 文档体系",
+        "Did not create or suggest a separate default product/ directory"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "我有三个产品，想用 docs/products/<name>/ 分别沉淀，每个产品里面再有 iterations、decisions、insights。这个 product notes 怎么处理？",
+      "expected_output": "The agent should support docs/products/<name>/ as a custom multi-product root convention, explain that each product gets its own root, and route future notes under the chosen product root after asking which product if ambiguous.",
+      "files": [],
+      "expectations": [
+        "Supported a custom multi-product directory convention",
+        "Explained that each product has its own product notes root",
+        "Planned to ask which product to use when the target product is ambiguous",
+        "Kept the standard note-type directories under each custom product root"
+      ]
     }
   ]
 }

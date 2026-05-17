@@ -7,7 +7,8 @@ description: >
   observation, release review, or asks to "沉淀", "整理产品文档", "记录这个想法",
   "写迭代文档", "产品定位变了", or "turn this discussion into notes". The skill
   should route the input to the right note type before writing; do not default to
-  a generic PRD.
+  a generic PRD. Always support a custom product notes root directory instead of
+  assuming a fixed `product/` path.
 ---
 
 # Product Notes
@@ -39,7 +40,30 @@ working memory for future positioning, iteration planning, and review.
 
 ### 1. Identify The Product Workspace
 
-Inspect the existing product note structure when files are available. Look for:
+Start by resolving the product notes root. The root is the directory that owns
+the product's index, positioning, iterations, decisions, insights, and process
+notes. It may be inside a repo, an Obsidian vault, or another user-provided path.
+
+Use this precedence order:
+
+1. Use the explicit path from the user when they provide one.
+2. Use a configured convention in the repo or conversation, such as "product notes
+   live under `docs/product/`" or "use the Weave Obsidian folder".
+3. Detect an existing product workspace near the current task by looking for the
+   structure below.
+4. If multiple candidates exist, ask the user which product root to use.
+5. If no candidate exists, propose a root path and ask before creating files.
+
+Common roots include:
+
+- `product/`
+- `docs/product/`
+- `docs/products/<product-name>/`
+- `products/<product-name>/`
+- an Obsidian project folder such as `<vault>/<project>/`
+
+Inside the chosen root, inspect the existing product note structure when files are
+available. Look for:
 
 - a root product index such as `index.md`, `索引.md`, or `README.md`
 - current positioning such as `product-positioning.md` or `产品定位.md`
@@ -49,15 +73,26 @@ Inspect the existing product note structure when files are available. Look for:
 - `insights/`
 - `archive/`
 
-If no structure exists, propose the default structure in this skill and ask the
-user where it should live before writing files.
+If no structure exists in the chosen root, create only the minimum directories
+needed for the current note plus an index when useful. Do not force every default
+directory into existence.
+
+When the root is resolved, state it explicitly before writing:
+
+```text
+Product notes root: <path>
+```
+
+If the user wants a reusable convention, document it in the root index or a
+`doc-system.md` / `文档体系.md` file. Keep custom names intact; do not rename
+Chinese folders or Obsidian-style documents to English just to match examples.
 
 ### 2. Classify The Input
 
 Map the discussion to one or more note types:
 
-| Input | Note type | Default location |
-|-------|-----------|------------------|
+| Input | Note type | Default location under the product root |
+|-------|-----------|------------------------------------------|
 | New product idea, early direction, unresolved exploration | Process note | `process/YYYY-MM-DD - <topic>.md` |
 | Current product identity, target user, core promise, non-goals | Positioning | `product-positioning.md` or `产品定位.md` |
 | Next version scope, MVP, success criteria, implementation handoff | Iteration spec | `iterations/<iteration>/` |
@@ -107,8 +142,8 @@ Reason: <one-sentence explanation of what changed>
 
 When a new durable note is created, update the nearest index:
 
-- root index for current positioning and active iteration
-- iteration index for iteration-local scope, success criteria, and review notes
+- product root index for current positioning and active iteration
+- iteration index under the product root for iteration-local scope, success criteria, and review notes
 - decision index only if the workspace already has one
 
 Do not over-maintain indexes for quick process notes unless the workspace already
@@ -130,7 +165,7 @@ If the note is weak, say exactly what is missing.
 ## Default Workspace Structure
 
 Use this structure for a new product note system unless the user has an existing
-convention:
+convention. Treat `product/` as a placeholder root, not a required directory name:
 
 ```text
 product/
@@ -158,6 +193,19 @@ product/
 
   archive/
 ```
+
+Custom roots are first-class. These are all valid:
+
+```text
+docs/product/
+docs/products/weave/
+products/weave/
+<Obsidian vault>/Works/Weave/
+```
+
+If the user says "put product notes in X", keep all note-type paths relative to
+`X`. For example, with root `docs/products/weave/`, a decision record should go
+under `docs/products/weave/decisions/`, not under a new top-level `product/`.
 
 ## Templates
 
@@ -328,6 +376,7 @@ Status: Current
 
 When responding to the user, report:
 
+- the resolved product notes root
 - the chosen note type or types
 - files created or updated
 - any current-versus-history conflicts resolved

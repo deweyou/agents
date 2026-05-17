@@ -2,7 +2,7 @@
 
 This document defines how to create and maintain assets in this repository.
 
-*Last updated: 2026-05-17 | Reason: Co-located the CLI package under `cli/`.*
+*Last updated: 2026-05-17 | Reason: Documented generated registry and CLI release automation.*
 
 ## Repository Conventions
 
@@ -162,12 +162,76 @@ table when the public description changes.
 CLI release, changelog, and npm publishing live under `cli/`. The root
 `@deweyou/agents` package stays private and only hosts assets plus workflows.
 
-After changing CLI behavior, run:
+The published npm package is `@deweyou/cli`, and the installed binary is
+`deweyou-cli`.
+
+### Local Verification
+
+After changing CLI behavior, release logic, or CLI tests, run:
 
 ```bash
-cd cli
-npm run typecheck
-npm test
-npm run test:coverage
-npm pack --dry-run
+npm run typecheck:cli
+npm run test:cli
+npm run coverage:cli
+cd cli && npm pack --dry-run
 ```
+
+Use `npm pack --dry-run` to confirm the npm tarball only contains CLI package
+files such as `dist/`, `README.md`, `CHANGELOG.md`, and `package.json`. Skills
+and rules are source assets and must not be bundled into the CLI package.
+
+### GitHub Release Flow
+
+Merging CLI package changes into `main` triggers
+[`.github/workflows/cli-release.yml`](../.github/workflows/cli-release.yml).
+The workflow:
+
+1. Installs dependencies in `cli/`.
+2. Runs typecheck, tests, coverage, and `npm pack --dry-run`.
+3. Reads changed CLI files and commit subjects for the merge range.
+4. Runs `cli/scripts/prepare-release.ts`.
+5. If a release is needed, commits `cli/package.json` and
+   `cli/CHANGELOG.md`, creates a `cli-vX.Y.Z` tag, publishes
+   `@deweyou/cli`, then pushes the release commit and tag.
+
+The workflow requires `NPM_TOKEN` in GitHub Actions secrets. It skips release
+commits whose message starts with `chore(release):` to avoid publish loops.
+
+### Version Rules
+
+Release versioning is inferred from conventional commit subjects in the CLI
+change range:
+
+- `feat:` creates a minor release.
+- `fix:`, `perf:`, and `refactor:` create a patch release.
+- `!` or `BREAKING CHANGE` creates a major release.
+- `docs:` may appear in changelog output, but does not publish by itself.
+- `test:` and `chore:` do not publish by themselves.
+
+If CLI files changed but no releasable commit subject is present, the workflow
+marks `released=false` and does not commit, tag, or publish.
+
+### Changelog Rules
+
+`prepare-release.ts` prepends `cli/CHANGELOG.md` with grouped release notes:
+
+- `Breaking Changes`
+- `Added`
+- `Fixed`
+- `Improved`
+- `Changed`
+- `Dependencies`
+- `Documentation`
+
+Scopes are preserved in changelog items. For example,
+`fix(cache): refresh generated registry` becomes:
+
+```markdown
+### Fixed
+
+- cache: refresh generated registry
+```
+
+Keep CLI-facing commit subjects user-readable. Prefer
+`feat(init): add interactive asset picker` over vague subjects like
+`feat: update stuff`.

@@ -197,9 +197,18 @@ npm pack --dry-run
 ## Release
 
 Merging CLI package changes into `main` runs the release workflow. It typechecks,
-runs tests, verifies the package with `npm pack --dry-run`, bumps the next minor
-version, prepends [CHANGELOG.md](./CHANGELOG.md), tags `vX.Y.0`, and publishes
-`@deweyou/cli` to npm.
+runs tests, verifies the package with `npm pack --dry-run`, infers the next
+version from conventional commit messages, prepends [CHANGELOG.md](./CHANGELOG.md),
+tags `cli-vX.Y.Z`, and publishes `@deweyou/cli` to npm.
+
+Release commit rules:
+
+- `feat:` creates a minor release.
+- `fix:`, `perf:`, and `refactor:` create a patch release.
+- `!` or `BREAKING CHANGE` creates a major release.
+- `docs:` entries are included in the changelog only when another releasable CLI
+  commit is present.
+- `test:` and `chore:` do not publish by themselves.
 
 ## Relationship To `deweyou/agents`
 

@@ -49,12 +49,24 @@ jobs:
         id: release
         working-directory: cli
         run: |
-          changed_files="$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | sed -n 's#^cli/##p' | tr '\n' ' ')"
-          version="$(npx tsx scripts/prepare-release.ts $changed_files)"
+          changed_files="$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | while read -r file; do
+            case "$file" in
+              cli/*) echo "${file#cli/}" ;;
+              *) echo "$file" ;;
+            esac
+          done | tr '\n' ' ')"
+          commits_file="$(mktemp)"
+          git -C .. log --format=%s --no-merges ${{ github.event.before }}..${{ github.sha }} -- cli .github/workflows/cli-release.yml > "$commits_file"
+          version="$(npx tsx scripts/prepare-release.ts --commits-file "$commits_file" $changed_files)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Commit release files
-        if: ${{ steps.release.outputs.version != 'No CLI changes detected.' }}
+        if: ${{ steps.release.outputs.released == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -63,14 +75,14 @@ jobs:
           git tag -a "cli-v${{ steps.release.outputs.version }}" -m "cli v${{ steps.release.outputs.version }}"
 
       - name: Publish npm package
-        if: ${{ steps.release.outputs.version != 'No CLI changes detected.' }}
+        if: ${{ steps.release.outputs.released == 'true' }}
         working-directory: cli
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push release commit and tag
-        if: ${{ steps.release.outputs.version != 'No CLI changes detected.' }}
+        if: ${{ steps.release.outputs.released == 'true' }}
         run: |
           git push origin HEAD:main
           git push origin "cli-v${{ steps.release.outputs.version }}"

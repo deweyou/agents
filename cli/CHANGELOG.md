@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 - 2026-05-17
+
+### Fixed
+
+- publish cli as deweyou-cli package
 ## 0.2.0 - 2026-05-17
 
 ### Added

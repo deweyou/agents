@@ -13,6 +13,7 @@ describe('asset scanner', () => {
     assert.deepEqual(Object.keys(scanned.skills).sort(), [
       'code-knowledge',
       'deweyou-design',
+      'skill-eval',
       'web-page-debugger',
     ])
     assert.deepEqual(Object.keys(scanned.rules).sort(), [

@@ -75,6 +75,10 @@ with tests, deliver through a pull request, and capture durable repository knowl
 
 - New or changed behavior must be covered by unit tests when the project has a unit
   test setup.
+- New or modified repository skills must include updated `skill-eval` cases in
+  `skills/<name>/evals/evals.json`. Generate or complete the cases as part of the
+  skill change, but only run LLM-backed evals when the user explicitly asks for
+  execution.
 - Bug fixes should include a regression test that fails before the fix when practical.
 - Do not lower coverage thresholds to make a change pass.
 - Do not delete or weaken meaningful tests unless the behavior they cover is
@@ -102,6 +106,10 @@ with tests, deliver through a pull request, and capture durable repository knowl
 
 - Use memory-like timing for repository knowledge capture: update the knowledge base
   as soon as durable project knowledge is discovered, not only at the end of a task.
+- Author reusable repository assets in English: skills, rules, MCP assets, and
+  plugin assets should keep frontmatter, instructions, prompts, examples, and
+  runtime help text in English unless the asset exists specifically to translate
+  or process non-English content.
 - Use a stricter knowledge-base filter before writing: capture only verified,
   durable, repository-specific knowledge that will help future agents avoid
   rediscovery.

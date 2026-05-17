@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.4.0 - 2026-05-17
+
+### Added
+
+- add interactive rule install prompts
+- wire rule installs into init
+- add rule install adapters
+- parse rule install init flags
+
+### Fixed
+
+- refuse agents symlink writes
+- harden rule install safety
+- preserve explicit init mode
+- preserve init flags in wizard
+- omit claude preview without rules
+- include agents preview for claude installs
+- read inline project rules from cache
+- forward init rule install flags
+- handle Claude rule install validation
+- preserve only AGENTS Claude symlink
+- document rule install init flags
+
+### Changed
+
+- share managed markdown sections
+
+### Documentation
+
+- document rule install targets
 ## 0.3.1 - 2026-05-17
 
 ### Changed

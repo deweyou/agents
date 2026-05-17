@@ -162,7 +162,7 @@ table when the public description changes.
 CLI release, changelog, and npm publishing live under `cli/`. The root
 `@deweyou/agents` package stays private and only hosts assets plus workflows.
 
-The published npm package is `@deweyou/cli`, and the installed binary is
+The published npm package is `deweyou-cli`, and the installed binary is also
 `deweyou-cli`.
 
 ### Local Verification
@@ -192,7 +192,7 @@ The workflow:
 4. Runs `cli/scripts/prepare-release.ts`.
 5. If a release is needed, commits `cli/package.json` and
    `cli/CHANGELOG.md`, creates a `cli-vX.Y.Z` tag, publishes
-   `@deweyou/cli`, then pushes the release commit and tag.
+   `deweyou-cli`, then pushes the release commit and tag.
 
 The workflow requires `NPM_TOKEN` in GitHub Actions secrets. It skips release
 commits whose message starts with `chore(release):` to avoid publish loops.

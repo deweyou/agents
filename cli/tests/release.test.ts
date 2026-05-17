@@ -70,7 +70,7 @@ describe('release preparation', () => {
     const root = await mkdtemp(join(tmpdir(), 'deweyou-release-'))
     await writeFile(
       join(root, 'package.json'),
-      `${JSON.stringify({ name: '@deweyou/cli', version: '0.1.0' }, null, 2)}\n`,
+      `${JSON.stringify({ name: 'deweyou-cli', version: '0.1.0' }, null, 2)}\n`,
     )
     await writeFile(join(root, 'CHANGELOG.md'), '# Changelog\n\n')
 
@@ -105,7 +105,7 @@ describe('release preparation', () => {
     const root = await mkdtemp(join(tmpdir(), 'deweyou-release-'))
     await writeFile(
       join(root, 'package.json'),
-      `${JSON.stringify({ name: '@deweyou/cli', version: '0.1.0' }, null, 2)}\n`,
+      `${JSON.stringify({ name: 'deweyou-cli', version: '0.1.0' }, null, 2)}\n`,
     )
 
     await assert.doesNotReject(async () => {
@@ -125,7 +125,7 @@ describe('release preparation', () => {
     const root = await mkdtemp(join(tmpdir(), 'deweyou-release-'))
     await writeFile(
       join(root, 'package.json'),
-      `${JSON.stringify({ name: '@deweyou/cli', version: '0.1.0' }, null, 2)}\n`,
+      `${JSON.stringify({ name: 'deweyou-cli', version: '0.1.0' }, null, 2)}\n`,
     )
 
     const result = await prepareRelease({

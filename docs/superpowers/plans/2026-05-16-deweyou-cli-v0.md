@@ -3,8 +3,9 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 > Status note: this is a historical implementation plan. The shipped direction is
-> co-located under `cli/`, uses the `deweyou-cli` binary, and generates the cache
-> `registry.json` from `skills/` and `rules/` during `deweyou-cli agent update`.
+> co-located under `cli/`, publishes the `deweyou-cli` npm package, exposes the
+> `deweyou-cli` binary, and generates the cache `registry.json` from `skills/`
+> and `rules/` during `deweyou-cli agent update`.
 
 **Goal:** Build `deweyou-cli` v0 as a polished repo onboarding CLI for Dewey's personal skills and rules.
 
@@ -317,7 +318,7 @@ Create `package.json`:
 
 ```json
 {
-  "name": "@deweyou/cli",
+  "name": "deweyou-cli",
   "version": "0.1.0",
   "type": "module",
   "description": "Dewey's personal agent workflow bootstrapper",
@@ -2024,7 +2025,7 @@ It does not replace provider CLIs such as `lark-cli`, `notion-cli`, or `gh`.
 ## Install
 
 ```bash
-npm install -g @deweyou/cli
+npm install -g deweyou-cli
 ```
 
 ## Quick Start

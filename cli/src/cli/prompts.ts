@@ -239,7 +239,7 @@ function plannedFiles({
     return files.join('\n')
   }
 
-  if (tools.includes('codex')) files.push('AGENTS.md')
+  files.push('AGENTS.md')
   if (tools.includes('claude')) files.push('CLAUDE.md')
   files.push('.agents/manifest.json')
   if (selected.skills.length > 0) files.push('.agents/skills/<skill>/SKILL.md')

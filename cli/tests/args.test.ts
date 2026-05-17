@@ -167,6 +167,56 @@ describe('main', () => {
 
     assert.match(output, /Usage:/)
   })
+
+  it('prints top-level help for -h and --help', async () => {
+    const shortOutput = await captureLog(() => main(['-h']))
+    const longOutput = await captureLog(() => main(['--help']))
+
+    assert.match(shortOutput, /Usage:/)
+    assert.match(shortOutput, /deweyou-cli agent <command>/)
+    assert.equal(longOutput, shortOutput)
+  })
+
+  it('prints agent help for nested -h', async () => {
+    const output = await captureLog(() => main(['agent', '-h']))
+
+    assert.match(output, /Usage:/)
+    assert.match(output, /deweyou-cli agent init/)
+    assert.match(output, /deweyou-cli agent doctor/)
+  })
+
+  it('prints command help for nested command -h', async () => {
+    const output = await captureLog(() => main(['agent', 'init', '-h']))
+
+    assert.match(output, /Usage:/)
+    assert.match(output, /deweyou-cli agent init \[--all\]/)
+    assert.match(output, /--rule-wiring reference\|inline/)
+  })
+
+  it('prints command help for every agent command', async () => {
+    const contextOutput = await captureLog(() => main(['agent', 'context', '-h']))
+    const updateOutput = await captureLog(() => main(['agent', 'update', '-h']))
+    const doctorOutput = await captureLog(() => main(['agent', 'doctor', '-h']))
+
+    assert.match(contextOutput, /deweyou-cli agent context \[--format markdown\|json\]/)
+    assert.match(updateOutput, /deweyou-cli agent update/)
+    assert.match(doctorOutput, /deweyou-cli agent doctor/)
+  })
+
+  it('prints scoped help for unknown nested help targets', async () => {
+    const output = await captureLog(() => main(['agent', 'nope', '-h']))
+
+    assert.match(output, /deweyou-cli agent init/)
+    assert.match(output, /deweyou-cli agent <command> -h/)
+  })
+
+  it('prints the CLI version for -v and --version', async () => {
+    const shortOutput = await captureLog(() => main(['-v']))
+    const longOutput = await captureLog(() => main(['--version']))
+
+    assert.match(shortOutput, /^0\.\d+\.\d+$/)
+    assert.equal(longOutput, shortOutput)
+  })
 })
 
 async function captureLog(callback) {

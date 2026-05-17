@@ -1,0 +1,66 @@
+{
+  "skill_name": "product-notes",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "我有个新的产品想法，想和 AI 聊完之后沉淀成规范的产品笔记，不确定应该写成什么文档。",
+      "expected_output": "The agent should trigger product-notes, classify the input before writing, ask focused questions if the product workspace or idea is unclear, and propose the product notes structure rather than defaulting to a generic PRD.",
+      "files": [],
+      "expectations": [
+        "Triggered the product-notes skill",
+        "Classified the input before choosing a document type",
+        "Did not default to a generic PRD",
+        "Asked at most three focused clarification questions or drafted with explicit open questions"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Weave 的产品定位变了，我觉得它不是普通写作工具，而是 local-first writing agent。帮我沉淀一下。",
+      "expected_output": "The agent should treat this as a positioning update and likely decision record, update or propose current positioning, preserve assumptions and non-goals, and note whether any older process notes should be marked superseded.",
+      "files": [],
+      "expectations": [
+        "Classified the request as a positioning note update",
+        "Considered whether a decision record is also needed",
+        "Separated facts, judgments, and assumptions",
+        "Preserved current consensus separately from historical process notes"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "下个版本我想先做模型接入、多轮对话和本地会话保存，不做 memory 和完整 workflow。写个迭代文档。",
+      "expected_output": "The agent should create an iteration spec with goal, background, product hypotheses, scope, non-goals, user flow or requirements, acceptance criteria, risks, open questions, and relationship to future iterations.",
+      "files": [],
+      "expectations": [
+        "Classified the request as an iteration spec",
+        "Included scope and non-goals",
+        "Included product hypotheses or what the iteration validates",
+        "Included acceptance criteria",
+        "Avoided expanding scope into memory or full workflow"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "记录一下这个取舍：当前不引入 LangChain，先用自己的轻量 model adapter。",
+      "expected_output": "The agent should classify this as a decision record, write an ADR-style note with context, options, decision, rationale, rejected work, consequences, and revisit trigger.",
+      "files": [],
+      "expectations": [
+        "Classified the request as a decision record",
+        "Used an ADR-style structure",
+        "Included rejected alternatives or what is not being done",
+        "Included consequences or revisit trigger"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "用户反馈说打开产品后不知道从哪里开始写，我只是想先记下来，不一定马上变成需求。",
+      "expected_output": "The agent should classify this as an insight note, preserve the observation separately from product interpretation, include hypotheses to validate, and avoid prematurely turning it into an iteration spec unless requested.",
+      "files": [],
+      "expectations": [
+        "Classified the request as an insight note",
+        "Separated observation from product interpretation",
+        "Included hypotheses to validate",
+        "Did not prematurely convert the feedback into a full iteration spec"
+      ]
+    }
+  ]
+}

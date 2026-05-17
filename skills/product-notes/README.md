@@ -1,0 +1,32 @@
+# product-notes
+
+> Turn evolving product ideas, iterations, decisions, insights, and reviews into a living product note system.
+
+## What it does
+
+`product-notes` helps agents classify product discussions before writing them
+down. It routes input into positioning notes, iteration specs, decision records,
+insight notes, process notes, or iteration reviews, then writes or updates the
+right artifact using a lightweight product memory structure. It is designed for
+early-stage products where positioning, scope, and version plans evolve through
+ongoing AI collaboration.
+
+## When it triggers
+
+- "I have a new product idea"
+- "Help me capture this product discussion"
+- "整理产品文档", "沉淀这个想法", "写迭代文档"
+- Product positioning changes
+- Version or MVP scope planning
+- Product or technical trade-off decisions
+- User feedback, competitor observations, or release reviews
+
+## Installation
+
+```bash
+npx skills add https://github.com/deweyou/agents --skill product-notes
+```
+
+## Source
+
+This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.

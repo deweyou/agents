@@ -25,14 +25,29 @@
     {
       "id": 2,
       "prompt": "提交吧，顺便开个 PR。",
-      "expected_output": "将请求识别为 finish-work delivery；先检查 git status，运行 repo-memory 和相关验证；只 stage 意图内文件；提交、push，并用仓库常用工具创建 PR；PR 描述包含问题、方案和验证。",
+      "expected_output": "将请求识别为 finish-work delivery；先检查 git status，运行 repo-memory 和相关验证；只 stage 意图内文件；提交后 fetch 目标合入分支并检查是否有冲突；需要时安全 rebase 并重新验证；push，并用仓库常用工具创建 PR；PR 描述包含问题、方案和验证。",
       "files": [],
       "expectations": [
         "The run treats the prompt as commit/push/PR delivery",
         "The run invokes or accounts for repo-memory before committing",
         "Relevant verification runs before commit or the blocker is stated",
         "Only intended files are staged and unrelated dirty files are left out",
+        "The run checks the branch against the target merge branch before push or PR",
+        "The run rebases onto the target branch when safe, or reports exact conflict files and blocker",
         "A PR is created, or an exact blocker is reported"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "这个 PR 好像跟 main 有冲突，帮我处理一下。",
+      "expected_output": "识别为 base branch conflict check；fetch main，检查冲突文件；如果意图明确就 rebase 到 origin/main 并解决冲突，继续 rebase、重新跑验证并 force-with-lease 推送；如果冲突不明确，就停止并报告冲突文件和需要用户判断的地方。",
+      "files": [],
+      "expectations": [
+        "The run treats the prompt as a base branch conflict or rebase workflow",
+        "The run fetches or checks the target merge branch before resolving",
+        "The run prefers rebase onto the target branch for a clean task branch",
+        "The run resolves only clear conflicts and otherwise reports exact conflict files",
+        "The run reruns verification after a successful rebase before pushing"
       ]
     },
     {

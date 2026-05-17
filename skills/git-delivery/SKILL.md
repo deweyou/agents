@@ -6,8 +6,9 @@ description: >
   explicitly says to continue on the current branch. Also use when the user says
   "提交吧", "commit it", "发一下", "ship it", "开 PR", "push", or asks to finish
   work, so the agent runs memory check, verification, intentional staging, commit,
-  push, PR creation or exact blocker reporting, and CI follow-up. Always protect
-  dirty work: never discard, overwrite, or stage unrelated files.
+  base-branch conflict check, rebase when safe, push, PR creation or exact blocker
+  reporting, and CI follow-up. Always protect dirty work: never discard, overwrite,
+  or stage unrelated files.
 ---
 
 # Git Delivery
@@ -16,7 +17,8 @@ Run the repository delivery flow without making the user spell out every git ste
 
 When invoked, make the safety and delivery decisions explicit. Reviewers need to
 see the branch choice, dirty-work protection, intended staging boundary, PR
-creation or blocker, and CI repair consent policy.
+creation or blocker, base-branch conflict/rebase status, and CI repair consent
+policy.
 
 ## Start Of Work
 
@@ -49,14 +51,45 @@ Use this section when the user asks to commit, push, open a PR, or ship the work
 4. Stage only intended files.
 5. Commit with a concise conventional message when the repo uses conventional
    commits, otherwise match local history.
-6. Push the branch.
-7. Open a pull request using the repository's normal tool or hosting CLI. If a PR
+6. Fetch the target merge branch, usually `origin/main`, and check whether the
+   current branch can cleanly merge or rebase onto it.
+7. If the branch is behind or would conflict with the target merge branch, rebase
+   onto the target branch before pushing when the worktree is clean and the rebase
+   is safe. Resolve straightforward conflicts when the intended result is clear.
+   If conflicts are non-trivial, stop and report the conflicting files and exact
+   blocker.
+8. Re-run relevant verification after a successful rebase.
+9. Push the branch. Use `--force-with-lease` only after a rebase rewrote the branch
+   and only for the task branch.
+10. Open a pull request using the repository's normal tool or hosting CLI. If a PR
    cannot be created, report the exact blocker, such as missing auth, missing remote,
    detached HEAD, no GitHub CLI, or no network.
-8. Summarize the problem, solution, and verification in the PR body.
+11. Summarize the problem, solution, and verification in the PR body.
 
 Never include unrelated dirty files in the commit. If unrelated changes exist, leave
 them unstaged and call them out.
+
+## Base Branch Conflict Check
+
+Before pushing or opening a PR, always check the branch against the intended merge
+base:
+
+1. Fetch the base branch.
+2. Inspect whether the head branch is behind, diverged, or merge-conflicting.
+3. Prefer `git rebase origin/<base>` for a clean task branch.
+4. If the rebase conflicts, inspect the conflict files. Resolve only when the
+   intended result is clear from the code and user request.
+5. After resolving conflicts, continue the rebase, rerun verification, and push with
+   `--force-with-lease`.
+6. If conflict resolution is ambiguous, abort or pause safely and report the exact
+   files plus the decision needed from the user.
+
+Always report:
+
+- `base_branch`: target branch checked
+- `conflict_check`: clean, rebased, conflicted-resolved, or blocked
+- `rebase`: not needed, completed, or blocked
+- `conflict_files`: list of files, or `none`
 
 Always report the finish-work boundary:
 
@@ -64,6 +97,7 @@ Always report the finish-work boundary:
 - `verification`: commands run, or exact blocker
 - `staging`: intended files only; unrelated files left unstaged
 - `commit`: hash and message, or exact blocker
+- `base_conflict_check`: base branch, result, rebase status, conflict files
 - `push`: destination, or exact blocker
 - `pr`: URL, or exact blocker
 

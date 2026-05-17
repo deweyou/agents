@@ -411,6 +411,30 @@ Keep this outro.
     })
   })
 
+  it('preserves explicit non-scripted scope over prompted values', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit(
+      { homeDir, repoRoot, scope: 'global' },
+      {
+        async promptForInit() {
+          return {
+            mode: 'link',
+            scope: 'project',
+            tools: ['codex'],
+            ruleWiring: 'reference',
+            selected: { skills: [], rules: ['demo-rule'] },
+          }
+        },
+      },
+    )
+
+    assert.equal(manifest.scope, 'global')
+    assert.deepEqual(manifest.tools, ['codex'])
+    assert.match(await readFile(join(homeDir, '.codex/AGENTS.md'), 'utf8'), /demo-rule/)
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
   it('scripted global runInit forwards scope, tools, and rule wiring to initRepo', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 

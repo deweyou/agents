@@ -219,6 +219,9 @@ type PromptForInit = (input: {
   registry: AssetRegistry
   repoRoot: string
   mode?: InstallMode
+  scope?: InstallScope
+  tools?: ToolSelection
+  ruleWiring?: RuleWiring
 }) => Promise<{
   mode: InstallMode
   scope: InstallScope
@@ -257,11 +260,18 @@ export async function runInit(
         }
   } else {
     const prompt = promptForInit ?? (await loadPromptForInit())
-    const prompted = await prompt({ registry, repoRoot, mode: flags.mode })
+    const prompted = await prompt({
+      registry,
+      repoRoot,
+      mode: flags.mode,
+      scope: flags.scope,
+      tools: flags.tools,
+      ruleWiring: flags.ruleWiring,
+    })
     mode = prompted.mode
-    scope = prompted.scope
-    tools = prompted.tools
-    ruleWiring = prompted.ruleWiring
+    scope = flags.scope ?? prompted.scope
+    tools = flags.tools ?? prompted.tools
+    ruleWiring = flags.ruleWiring ?? prompted.ruleWiring
     selected = prompted.selected
   }
 

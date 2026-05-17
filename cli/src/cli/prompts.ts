@@ -15,6 +15,7 @@ import type {
   RegistryAsset,
   RuleWiring,
   SelectedAssets,
+  ToolSelection,
 } from './types.ts'
 
 const SETUP_SCOPES = [
@@ -78,14 +79,33 @@ const ASSET_SCOPES = [
   },
 ]
 
+const GLOBAL_ASSET_SCOPES = [
+  {
+    value: 'all',
+    label: 'all rules',
+    hint: 'Enable every cached rule.',
+  },
+  {
+    value: 'rules',
+    label: 'choose rules',
+    hint: 'Choose rules individually.',
+  },
+]
+
 export async function promptForInit({
   registry,
   repoRoot,
   mode,
+  scope,
+  tools,
+  ruleWiring,
 }: {
   registry: AssetRegistry
   repoRoot: string
   mode?: InstallMode
+  scope?: InstallScope
+  tools?: ToolSelection
+  ruleWiring?: RuleWiring
 }): Promise<{
   mode: InstallMode
   scope: InstallScope
@@ -96,20 +116,25 @@ export async function promptForInit({
   intro('Dewey Agent Setup')
   note(repoRoot, 'Repository')
 
-  const selectedScope = await promptOrExit<InstallScope>(
-    select({
-      message: 'Select install scope',
-      options: SETUP_SCOPES,
-    }) as Promise<InstallScope>,
-  )
-  const selectedTools = normalizePromptTools(
-    await promptOrExit<'both' | 'codex' | 'claude'>(
+  const selectedScope =
+    scope ??
+    (await promptOrExit<InstallScope>(
       select({
-        message: 'Select tools',
-        options: TOOL_OPTIONS,
-      }) as Promise<'both' | 'codex' | 'claude'>,
-    ),
-  )
+        message: 'Select install scope',
+        options: SETUP_SCOPES,
+      }) as Promise<InstallScope>,
+    ))
+  const selectedTools =
+    tools === undefined
+      ? normalizePromptTools(
+          await promptOrExit<'both' | 'codex' | 'claude'>(
+            select({
+              message: 'Select tools',
+              options: TOOL_OPTIONS,
+            }) as Promise<'both' | 'codex' | 'claude'>,
+          ),
+        )
+      : normalizeToolSelection(tools)
   const selectedMode =
     selectedScope === 'global'
       ? 'pointer'
@@ -120,23 +145,28 @@ export async function promptForInit({
             options: SETUP_MODES,
           }) as Promise<InstallMode>,
         ))
-  const scope = await promptOrExit<'all' | 'custom' | 'skills' | 'rules'>(
+  const assetScope = await promptOrExit<'all' | 'custom' | 'skills' | 'rules'>(
     select({
       message: 'Select asset scope',
-      options: ASSET_SCOPES,
+      options: selectedScope === 'global' ? GLOBAL_ASSET_SCOPES : ASSET_SCOPES,
     }) as Promise<'all' | 'custom' | 'skills' | 'rules'>,
   )
 
-  const selected = await selectAssets({ registry, scope })
-  const ruleWiring =
-    selected.rules.length > 0
+  const selected = await selectAssets({
+    registry,
+    scope: assetScope,
+    installScope: selectedScope,
+  })
+  const selectedRuleWiring =
+    ruleWiring ??
+    (selected.rules.length > 0
       ? await promptOrExit<RuleWiring>(
           select({
             message: 'Select rule wiring',
             options: RULE_WIRING_OPTIONS,
           }) as Promise<RuleWiring>,
         )
-      : 'reference'
+      : 'reference')
   note(
     plannedFiles({
       repoRoot,
@@ -160,7 +190,7 @@ export async function promptForInit({
     mode: selectedMode,
     scope: selectedScope,
     tools: selectedTools,
-    ruleWiring,
+    ruleWiring: selectedRuleWiring,
     selected,
   }
 }
@@ -168,13 +198,15 @@ export async function promptForInit({
 async function selectAssets({
   registry,
   scope,
+  installScope,
 }: {
   registry: AssetRegistry
   scope: 'all' | 'custom' | 'skills' | 'rules'
+  installScope: InstallScope
 }): Promise<SelectedAssets> {
   if (scope === 'all') {
     return {
-      skills: Object.keys(registry.assets.skills),
+      skills: installScope === 'global' ? [] : Object.keys(registry.assets.skills),
       rules: Object.keys(registry.assets.rules),
     }
   }
@@ -184,7 +216,7 @@ async function selectAssets({
     rules: [],
   }
 
-  if (scope === 'custom' || scope === 'skills') {
+  if (installScope === 'project' && (scope === 'custom' || scope === 'skills')) {
     selected.skills = await promptOrExit<string[]>(
       multiselect({
         message: 'Select skills',
@@ -218,6 +250,11 @@ function assetOptions(assets: Record<string, RegistryAsset>) {
 function normalizePromptTools(selectedTools: 'both' | 'codex' | 'claude'): InstallTool[] {
   if (selectedTools === 'both') return ['codex', 'claude']
   return [selectedTools]
+}
+
+function normalizeToolSelection(tools: ToolSelection): InstallTool[] {
+  if (tools.includes('all')) return ['codex', 'claude']
+  return [...new Set(tools)] as InstallTool[]
 }
 
 function plannedFiles({

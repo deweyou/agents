@@ -8,6 +8,7 @@ import {
   realpath,
   rm,
   stat,
+  symlink,
   writeFile,
 } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -143,6 +144,50 @@ Keep this outro.
     )
   })
 
+  it.each(['link', 'copy'] as const)(
+    'project inline %s mode reads rule bodies before installing project rule assets',
+    async (mode) => {
+      const { homeDir, repoRoot } = await createInitFixture()
+
+      await initRepo({
+        homeDir,
+        repoRoot,
+        selected: { skills: [], rules: ['demo-rule'] },
+        mode,
+        tools: ['codex'],
+        ruleWiring: 'inline',
+      })
+
+      const agentsMd = await readFile(join(repoRoot, 'AGENTS.md'), 'utf8')
+      assert.match(agentsMd, /Follow these selected Dewey rules:/)
+      assert.match(agentsMd, /description: Demo rule/)
+      assert.match(agentsMd, /# Demo rule/)
+    },
+  )
+
+  it('project inline dryRun plans files without reading missing project rule assets', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const plan = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      mode: 'copy',
+      tools: ['codex'],
+      ruleWiring: 'inline',
+      dryRun: true,
+    })
+
+    assert.equal(plan.dryRun, true)
+    assert.deepEqual(plan.files, [
+      join(repoRoot, '.agents/rules/demo-rule.md'),
+      join(repoRoot, '.agents/manifest.json'),
+      join(repoRoot, 'AGENTS.md'),
+    ])
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), { code: 'ENOENT' })
+  })
+
   it('pointer mode writes a manifest without creating asset files', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 
@@ -167,6 +212,73 @@ Keep this outro.
         code: 'ENOENT',
       },
     )
+  })
+
+  it('project init records scope, tools, and rule wiring and creates CLAUDE.md', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      mode: 'link',
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
+    })
+
+    assert.equal(manifest.scope, 'project')
+    assert.deepEqual(manifest.tools, ['codex', 'claude'])
+    assert.equal(manifest.ruleWiring, 'reference')
+    assert.match(await readFile(join(repoRoot, 'AGENTS.md'), 'utf8'), /demo-rule/)
+    assert.match(await readFile(join(repoRoot, 'CLAUDE.md'), 'utf8'), /@AGENTS\.md/)
+  })
+
+  it('refuses AGENTS.md symlinks before mutating the symlink target', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    const sharedRoot = await mkdtemp(join(tmpdir(), 'deweyou-shared-'))
+    const sharedAgents = join(sharedRoot, 'AGENTS.md')
+    const original = '# Shared instructions\n'
+
+    await writeFile(sharedAgents, original)
+    await symlink(sharedAgents, join(repoRoot, 'AGENTS.md'))
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          mode: 'link',
+          tools: ['codex'],
+          ruleWiring: 'reference',
+        }),
+      /Refusing to write Dewey workflow through symlink/,
+    )
+
+    assert.equal(await readFile(sharedAgents, 'utf8'), original)
+  })
+
+  it('global init writes tool instruction files and a global manifest', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: [], rules: ['demo-rule'] },
+      scope: 'global',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'inline',
+    })
+
+    assert.equal(manifest.scope, 'global')
+    assert.match(await readFile(join(homeDir, '.codex/AGENTS.md'), 'utf8'), /Demo rule/)
+    assert.match(await readFile(join(homeDir, '.claude/CLAUDE.md'), 'utf8'), /Demo rule/)
+    assert.deepEqual(
+      await readJson(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      manifest,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
   })
 
   it('force refuses to replace non-Dewey user-created asset destinations', async () => {
@@ -244,6 +356,7 @@ Keep this outro.
       join(repoRoot, '.agents/rules/demo-rule.md'),
       join(repoRoot, '.agents/manifest.json'),
       join(repoRoot, 'AGENTS.md'),
+      join(repoRoot, 'CLAUDE.md'),
     ])
     await assert.rejects(() => stat(join(repoRoot, '.agents')), {
       code: 'ENOENT',
@@ -267,6 +380,9 @@ Keep this outro.
           assert.deepEqual(Object.keys(registry.assets.rules), ['demo-rule'])
           return {
             mode: 'pointer',
+            scope: 'project',
+            tools: ['codex'],
+            ruleWiring: 'reference',
             selected: { skills: ['demo'], rules: [] },
           }
         },
@@ -302,6 +418,9 @@ Keep this outro.
           assert.equal(mode, 'copy')
           return {
             mode,
+            scope: 'project',
+            tools: ['claude'],
+            ruleWiring: 'inline',
             selected: { skills: [], rules: ['demo-rule'] },
           }
         },
@@ -309,10 +428,154 @@ Keep this outro.
     )
 
     assert.equal(manifest.mode, 'copy')
+    assert.equal(manifest.scope, 'project')
+    assert.deepEqual(manifest.tools, ['claude'])
+    assert.equal(manifest.ruleWiring, 'inline')
     assert.deepEqual(manifest.assets, {
       skills: [],
       rules: ['demo-rule'],
     })
+  })
+
+  it('preserves explicit non-scripted mode over prompted values', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit(
+      { homeDir, repoRoot, mode: 'copy' },
+      {
+        async promptForInit() {
+          return {
+            mode: 'link',
+            scope: 'project',
+            tools: ['codex'],
+            ruleWiring: 'reference',
+            selected: { skills: ['demo'], rules: [] },
+          }
+        },
+      },
+    )
+
+    assert.equal(manifest.mode, 'copy')
+    assert.deepEqual(manifest.assets, {
+      skills: ['demo'],
+      rules: [],
+    })
+    assert.equal(
+      (await lstat(join(repoRoot, '.agents/skills/demo'))).isSymbolicLink(),
+      false,
+    )
+  })
+
+  it('preserves explicit non-scripted scope over prompted values', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit(
+      { homeDir, repoRoot, scope: 'global' },
+      {
+        async promptForInit() {
+          return {
+            mode: 'link',
+            scope: 'project',
+            tools: ['codex'],
+            ruleWiring: 'reference',
+            selected: { skills: [], rules: ['demo-rule'] },
+          }
+        },
+      },
+    )
+
+    assert.equal(manifest.scope, 'global')
+    assert.deepEqual(manifest.tools, ['codex'])
+    assert.match(await readFile(join(homeDir, '.codex/AGENTS.md'), 'utf8'), /demo-rule/)
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
+  it('scripted global runInit forwards scope, tools, and rule wiring to initRepo', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit({
+      homeDir,
+      repoRoot,
+      scope: 'global',
+      rules: ['demo-rule'],
+      tools: ['codex', 'claude'],
+      ruleWiring: 'inline',
+      yes: true,
+    })
+
+    assert.equal(manifest.scope, 'global')
+    assert.deepEqual(manifest.tools, ['codex', 'claude'])
+    assert.equal(manifest.ruleWiring, 'inline')
+    assert.match(await readFile(join(homeDir, '.codex/AGENTS.md'), 'utf8'), /Demo rule/)
+    assert.match(await readFile(join(homeDir, '.claude/CLAUDE.md'), 'utf8'), /Demo rule/)
+    assert.deepEqual(
+      await readJson(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      manifest,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
+  it('scripted global runInit requires --yes or --dry-run before writing files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        runInit({
+          homeDir,
+          repoRoot,
+          scope: 'global',
+          rules: ['demo-rule'],
+        }),
+      /--scope global with scripted selections requires --yes or --dry-run/,
+    )
+
+    await assert.rejects(() => stat(join(homeDir, '.codex/AGENTS.md')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(
+      () => stat(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      { code: 'ENOENT' },
+    )
+  })
+
+  it('scripted global runInit allows dry-run without --yes', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const plan = await runInit({
+      homeDir,
+      repoRoot,
+      scope: 'global',
+      rules: ['demo-rule'],
+      dryRun: true,
+    })
+
+    assert.equal(plan.dryRun, true)
+    assert.equal(plan.scope, 'global')
+    assert.deepEqual(plan.files, [
+      join(homeDir, '.codex/AGENTS.md'),
+      join(homeDir, '.claude/CLAUDE.md'),
+      join(homeDir, '.deweyou/agents/global-manifest.json'),
+    ])
+    await assert.rejects(() => stat(join(homeDir, '.codex/AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('scripted global runInit rejects selected skills', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        runInit({
+          homeDir,
+          repoRoot,
+          scope: 'global',
+          skills: ['demo'],
+          yes: true,
+        }),
+      /Global installs currently support rules only/,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
   })
 
   it('rejects invalid interactive mode before prompting or writing files', async () => {
@@ -328,6 +591,9 @@ Keep this outro.
               promptCalls += 1
               return {
                 mode: 'typo',
+                scope: 'project',
+                tools: ['codex'],
+                ruleWiring: 'reference',
                 selected: { skills: ['demo'], rules: [] },
               }
             },
@@ -340,6 +606,24 @@ Keep this outro.
     await assert.rejects(() => stat(join(repoRoot, '.agents')), {
       code: 'ENOENT',
     })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('rejects invalid tool names even when all is selected', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          tools: ['all', 'cursor'] as never,
+        }),
+      /tool must be one of codex or claude: cursor/,
+    )
     await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
       code: 'ENOENT',
     })
@@ -358,6 +642,9 @@ Keep this outro.
               promptCalls += 1
               return {
                 mode: 'link',
+                scope: 'project',
+                tools: ['codex'],
+                ruleWiring: 'reference',
                 selected: { skills: ['demo'], rules: [] },
               }
             },
@@ -386,6 +673,9 @@ Keep this outro.
             async promptForInit() {
               return {
                 mode: 'link',
+                scope: 'project',
+                tools: ['codex'],
+                ruleWiring: 'reference',
                 selected: { skills: [], rules: [] },
               }
             },

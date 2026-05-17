@@ -36,7 +36,7 @@ export async function main(argv: string[]): Promise<void> {
 
 function usage(): string {
   return `Usage:
-  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--yes] [--dry-run] [--force]
+  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
   deweyou-cli agent update
   deweyou-cli agent context [--format markdown|json]
   deweyou-cli agent doctor`

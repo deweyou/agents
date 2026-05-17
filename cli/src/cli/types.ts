@@ -1,5 +1,9 @@
 export type AssetKind = 'skill' | 'rule'
 export type InstallMode = 'link' | 'copy' | 'pointer'
+export type InstallScope = 'project' | 'global'
+export type InstallTool = 'codex' | 'claude'
+export type ToolSelection = Array<InstallTool | 'all'>
+export type RuleWiring = 'reference' | 'inline'
 export type OutputFormat = 'markdown' | 'json'
 
 export interface AssetMetadata {
@@ -31,6 +35,7 @@ export interface SourceSnapshot {
 
 export interface RepoManifest {
   mode: InstallMode
+  scope?: InstallScope
   source: SourceSnapshot
   cacheRoot: string
   assets: SelectedAssets
@@ -38,7 +43,28 @@ export interface RepoManifest {
     skills?: Record<string, AssetMetadata>
     rules?: Record<string, AssetMetadata>
   }
+  tools?: InstallTool[]
+  ruleWiring?: RuleWiring
   initializedAt?: string
+}
+
+export interface GlobalManifest {
+  scope: 'global'
+  source: SourceSnapshot
+  cacheRoot: string
+  assets: SelectedAssets
+  assetSnapshot?: {
+    skills?: Record<string, AssetMetadata>
+    rules?: Record<string, AssetMetadata>
+  }
+  tools: InstallTool[]
+  ruleWiring: RuleWiring
+  initializedAt?: string
+}
+
+export interface GlobalDryRunManifest extends Omit<GlobalManifest, 'initializedAt'> {
+  dryRun: true
+  files: string[]
 }
 
 export interface CacheManifest {
@@ -64,6 +90,9 @@ export interface InitRepoOptions {
   repoRoot?: string
   homeDir?: string
   mode?: InstallMode
+  scope?: InstallScope
+  tools?: ToolSelection
+  ruleWiring?: RuleWiring
   selected?: SelectedAssets
   force?: boolean
   dryRun?: boolean
@@ -81,7 +110,11 @@ export interface InitDryRunManifest extends Omit<RepoManifest, 'initializedAt'> 
   files: string[]
 }
 
-export type InitResult = RepoManifest | InitDryRunManifest
+export type InitResult =
+  | RepoManifest
+  | InitDryRunManifest
+  | GlobalManifest
+  | GlobalDryRunManifest
 
 export interface CachePaths {
   root: string

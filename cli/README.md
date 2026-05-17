@@ -91,6 +91,12 @@ Initializes the current repository with selected skills and rules.
 deweyou-cli agent init
 ```
 
+Usage:
+
+```text
+deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
+```
+
 Without selection flags, this opens an interactive setup where you choose:
 
 - install mode
@@ -102,6 +108,8 @@ Scripted examples:
 ```bash
 deweyou-cli agent init --all --mode link --yes
 deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
+deweyou-cli agent init --scope project --tools codex,claude --rules code-style --mode link
+deweyou-cli agent init --scope global --tools all --rules code-style --rule-wiring reference --yes
 deweyou-cli agent init --dry-run
 ```
 
@@ -181,6 +189,10 @@ AGENTS.md
 
 `AGENTS.md` receives a managed Dewey section that points agents at the selected
 workflow context. Existing content outside that managed section is preserved.
+
+Project installs write repository instruction files such as `AGENTS.md` and
+`CLAUDE.md`. Global installs write user-level instruction files such as
+`~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`.
 
 ## Safety Notes
 

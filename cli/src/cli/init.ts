@@ -14,36 +14,57 @@ import { basename, dirname, isAbsolute, join, relative } from 'node:path'
 import { cachePaths } from './cache.ts'
 import { readJson, writeJson } from './manifest.ts'
 import { upsertAgentsSection } from './agents-md.ts'
+import { applyRuleInstall, planRuleInstall } from './rule-install.ts'
 import type {
   AssetKind,
   AssetMetadata,
   AssetPlan,
   AssetRegistry,
   CacheManifest,
+  CachePaths,
+  GlobalManifest,
   InitFlags,
   InitPlan,
   InitRepoOptions,
   InitResult,
   InstallMode,
+  InstallScope,
+  InstallTool,
   RegistryAsset,
   RepoManifest,
+  RuleWiring,
   SelectedAssets,
+  ToolSelection,
 } from './types.ts'
 
 const VALID_MODES = new Set<InstallMode>(['link', 'copy', 'pointer'])
+const VALID_SCOPES = new Set<InstallScope>(['project', 'global'])
+const VALID_TOOLS = new Set<InstallTool>(['codex', 'claude'])
+const VALID_TOOL_SELECTIONS = new Set<ToolSelection[number]>([
+  'all',
+  'codex',
+  'claude',
+])
+const VALID_RULE_WIRING = new Set<RuleWiring>(['reference', 'inline'])
 const SAFE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
-export async function initRepo({
-  repoRoot = process.cwd(),
-  homeDir = homedir(),
-  mode = 'link',
-  selected,
-  force = false,
-  dryRun = false,
-}: InitRepoOptions = {}): Promise<InitResult> {
+export async function initRepo(options: InitRepoOptions = {}): Promise<InitResult> {
+  const {
+    repoRoot = process.cwd(),
+    homeDir = homedir(),
+    mode = 'link',
+    selected,
+    force = false,
+    dryRun = false,
+  } = options
   if (!selected) {
     throw new Error('selected assets are required')
   }
+  const scope = options.scope ?? 'project'
+  const ruleWiring = options.ruleWiring ?? 'reference'
+  validateScope(scope)
+  validateRuleWiring(ruleWiring)
+  const tools = normalizeTools(options.tools)
   validateMode(mode)
 
   const paths = cachePaths({ homeDir })
@@ -53,6 +74,20 @@ export async function initRepo({
   const agentsRoot = join(repoRoot, '.agents')
 
   validateSelectedAssets(registry, assets)
+  if (scope === 'global') {
+    return await initGlobal({
+      homeDir,
+      repoRoot,
+      paths,
+      registry,
+      cacheManifest,
+      assets,
+      tools,
+      ruleWiring,
+      dryRun,
+    })
+  }
+
   const plan = await buildInitPlan({
     repoRoot,
     agentsRoot,
@@ -77,18 +112,35 @@ export async function initRepo({
     cacheRoot: paths.assetsRoot,
     assets,
     assetSnapshot: snapshotSelectedAssetMetadata(registry, assets),
+    scope,
+    tools,
+    ruleWiring,
     initializedAt: new Date().toISOString(),
   }
 
+  const rulePlan = await planRuleInstall({
+    repoRoot,
+    homeDir,
+    cacheRoot: paths.assetsRoot,
+    scope: 'project',
+    tools,
+    ruleWiring,
+    selectedRules: assets.rules,
+    rulePaths: projectRulePathMap(
+      repoRoot,
+      paths.assetsRoot,
+      registry,
+      assets,
+      mode,
+      ruleWiring,
+    ),
+  })
+
   if (dryRun) {
     return {
+      ...manifest,
       dryRun: true,
-      mode,
-      source: cacheManifest.source,
-      cacheRoot: paths.assetsRoot,
-      assets,
-      assetSnapshot: snapshotSelectedAssetMetadata(registry, assets),
-      files: plan.files,
+      files: uniqueFiles([...plan.files, ...rulePlan.files]),
     }
   }
 
@@ -100,7 +152,71 @@ export async function initRepo({
 
   await writeJson(join(agentsRoot, 'manifest.json'), manifest)
   await upsertAgentsSection(repoRoot)
+  await applyRuleInstall(rulePlan)
 
+  return manifest
+}
+
+async function initGlobal({
+  homeDir,
+  repoRoot,
+  paths,
+  registry,
+  cacheManifest,
+  assets,
+  tools,
+  ruleWiring,
+  dryRun,
+}: {
+  homeDir: string
+  repoRoot: string
+  paths: CachePaths
+  registry: AssetRegistry
+  cacheManifest: CacheManifest
+  assets: SelectedAssets
+  tools: InstallTool[]
+  ruleWiring: RuleWiring
+  dryRun: boolean
+}): Promise<InitResult> {
+  if (assets.skills.length > 0) {
+    throw new Error('Global installs currently support rules only')
+  }
+
+  const rulePlan = await planRuleInstall({
+    repoRoot,
+    homeDir,
+    cacheRoot: paths.assetsRoot,
+    scope: 'global',
+    tools,
+    ruleWiring,
+    selectedRules: assets.rules,
+    rulePaths: rulePathMap(paths.assetsRoot, registry, assets.rules),
+  })
+
+  const manifest: GlobalManifest = {
+    scope: 'global',
+    source: cacheManifest.source,
+    cacheRoot: paths.assetsRoot,
+    assets,
+    assetSnapshot: snapshotSelectedAssetMetadata(registry, assets),
+    tools,
+    ruleWiring,
+    initializedAt: new Date().toISOString(),
+  }
+
+  if (dryRun) {
+    return {
+      ...manifest,
+      dryRun: true,
+      files: uniqueFiles([
+        ...rulePlan.files,
+        join(homeDir, '.deweyou/agents/global-manifest.json'),
+      ]),
+    }
+  }
+
+  await applyRuleInstall(rulePlan)
+  await writeJson(join(homeDir, '.deweyou/agents/global-manifest.json'), manifest)
   return manifest
 }
 
@@ -108,7 +224,16 @@ type PromptForInit = (input: {
   registry: AssetRegistry
   repoRoot: string
   mode?: InstallMode
-}) => Promise<{ mode: InstallMode; selected: SelectedAssets }>
+  scope?: InstallScope
+  tools?: ToolSelection
+  ruleWiring?: RuleWiring
+}) => Promise<{
+  mode: InstallMode
+  scope: InstallScope
+  tools: InstallTool[]
+  ruleWiring: RuleWiring
+  selected: SelectedAssets
+}>
 
 export async function runInit(
   flags: InitFlags = {},
@@ -120,6 +245,9 @@ export async function runInit(
   const registry = await readCachedRegistry(paths.assetsRoot)
   const scripted = hasScriptedSelectionFlags(flags)
   let mode = flags.mode ?? 'link'
+  let scope = flags.scope
+  let tools = flags.tools
+  let ruleWiring = flags.ruleWiring
   let selected: SelectedAssets | undefined
 
   validateMode(mode)
@@ -137,8 +265,18 @@ export async function runInit(
         }
   } else {
     const prompt = promptForInit ?? (await loadPromptForInit())
-    const prompted = await prompt({ registry, repoRoot, mode: flags.mode })
-    mode = prompted.mode
+    const prompted = await prompt({
+      registry,
+      repoRoot,
+      mode: flags.mode,
+      scope: flags.scope,
+      tools: flags.tools,
+      ruleWiring: flags.ruleWiring,
+    })
+    mode = flags.mode ?? prompted.mode
+    scope = flags.scope ?? prompted.scope
+    tools = flags.tools ?? prompted.tools
+    ruleWiring = flags.ruleWiring ?? prompted.ruleWiring
     selected = prompted.selected
   }
 
@@ -148,9 +286,18 @@ export async function runInit(
     )
   }
 
+  if (scripted && scope === 'global' && !flags.yes && !flags.dryRun) {
+    throw new Error(
+      '--scope global with scripted selections requires --yes or --dry-run',
+    )
+  }
+
   const manifest = await initRepo({
     repoRoot,
     mode,
+    scope,
+    tools,
+    ruleWiring,
     selected,
     force: flags.force ?? false,
     dryRun: flags.dryRun ?? false,
@@ -238,6 +385,46 @@ function validateMode(mode: unknown): asserts mode is InstallMode {
   }
 }
 
+function validateScope(scope: unknown): asserts scope is InstallScope {
+  if (typeof scope !== 'string') {
+    throw new Error('scope must be one of project or global')
+  }
+  if (!VALID_SCOPES.has(scope as InstallScope)) {
+    throw new Error('scope must be one of project or global')
+  }
+}
+
+function normalizeTools(tools: ToolSelection | undefined): InstallTool[] {
+  if (tools) {
+    for (const tool of tools) {
+      if (
+        typeof tool !== 'string' ||
+        !VALID_TOOL_SELECTIONS.has(tool as ToolSelection[number])
+      ) {
+        throw new Error(`tool must be one of codex or claude: ${tool}`)
+      }
+    }
+  }
+
+  const selected: unknown[] =
+    !tools || tools.includes('all') ? ['codex', 'claude'] : [...tools]
+  for (const tool of selected) {
+    if (typeof tool !== 'string' || !VALID_TOOLS.has(tool as InstallTool)) {
+      throw new Error(`tool must be one of codex or claude: ${tool}`)
+    }
+  }
+  return [...new Set(selected)] as InstallTool[]
+}
+
+function validateRuleWiring(ruleWiring: unknown): asserts ruleWiring is RuleWiring {
+  if (typeof ruleWiring !== 'string') {
+    throw new Error('ruleWiring must be one of reference or inline')
+  }
+  if (!VALID_RULE_WIRING.has(ruleWiring as RuleWiring)) {
+    throw new Error('ruleWiring must be one of reference or inline')
+  }
+}
+
 function validateSelectedAssets(
   registry: AssetRegistry,
   selected: SelectedAssets,
@@ -298,6 +485,39 @@ function pickAssetMetadata(asset: RegistryAsset): AssetMetadata {
     description: asset.description,
     hash: asset.hash,
   }
+}
+
+function uniqueFiles(files: string[]): string[] {
+  return [...new Set(files)]
+}
+
+function rulePathMap(
+  assetsRoot: string,
+  registry: AssetRegistry,
+  rules: string[],
+): Map<string, string> {
+  return new Map(
+    rules.map((rule) => [rule, join(assetsRoot, registry.assets.rules[rule].path)]),
+  )
+}
+
+function projectRulePathMap(
+  repoRoot: string,
+  assetsRoot: string,
+  registry: AssetRegistry,
+  assets: SelectedAssets,
+  mode: InstallMode,
+  ruleWiring: RuleWiring,
+): Map<string, string> {
+  if (mode === 'pointer' || ruleWiring === 'inline') {
+    return rulePathMap(assetsRoot, registry, assets.rules)
+  }
+  return new Map(
+    assets.rules.map((rule) => [
+      rule,
+      join(repoRoot, '.agents', 'rules', `${rule}.md`),
+    ]),
+  )
 }
 
 async function buildInitPlan({

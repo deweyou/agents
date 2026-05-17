@@ -41,6 +41,35 @@ describe('parseArgs', () => {
     )
   })
 
+  it('parses scope, tools, and rule wiring for agent init', () => {
+    assert.deepEqual(
+      parseArgs([
+        'agent',
+        'init',
+        '--scope',
+        'global',
+        '--tools',
+        'codex,claude',
+        '--rule-wiring',
+        'inline',
+        '--rules',
+        'code-style',
+        '--yes',
+      ]),
+      {
+        topic: 'agent',
+        command: 'init',
+        flags: {
+          scope: 'global',
+          tools: ['codex', 'claude'],
+          ruleWiring: 'inline',
+          rules: ['code-style'],
+          yes: true,
+        },
+      },
+    )
+  })
+
   it('defaults context format to markdown', () => {
     assert.deepEqual(
       parseArgs(['agent', 'context']),
@@ -58,6 +87,11 @@ describe('parseArgs', () => {
     assert.throws(
       () => parseArgs(['agent', 'context', '--all']),
       /Flag --all is not valid for agent context/,
+    )
+
+    assert.throws(
+      () => parseArgs(['agent', 'context', '--scope', 'global']),
+      /Flag --scope is not valid for agent context/,
     )
   })
 
@@ -92,6 +126,11 @@ describe('parseArgs', () => {
     assert.throws(
       () => parseArgs(['agent', 'init', '--mode', '--yes']),
       /Missing value for --mode/,
+    )
+
+    assert.throws(
+      () => parseArgs(['agent', 'init', '--tools']),
+      /Missing value for --tools/,
     )
 
     assert.throws(

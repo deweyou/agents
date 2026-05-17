@@ -1,9 +1,20 @@
 import type { ParsedArgs, UsageError } from './types.ts'
 
 const BOOLEAN_FLAGS = new Set(['all', 'yes', 'dry-run', 'force'])
-const VALUE_FLAGS = new Set(['mode', 'skills', 'rules', 'format'])
+const VALUE_FLAGS = new Set(['mode', 'skills', 'rules', 'format', 'scope', 'tools', 'rule-wiring'])
 const FLAGS_BY_COMMAND: Record<string, Set<string>> = {
-  init: new Set(['all', 'skills', 'rules', 'mode', 'yes', 'dry-run', 'force']),
+  init: new Set([
+    'all',
+    'skills',
+    'rules',
+    'mode',
+    'scope',
+    'tools',
+    'rule-wiring',
+    'yes',
+    'dry-run',
+    'force',
+  ]),
   context: new Set(['format']),
   update: new Set(),
   doctor: new Set(),
@@ -61,7 +72,7 @@ function isAllowedForCommand(command: string | undefined, name: string): boolean
 }
 
 function parseValue(name: string, value: string): string | string[] {
-  if (name === 'skills' || name === 'rules') {
+  if (name === 'skills' || name === 'rules' || name === 'tools') {
     return value.split(',').map((item) => item.trim()).filter(Boolean)
   }
   return value

@@ -16,6 +16,7 @@ describe('asset scanner', () => {
       'repo-memory',
       'skill-eval',
       'spec-driven-coding',
+      'ui-design',
     ])
     assert.deepEqual(Object.keys(scanned.rules).sort(), [
       'code-style',

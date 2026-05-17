@@ -27,6 +27,8 @@ jobs:
 
       - run: pnpm test
 
+      - run: pnpm run coverage
+
   test-cli:
     runs-on: ubuntu-latest
     defaults:

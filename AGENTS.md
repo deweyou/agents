@@ -34,6 +34,7 @@ rules, and the `deweyou-cli` package that installs them into other repos.
 
 ```bash
 pnpm test
+pnpm run coverage
 pnpm run lint:assets
 pnpm run typecheck:cli
 pnpm run test:cli

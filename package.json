@@ -13,6 +13,7 @@
   "scripts": {
     "lint:assets": "node scripts/lint-agent-assets.mjs",
     "test": "node --test tests/*.test.mjs",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include='scripts/asset-scanner.mjs' --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90 tests/*.test.mjs",
     "test:cli": "npm --prefix cli test",
     "typecheck:cli": "npm --prefix cli run typecheck",
     "coverage:cli": "npm --prefix cli run test:coverage",

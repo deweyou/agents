@@ -40,6 +40,11 @@ import type {
 const VALID_MODES = new Set<InstallMode>(['link', 'copy', 'pointer'])
 const VALID_SCOPES = new Set<InstallScope>(['project', 'global'])
 const VALID_TOOLS = new Set<InstallTool>(['codex', 'claude'])
+const VALID_TOOL_SELECTIONS = new Set<ToolSelection[number]>([
+  'all',
+  'codex',
+  'claude',
+])
 const VALID_RULE_WIRING = new Set<RuleWiring>(['reference', 'inline'])
 const SAFE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -281,6 +286,12 @@ export async function runInit(
     )
   }
 
+  if (scripted && scope === 'global' && !flags.yes && !flags.dryRun) {
+    throw new Error(
+      '--scope global with scripted selections requires --yes or --dry-run',
+    )
+  }
+
   const manifest = await initRepo({
     repoRoot,
     mode,
@@ -384,6 +395,17 @@ function validateScope(scope: unknown): asserts scope is InstallScope {
 }
 
 function normalizeTools(tools: ToolSelection | undefined): InstallTool[] {
+  if (tools) {
+    for (const tool of tools) {
+      if (
+        typeof tool !== 'string' ||
+        !VALID_TOOL_SELECTIONS.has(tool as ToolSelection[number])
+      ) {
+        throw new Error(`tool must be one of codex or claude: ${tool}`)
+      }
+    }
+  }
+
   const selected: unknown[] =
     !tools || tools.includes('all') ? ['codex', 'claude'] : [...tools]
   for (const tool of selected) {

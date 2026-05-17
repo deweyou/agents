@@ -56,6 +56,7 @@ export async function planRuleInstall(input: RuleInstallInput): Promise<RuleInst
 export async function applyRuleInstall(plan: RuleInstallPlan): Promise<void> {
   for (const operation of plan.operations) {
     await mkdir(dirname(operation.path), { recursive: true })
+    await validateInstructionWritePath(operation.path)
     const existing = await readTextIfPresent(operation.path)
     const next = upsertManagedSection(existing, operation)
     await writeFile(operation.path, next)
@@ -183,6 +184,19 @@ async function readTextIfPresent(path: string): Promise<string> {
   } catch (error) {
     if (!(error instanceof Error) || !('code' in error)) throw error
     if (error.code === 'ENOENT') return ''
+    throw error
+  }
+}
+
+async function validateInstructionWritePath(path: string): Promise<void> {
+  try {
+    const stat = await lstat(path)
+    if (stat.isSymbolicLink()) {
+      throw new Error(`Refusing to write Dewey rules through symlink: ${path}`)
+    }
+  } catch (error) {
+    if (!(error instanceof Error) || !('code' in error)) throw error
+    if (error.code === 'ENOENT') return
     throw error
   }
 }

@@ -97,7 +97,7 @@ describe('rule install adapters', () => {
     assert.match(plan.operations[0]?.start ?? '', /codex/)
   })
 
-  it('plans a Claude operation for non-AGENTS symlink targets', async () => {
+  it('refuses to apply a project Claude operation through a non-AGENTS symlink', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
     await mkdir(join(root, '.agents/rules'), { recursive: true })
     await mkdir(join(root, '../shared'), { recursive: true })
@@ -117,12 +117,75 @@ describe('rule install adapters', () => {
     })
 
     assert.deepEqual(plan.files, [join(root, 'CLAUDE.md')])
-    await applyRuleInstall(plan)
+    await assert.rejects(
+      () => applyRuleInstall(plan),
+      /Refusing to write Dewey rules through symlink/,
+    )
 
-    const targetContents = await readFile(join(root, '../shared/CLAUDE.md'), 'utf8')
-    assert.match(targetContents, /Shared Claude/)
-    assert.match(targetContents, /deweyou-claude-rules:start/)
-    assert.match(targetContents, /\.agents\/rules\/demo-rule\.md/)
+    assert.equal(
+      await readFile(join(root, '../shared/CLAUDE.md'), 'utf8'),
+      '# Shared Claude\n',
+    )
+  })
+
+  it('refuses to apply a project Codex operation through an AGENTS.md symlink', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
+    await mkdir(join(root, '.agents/rules'), { recursive: true })
+    await mkdir(join(root, '../shared'), { recursive: true })
+    await writeFile(join(root, '.agents/rules/demo-rule.md'), demoRuleBody())
+    await writeFile(join(root, '../shared/AGENTS.md'), '# Shared Agents\n')
+    await symlink('../shared/AGENTS.md', join(root, 'AGENTS.md'))
+
+    const plan = await planRuleInstall({
+      repoRoot: root,
+      homeDir: root,
+      cacheRoot: join(root, 'cache'),
+      scope: 'project',
+      tools: ['codex'],
+      ruleWiring: 'reference',
+      selectedRules: ['demo-rule'],
+      rulePaths: new Map([['demo-rule', join(root, '.agents/rules/demo-rule.md')]]),
+    })
+
+    await assert.rejects(
+      () => applyRuleInstall(plan),
+      /Refusing to write Dewey rules through symlink/,
+    )
+    assert.equal(
+      await readFile(join(root, '../shared/AGENTS.md'), 'utf8'),
+      '# Shared Agents\n',
+    )
+  })
+
+  it('refuses to apply a global Claude operation through a CLAUDE.md symlink', async () => {
+    const homeDir = await mkdtemp(join(tmpdir(), 'dewey-home-'))
+    const cacheRoot = join(homeDir, '.deweyou/agents/assets')
+    const rulePath = join(cacheRoot, 'rules/demo-rule.md')
+    await mkdir(join(cacheRoot, 'rules'), { recursive: true })
+    await mkdir(join(homeDir, '.claude'), { recursive: true })
+    await writeFile(rulePath, demoRuleBody())
+    await writeFile(join(homeDir, 'shared-claude.md'), '# Shared Claude\n')
+    await symlink('../shared-claude.md', join(homeDir, '.claude/CLAUDE.md'))
+
+    const plan = await planRuleInstall({
+      repoRoot: join(homeDir, 'repo'),
+      homeDir,
+      cacheRoot,
+      scope: 'global',
+      tools: ['claude'],
+      ruleWiring: 'reference',
+      selectedRules: ['demo-rule'],
+      rulePaths: new Map([['demo-rule', rulePath]]),
+    })
+
+    await assert.rejects(
+      () => applyRuleInstall(plan),
+      /Refusing to write Dewey rules through symlink/,
+    )
+    assert.equal(
+      await readFile(join(homeDir, 'shared-claude.md'), 'utf8'),
+      '# Shared Claude\n',
+    )
   })
 
   it('updates an existing project Claude file directly', async () => {

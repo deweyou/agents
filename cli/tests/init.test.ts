@@ -489,6 +489,52 @@ Keep this outro.
     await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
   })
 
+  it('scripted global runInit requires --yes or --dry-run before writing files', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        runInit({
+          homeDir,
+          repoRoot,
+          scope: 'global',
+          rules: ['demo-rule'],
+        }),
+      /--scope global with scripted selections requires --yes or --dry-run/,
+    )
+
+    await assert.rejects(() => stat(join(homeDir, '.codex/AGENTS.md')), {
+      code: 'ENOENT',
+    })
+    await assert.rejects(
+      () => stat(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      { code: 'ENOENT' },
+    )
+  })
+
+  it('scripted global runInit allows dry-run without --yes', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const plan = await runInit({
+      homeDir,
+      repoRoot,
+      scope: 'global',
+      rules: ['demo-rule'],
+      dryRun: true,
+    })
+
+    assert.equal(plan.dryRun, true)
+    assert.equal(plan.scope, 'global')
+    assert.deepEqual(plan.files, [
+      join(homeDir, '.codex/AGENTS.md'),
+      join(homeDir, '.claude/CLAUDE.md'),
+      join(homeDir, '.deweyou/agents/global-manifest.json'),
+    ])
+    await assert.rejects(() => stat(join(homeDir, '.codex/AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
   it('scripted global runInit rejects selected skills', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 
@@ -534,6 +580,24 @@ Keep this outro.
     await assert.rejects(() => stat(join(repoRoot, '.agents')), {
       code: 'ENOENT',
     })
+    await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
+      code: 'ENOENT',
+    })
+  })
+
+  it('rejects invalid tool names even when all is selected', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          tools: ['all', 'cursor'] as never,
+        }),
+      /tool must be one of codex or claude: cursor/,
+    )
     await assert.rejects(() => stat(join(repoRoot, 'AGENTS.md')), {
       code: 'ENOENT',
     })

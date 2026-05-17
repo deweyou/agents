@@ -358,6 +358,48 @@ Keep this outro.
     })
   })
 
+  it('scripted global runInit forwards scope, tools, and rule wiring to initRepo', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const manifest = await runInit({
+      homeDir,
+      repoRoot,
+      scope: 'global',
+      rules: ['demo-rule'],
+      tools: ['codex', 'claude'],
+      ruleWiring: 'inline',
+      yes: true,
+    })
+
+    assert.equal(manifest.scope, 'global')
+    assert.deepEqual(manifest.tools, ['codex', 'claude'])
+    assert.equal(manifest.ruleWiring, 'inline')
+    assert.match(await readFile(join(homeDir, '.codex/AGENTS.md'), 'utf8'), /Demo rule/)
+    assert.match(await readFile(join(homeDir, '.claude/CLAUDE.md'), 'utf8'), /Demo rule/)
+    assert.deepEqual(
+      await readJson(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      manifest,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
+  it('scripted global runInit rejects selected skills', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        runInit({
+          homeDir,
+          repoRoot,
+          scope: 'global',
+          skills: ['demo'],
+          yes: true,
+        }),
+      /Global installs currently support rules only/,
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
   it('rejects invalid interactive mode before prompting or writing files', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
     let promptCalls = 0

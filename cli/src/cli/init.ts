@@ -255,6 +255,9 @@ export async function runInit(
   const manifest = await initRepo({
     repoRoot,
     mode,
+    scope: flags.scope,
+    tools: flags.tools,
+    ruleWiring: flags.ruleWiring,
     selected,
     force: flags.force ?? false,
     dryRun: flags.dryRun ?? false,

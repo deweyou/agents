@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { lstat, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { upsertManagedSection } from './managed-section.ts'
@@ -12,6 +12,7 @@ This repository uses Dewey's personal agent workflow. Inspect \`.agents/\` befor
 
 export async function upsertAgentsSection(repoRoot: string): Promise<string> {
   const path = join(repoRoot, 'AGENTS.md')
+  await validateAgentsWritePath(path)
   const existing = await readAgentsFile(path)
   const next = upsertManagedSection(existing, {
     start: DEWEYOU_SECTION_START,
@@ -30,6 +31,19 @@ async function readAgentsFile(path: string): Promise<string> {
   } catch (error) {
     if (!(error instanceof Error) || !('code' in error)) throw error
     if (error.code === 'ENOENT') return ''
+    throw error
+  }
+}
+
+async function validateAgentsWritePath(path: string): Promise<void> {
+  try {
+    const stat = await lstat(path)
+    if (stat.isSymbolicLink()) {
+      throw new Error(`Refusing to write Dewey workflow through symlink: ${path}`)
+    }
+  } catch (error) {
+    if (!(error instanceof Error) || !('code' in error)) throw error
+    if (error.code === 'ENOENT') return
     throw error
   }
 }

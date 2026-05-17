@@ -8,6 +8,7 @@ import {
   realpath,
   rm,
   stat,
+  symlink,
   writeFile,
 } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -231,6 +232,31 @@ Keep this outro.
     assert.equal(manifest.ruleWiring, 'reference')
     assert.match(await readFile(join(repoRoot, 'AGENTS.md'), 'utf8'), /demo-rule/)
     assert.match(await readFile(join(repoRoot, 'CLAUDE.md'), 'utf8'), /@AGENTS\.md/)
+  })
+
+  it('refuses AGENTS.md symlinks before mutating the symlink target', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+    const sharedRoot = await mkdtemp(join(tmpdir(), 'deweyou-shared-'))
+    const sharedAgents = join(sharedRoot, 'AGENTS.md')
+    const original = '# Shared instructions\n'
+
+    await writeFile(sharedAgents, original)
+    await symlink(sharedAgents, join(repoRoot, 'AGENTS.md'))
+
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: ['demo-rule'] },
+          mode: 'link',
+          tools: ['codex'],
+          ruleWiring: 'reference',
+        }),
+      /Refusing to write Dewey workflow through symlink/,
+    )
+
+    assert.equal(await readFile(sharedAgents, 'utf8'), original)
   })
 
   it('global init writes tool instruction files and a global manifest', async () => {

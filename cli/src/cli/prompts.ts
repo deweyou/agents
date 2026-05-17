@@ -240,7 +240,9 @@ function plannedFiles({
   }
 
   files.push('AGENTS.md')
-  if (tools.includes('claude')) files.push('CLAUDE.md')
+  if (tools.includes('claude') && selected.rules.length > 0) {
+    files.push('CLAUDE.md')
+  }
   files.push('.agents/manifest.json')
   if (selected.skills.length > 0) files.push('.agents/skills/<skill>/SKILL.md')
   if (selected.rules.length > 0) files.push('.agents/rules/<rule>.md')

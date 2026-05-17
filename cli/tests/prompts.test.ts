@@ -71,6 +71,25 @@ describe('promptForInit', () => {
     assert.match(calls.note.at(-1)[0], /CLAUDE\.md/)
   })
 
+  it('omits CLAUDE.md from Claude-only project preview when no rules are selected', async () => {
+    const calls = mockClack({
+      selectValues: ['project', 'claude', 'skills'],
+      multiselectValues: [['demo']],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    await promptForInit({
+      registry: registryFixture(),
+      repoRoot: '/repo',
+      mode: 'link',
+    })
+
+    assert.match(calls.note.at(-1)[0], /AGENTS\.md/)
+    assert.match(calls.note.at(-1)[0], /\.agents\/skills\/<skill>\/SKILL\.md/)
+    assert.doesNotMatch(calls.note.at(-1)[0], /CLAUDE\.md/)
+  })
+
   it('uses provided mode and prompts for custom skill and rule selections', async () => {
     mockClack({
       selectValues: ['project', 'both', 'custom', 'reference'],

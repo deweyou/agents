@@ -1,5 +1,5 @@
 import { lstat, mkdir, readFile, readlink, writeFile } from 'node:fs/promises'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 
 import { upsertManagedSection } from './managed-section.ts'
 import type { InstallScope, InstallTool, RuleWiring } from './types.ts'
@@ -33,6 +33,7 @@ const CLAUDE_START = '<!-- deweyou-claude-rules:start -->'
 const CLAUDE_END = '<!-- deweyou-claude-rules:end -->'
 
 export async function planRuleInstall(input: RuleInstallInput): Promise<RuleInstallPlan> {
+  validateRuleInstallInput(input)
   if (input.selectedRules.length === 0) return { files: [], operations: [] }
 
   const operations: RuleInstallOperation[] = []
@@ -78,7 +79,15 @@ async function codexOperation(input: RuleInstallInput): Promise<RuleInstallOpera
 async function claudeOperation(input: RuleInstallInput): Promise<RuleInstallOperation | null> {
   if (input.scope === 'project') {
     const claudePath = join(input.repoRoot, 'CLAUDE.md')
-    if (await isSymlinkToAgentsMd(claudePath, input.repoRoot)) return null
+    if (await isSymlinkToAgentsMd(claudePath, input.repoRoot)) {
+      if (input.tools.includes('codex')) return null
+      return {
+        path: join(input.repoRoot, 'AGENTS.md'),
+        start: CLAUDE_START,
+        end: CLAUDE_END,
+        body: await renderRuleSection(input, 'Claude Code'),
+      }
+    }
     if (input.tools.includes('codex') && !(await exists(claudePath))) {
       return {
         path: claudePath,
@@ -101,6 +110,31 @@ async function claudeOperation(input: RuleInstallInput): Promise<RuleInstallOper
     start: CLAUDE_START,
     end: CLAUDE_END,
     body: await renderRuleSection(input, 'Claude Code'),
+  }
+}
+
+function validateRuleInstallInput(input: RuleInstallInput): void {
+  if (input.scope !== 'project' && input.scope !== 'global') {
+    throw new Error(`Invalid rule install scope: ${input.scope}`)
+  }
+
+  for (const tool of input.tools) {
+    if (tool !== 'codex' && tool !== 'claude') {
+      throw new Error(`Invalid rule install tool: ${tool}`)
+    }
+  }
+
+  if (input.ruleWiring !== 'reference' && input.ruleWiring !== 'inline') {
+    throw new Error(`Invalid rule wiring: ${input.ruleWiring}`)
+  }
+
+  if (input.scope === 'global') {
+    for (const rule of input.selectedRules) {
+      const path = requireRulePath(input, rule)
+      if (!isPathInside(input.cacheRoot, path)) {
+        throw new Error(`Global Dewey rule path must be inside cacheRoot for ${rule}: ${path}`)
+      }
+    }
   }
 }
 
@@ -136,6 +170,11 @@ function requireRulePath(input: RuleInstallInput, rule: string): string {
 function displayPath(input: RuleInstallInput, path: string): string {
   if (input.scope === 'project') return relative(input.repoRoot, path)
   return path
+}
+
+function isPathInside(root: string, path: string): boolean {
+  const pathFromRoot = relative(resolve(root), resolve(path))
+  return pathFromRoot === '' || (!pathFromRoot.startsWith('..') && !isAbsolute(pathFromRoot))
 }
 
 async function readTextIfPresent(path: string): Promise<string> {

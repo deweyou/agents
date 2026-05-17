@@ -48,9 +48,11 @@ describe('rule install adapters', () => {
     assert.match(await readFile(join(root, 'CLAUDE.md'), 'utf8'), /@AGENTS\.md/)
   })
 
-  it('preserves a CLAUDE.md symlink to AGENTS.md', async () => {
+  it('writes Claude rules to AGENTS.md when CLAUDE.md symlinks to AGENTS.md', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
+    await mkdir(join(root, '.agents/rules'), { recursive: true })
     await writeFile(join(root, 'AGENTS.md'), '# Existing\n')
+    await writeFile(join(root, '.agents/rules/demo-rule.md'), demoRuleBody())
     await symlink('AGENTS.md', join(root, 'CLAUDE.md'))
 
     const plan = await planRuleInstall({
@@ -64,7 +66,35 @@ describe('rule install adapters', () => {
       rulePaths: new Map([['demo-rule', join(root, '.agents/rules/demo-rule.md')]]),
     })
 
-    assert.deepEqual(plan.files, [])
+    assert.deepEqual(plan.files, [join(root, 'AGENTS.md')])
+    await applyRuleInstall(plan)
+
+    const agentsContents = await readFile(join(root, 'AGENTS.md'), 'utf8')
+    assert.match(agentsContents, /Existing/)
+    assert.match(agentsContents, /deweyou-claude-rules:start/)
+    assert.match(agentsContents, /Dewey Rules for Claude Code/)
+  })
+
+  it('skips an extra Claude operation for an AGENTS symlink when Codex is selected', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
+    await mkdir(join(root, '.agents/rules'), { recursive: true })
+    await writeFile(join(root, 'AGENTS.md'), '# Existing\n')
+    await writeFile(join(root, '.agents/rules/demo-rule.md'), demoRuleBody())
+    await symlink('AGENTS.md', join(root, 'CLAUDE.md'))
+
+    const plan = await planRuleInstall({
+      repoRoot: root,
+      homeDir: root,
+      cacheRoot: join(root, 'cache'),
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
+      selectedRules: ['demo-rule'],
+      rulePaths: new Map([['demo-rule', join(root, '.agents/rules/demo-rule.md')]]),
+    })
+
+    assert.deepEqual(plan.files, [join(root, 'AGENTS.md')])
+    assert.match(plan.operations[0]?.start ?? '', /codex/)
   })
 
   it('plans a Claude operation for non-AGENTS symlink targets', async () => {
@@ -87,6 +117,12 @@ describe('rule install adapters', () => {
     })
 
     assert.deepEqual(plan.files, [join(root, 'CLAUDE.md')])
+    await applyRuleInstall(plan)
+
+    const targetContents = await readFile(join(root, '../shared/CLAUDE.md'), 'utf8')
+    assert.match(targetContents, /Shared Claude/)
+    assert.match(targetContents, /deweyou-claude-rules:start/)
+    assert.match(targetContents, /\.agents\/rules\/demo-rule\.md/)
   })
 
   it('updates an existing project Claude file directly', async () => {
@@ -219,6 +255,54 @@ describe('rule install adapters', () => {
         rulePaths: new Map(),
       }),
       /Missing path for Dewey rule: demo-rule/,
+    )
+  })
+
+  it('throws for invalid install options', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
+    const baseInput = {
+      repoRoot: root,
+      homeDir: root,
+      cacheRoot: join(root, 'cache'),
+      scope: 'project',
+      tools: ['codex'],
+      ruleWiring: 'reference',
+      selectedRules: ['demo-rule'],
+      rulePaths: new Map([['demo-rule', join(root, '.agents/rules/demo-rule.md')]]),
+    } as const
+
+    await assert.rejects(
+      planRuleInstall({ ...baseInput, scope: 'workspace' as never }),
+      /Invalid rule install scope: workspace/,
+    )
+    await assert.rejects(
+      planRuleInstall({ ...baseInput, tools: ['cursor' as never] }),
+      /Invalid rule install tool: cursor/,
+    )
+    await assert.rejects(
+      planRuleInstall({ ...baseInput, ruleWiring: 'copy' as never }),
+      /Invalid rule wiring: copy/,
+    )
+  })
+
+  it('throws for global rule paths outside the cache root', async () => {
+    const homeDir = await mkdtemp(join(tmpdir(), 'dewey-home-'))
+    const outsideRulePath = join(homeDir, 'outside/demo-rule.md')
+    await mkdir(join(homeDir, 'outside'), { recursive: true })
+    await writeFile(outsideRulePath, demoRuleBody())
+
+    await assert.rejects(
+      planRuleInstall({
+        repoRoot: join(homeDir, 'repo'),
+        homeDir,
+        cacheRoot: join(homeDir, '.deweyou/agents/assets'),
+        scope: 'global',
+        tools: ['codex'],
+        ruleWiring: 'reference',
+        selectedRules: ['demo-rule'],
+        rulePaths: new Map([['demo-rule', outsideRulePath]]),
+      }),
+      /Global Dewey rule path must be inside cacheRoot for demo-rule/,
     )
   })
 

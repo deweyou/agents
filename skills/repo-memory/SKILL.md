@@ -6,6 +6,9 @@ description: >
   asks to "沉淀", "更新知识库", "precommit", "archive this work", "初始化知识库",
   or whenever AGENTS.md, CLAUDE.md, docs/, repo context, durable project knowledge,
   or local skill updates may need to be created or refreshed from current work.
+  Always consider skill drift: repository-owned skills may need direct updates,
+  while dependency skills should be deferred to a separate issue, PR, TODO, or
+  subagent follow-up instead of blocking the main task.
 ---
 
 # Repo Memory
@@ -20,6 +23,10 @@ and leaves the workspace ready for delivery.
 
 Before writing knowledge docs, read [`rule.md`](rule.md). That file contains the
 documentation contract, templates, and quality bar.
+
+When invoked, make the plan explicit. Routing and review depend on seeing the
+memory check, initialization decision, `CLAUDE.md` safety decision, documentation
+quality rule, and skill-drift decision in the response.
 
 ## Core Principles
 
@@ -73,6 +80,17 @@ Use the repository's existing convention when it is clear:
 
 If `CLAUDE.md` already exists as a real file, do not replace it without asking.
 
+For a new memory setup, explicitly plan all required artifacts:
+
+- create `AGENTS.md`
+- create `docs/project-structure.md`
+- create `docs/.state.md`
+- create `docs/.todo.md`
+- create at least one focused topic doc when durable domain knowledge is present
+- create `CLAUDE.md -> AGENTS.md` when safe, or state the blocker
+- apply `rule.md` quality in the plan itself: Mermaid-first docs, concise prose,
+  relative repo links with `#L` anchors where useful, and update footers
+
 ### 3. Judge Memory Value
 
 Update memory only for durable knowledge:
@@ -108,6 +126,27 @@ Read [`rule.md`](rule.md), then create or update only the necessary files:
 Keep updates incremental. If a topic doc already exists, update it in place. Create
 a new topic doc only when a genuinely new domain or workflow appears.
 
+When a domain lifecycle, state machine, ownership rule, or invariant changes, name
+the likely affected topic doc before editing. Prefer a specific existing doc such as
+`docs/order-lifecycle.md` over broad docs like `project-structure.md`. If the
+business meaning is unclear, ask the user or add a `TODO`; never silently invent the
+semantics.
+
+For order lifecycle or state-machine changes, always plan to find and update the
+existing relevant order lifecycle/state-machine doc first, such as
+`docs/order-lifecycle.md`, instead of creating broad unrelated documentation. Only
+create a new focused order doc when no relevant doc exists.
+
+When creating or editing knowledge docs, explicitly apply the `rule.md` quality bar:
+
+- Mermaid diagram first
+- concise prose explaining the diagram
+- relative repo links with `#L` anchors when useful
+- update footer with date and reason
+
+Use the phrase `relative links with #L anchors` in the plan when docs are created
+or updated so reviewers can verify the quality rule was applied.
+
 ### 5. Check Skill Drift
 
 Look for skill updates at two levels:
@@ -121,6 +160,17 @@ Look for skill updates at two levels:
 
 Do not modify third-party or shared dependency skills in-place unless the current
 repository owns them.
+
+For dependency skills, always use this policy sentence in the plan or handoff:
+`Dependency skill changes are deferred to issue/PR/TODO/subagent follow-up and are
+not edited in-place here.`
+
+Always state the skill drift result, even when no skill changes are needed:
+
+- `owned_skill_updates`: which repo-owned skills were updated directly, or `none`
+- `dependency_skill_followups`: which dependency skills need issue/PR/TODO/subagent
+  follow-up, or `none`
+- `blocked`: anything that needs user approval before changing a skill
 
 ### 6. Verify The Memory Pass
 
@@ -142,3 +192,16 @@ Report:
 - any skill drift found and whether it was handled now or deferred
 
 Keep the final answer short enough to support the user's delivery flow.
+
+For routing, planning, and final handoff, include these exact decision labels when
+they apply:
+
+- `memory_check`: pre-commit, initialization, incremental update, or no-op
+- `claude_md`: create symlink, already safe, ask before replacing real file, or not
+  applicable
+- `doc_quality`: `rule.md` applied, including Mermaid, relative links, and update
+  footer
+- `focused_docs`: specific docs to update, or `none`
+- `skill_drift`: owned skill updates and dependency skill follow-ups
+- `dependency_skill_policy`: deferred to issue/PR/TODO/subagent follow-up; not
+  edited in-place

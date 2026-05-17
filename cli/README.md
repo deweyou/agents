@@ -101,7 +101,7 @@ Scripted examples:
 
 ```bash
 deweyou-cli agent init --all --mode link --yes
-deweyou-cli agent init --skills code-knowledge,deweyou-design --rules code-style
+deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
 deweyou-cli agent init --dry-run
 ```
 

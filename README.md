@@ -23,9 +23,9 @@ and release packaging live in [`cli/`](./cli/).
 
 | Skill | Description |
 |-------|-------------|
-| `code-knowledge` | Unified repository knowledge workflow: initialize docs, incrementally update them, run post-work archive checks, and support continuous learning. |
-| `web-page-debugger` | AI-driven web product verification and debugging: acceptance testing against spec, symptom-driven triage, and optional auto-repair loop. |
-| `deweyou-design` | Dewey Ou's personal design system: typography, semantic colors, tokens, components, and UI kits. |
+| `repo-memory` | Hermes-style repository memory workflow: initialize docs, run pre-commit memory checks, update durable context, and check local skill drift. |
+| `git-delivery` | Branch, commit, push, PR, and CI follow-up workflow for Dewey's development flow. |
+| `spec-driven-coding` | Superpowers-first spec, plan, TDD, and verification workflow for implementation work. |
 | `skill-eval` | Skill evaluation workflow for generating eval cases, running agent CLI test cases, grading transcripts, and summarizing routing accuracy. |
 
 ## Rules
@@ -33,7 +33,6 @@ and release packaging live in [`cli/`](./cli/).
 | Rule | Description |
 |------|-------------|
 | `code-style` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code. |
-| `development-workflow` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. |
 
 ## Development
 

@@ -2,8 +2,9 @@
 name: git-delivery
 description: >
   Manage Dewey's git delivery workflow. Use this skill at the start of a coding
-  session to sync from the primary branch and create a task branch unless the user
-  explicitly says to continue on the current branch. Also use when the user says
+  session to inspect the current branch, protect dirty work, and fetch the primary
+  branch without moving the worktree unless the user asks for a new branch. Also
+  use when the user says
   "提交吧", "commit it", "发一下", "ship it", "开 PR", "push", or asks to finish
   work, so the agent runs memory check, verification, intentional staging, commit,
   base-branch conflict check, rebase when safe, push, PR creation or exact blocker
@@ -26,20 +27,29 @@ Use this section when beginning a new implementation task.
 
 1. Check `git status --short` and the current branch.
 2. Identify the primary branch, usually `main`.
-3. Unless the user explicitly says to continue on the current branch, switch to the
-   primary branch and pull the latest remote state.
-4. Create a dedicated task branch with a descriptive name.
-5. Do not discard or overwrite existing user changes. If local changes block a safe
-   branch switch, stop and ask how to handle them.
+3. Fetch the latest remote state for the primary branch, for example
+   `git fetch origin <primary>`, without switching branches.
+4. Stay on the current branch by default. State the current branch and the fetched
+   baseline, such as `origin/main`.
+5. Create a dedicated task branch only when the user explicitly asks to prepare a
+   branch, start a fresh branch, or similar. If creating a branch, branch from the
+   fetched baseline when the worktree is clean and the user has not asked to
+   continue from the current branch.
+6. For parallel work, prefer a separate worktree or an explicit new branch instead
+   of moving the existing worktree away from an active task.
+7. Do not discard or overwrite existing user changes. If local changes block a safe
+   branch creation or worktree setup, stop and ask how to handle them.
 
 If the user says "continue here", "use this branch", or similar, stay on the current
-branch and state that choice.
+branch and state that choice. If the user only asks to start implementation, do not
+switch branches unless they also ask for branch preparation.
 
 Always report the dirty-work decision:
 
-- `dirty_work`: none, protected, or blocks branch switch
+- `dirty_work`: none, protected, or blocks branch creation/worktree setup
 - `unrelated_files`: left untouched and unstaged
-- `branch_action`: stayed, switched to primary, pulled primary, or created branch
+- `base_sync`: fetched primary branch, already current, or blocked with reason
+- `branch_action`: stayed, created branch, created worktree, or blocked with reason
 
 ## Finish Work
 

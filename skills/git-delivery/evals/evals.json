@@ -3,23 +3,47 @@
   "evals": [
     {
       "id": 0,
-      "prompt": "我要开始做一个新需求，帮我准备一下分支。",
-      "expected_output": "检查当前 git 状态和分支；识别主分支；除非用户明确要求继续当前分支，否则切回主分支、拉最新远端代码，并创建一个描述性任务分支。遇到未提交改动时不丢弃、不覆盖，而是询问如何处理。",
+      "prompt": "我要开始做一个新需求，先帮我看一下 git 状态。",
+      "expected_output": "检查当前 git 状态和分支；识别主分支；fetch 最新远端主分支作为基线；默认留在当前分支，不切回主分支、不创建新分支；遇到未提交改动时不丢弃、不覆盖，并报告 dirty-work 保护和 base_sync 状态。",
       "files": [],
       "expectations": [
         "The run treats the prompt as the start-of-work git workflow",
-        "The run checks or syncs the primary branch before creating a task branch unless the user opted out",
+        "The run fetches or checks the primary branch baseline without switching branches by default",
+        "The run does not create a branch unless the user explicitly asked for branch preparation",
         "The run does not discard, overwrite, or stage unrelated dirty files"
       ]
     },
     {
       "id": 1,
+      "prompt": "帮我准备一个新分支来改登录 bug。",
+      "expected_output": "识别用户明确要求准备新分支；先检查 git status、识别主分支并 fetch 远端基线；在安全时从最新远端基线创建描述性任务分支；如果未提交改动会阻塞安全创建，则停止并询问如何处理。",
+      "files": [],
+      "expectations": [
+        "The run honors the user's explicit request to prepare a new task branch",
+        "The run fetches or checks the primary branch baseline before creating the branch",
+        "The run does not discard or overwrite dirty work when creating the branch"
+      ]
+    },
+    {
+      "id": 5,
       "prompt": "就在当前分支继续，不要切分支。我想改一下登录 bug。",
-      "expected_output": "识别用户明确要求继续当前分支，因此不切主分支、不新建分支；仍检查 git status，并说明会留在当前分支工作。",
+      "expected_output": "识别用户明确要求继续当前分支，因此不切主分支、不新建分支；仍检查 git status、fetch 主分支基线，并说明会留在当前分支工作。",
       "files": [],
       "expectations": [
         "The run honors the user's explicit instruction to continue on the current branch",
+        "The run fetches or checks the primary branch baseline without moving the worktree",
         "The run does not create or switch branches when the user opted out"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "我这边还有另一个需求没做完，帮我开个并行的新需求环境。",
+      "expected_output": "识别为并行开发场景；检查 git 状态和主分支基线；优先建议或创建单独 worktree/明确的新分支，而不是把当前 worktree 从活跃需求上切走；如本地改动阻塞则停止询问。",
+      "files": [],
+      "expectations": [
+        "The run treats the prompt as parallel work setup",
+        "The run prefers a separate worktree or explicit new branch for parallel work",
+        "The run does not move the current worktree away from an active task without user intent"
       ]
     },
     {

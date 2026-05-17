@@ -11,14 +11,13 @@ describe('asset scanner', () => {
     const scanned = await scanAssets(new URL('..', import.meta.url).pathname)
 
     assert.deepEqual(Object.keys(scanned.skills).sort(), [
-      'code-knowledge',
-      'deweyou-design',
+      'git-delivery',
+      'repo-memory',
       'skill-eval',
-      'web-page-debugger',
+      'spec-driven-coding',
     ])
     assert.deepEqual(Object.keys(scanned.rules).sort(), [
       'code-style',
-      'development-workflow',
     ])
 
     for (const asset of [

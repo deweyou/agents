@@ -50,7 +50,7 @@ deweyou-cli agent context --format markdown
 
 ```bash
 deweyou-cli agent init --all --mode link --yes
-deweyou-cli agent init --skills code-knowledge,deweyou-design --rules code-style
+deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
 deweyou-cli agent init --dry-run
 ```
 
@@ -78,25 +78,25 @@ Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包
 
 | Skill | 介绍 | 来源 |
 |-------|------|------|
-| `code-knowledge` | 构建、更新、归档并持续增长仓库知识库，服务人类开发者和未来 AI agents。它管理 `docs/`、`AGENTS.md`、状态文件、主题文档和工作完成后的归档检查。 | [`skills/code-knowledge/`](./skills/code-knowledge/) |
-| `deweyou-design` | Dewey Ou 的个人设计系统，用于品牌化界面、原型、视觉资产和生产 UI 工作。包含设计规范、tokens、logo、字体、预览页面和 React UI kit 参考。 | [`skills/deweyou-design/`](./skills/deweyou-design/) |
+| `repo-memory` | Hermes 风格的仓库长期记忆工作流。它初始化和刷新 durable repo context，运行提交前记忆检查，在工作改变重要知识时更新文档，并检查本地 skill drift。 | [`skills/repo-memory/`](./skills/repo-memory/) |
+| `git-delivery` | Dewey 的 git 交付工作流，覆盖分支准备、有意 staging、提交、base 分支冲突检查、安全 rebase、push、PR 创建和 CI 跟进。 | [`skills/git-delivery/`](./skills/git-delivery/) |
+| `spec-driven-coding` | 面向功能、行为变更和多步骤实现的 spec-driven coding 工作流。它让 Superpowers spec、plan、TDD、验证和需求更新在编码前后保持一致。 | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | 仓库本地的 skill 评测工作流。它可以生成 eval cases，通过 agent CLI 运行 routing 或 execution 测试，给 transcript 打分并汇总触发准确率。 | [`skills/skill-eval/`](./skills/skill-eval/) |
-| `web-page-debugger` | AI 驱动的网页产品验收与调试工作流。它可以按 spec 验收页面，排查 console、network、DOM 异常，并在需要时执行可选修复循环。 | [`skills/web-page-debugger/`](./skills/web-page-debugger/) |
 
 ### 直接安装 Skills
 
 用 Skills CLI 安装单个 skill：
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill code-knowledge
+npx skills add https://github.com/deweyou/agents --skill repo-memory
 ```
 
 按需替换 skill 名称：
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill deweyou-design
+npx skills add https://github.com/deweyou/agents --skill git-delivery
+npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
 npx skills add https://github.com/deweyou/agents --skill skill-eval
-npx skills add https://github.com/deweyou/agents --skill web-page-debugger
 ```
 
 如果要给整个仓库接入一组选中的 skills 和 rules，更推荐使用
@@ -109,7 +109,6 @@ Rules 是被动偏好和约束。它们位于 `rules/<name>.md`，并通过 `dew
 | Rule | 介绍 | 来源 |
 |------|------|------|
 | `code-style` | Dewey 个人项目通用的语言无关代码风格和设计规则，强调代码可读、易改、易删。 | [`rules/code-style.md`](./rules/code-style.md) |
-| `development-workflow` | Dewey 的个人开发工作流规则，覆盖 Superpowers 使用、避免猜测、分支卫生、测试、PR 和知识沉淀。 | [`rules/development-workflow.md`](./rules/development-workflow.md) |
 
 ## 开发
 

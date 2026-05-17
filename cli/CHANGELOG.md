@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1 - 2026-05-17
+
+### Changed
+
+- streamline agent skills
 ## 0.3.0 - 2026-05-17
 
 ### Added

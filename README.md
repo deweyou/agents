@@ -55,7 +55,7 @@ For scripted setup:
 
 ```bash
 deweyou-cli agent init --all --mode link --yes
-deweyou-cli agent init --skills code-knowledge,deweyou-design --rules code-style
+deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
 deweyou-cli agent init --dry-run
 ```
 
@@ -84,25 +84,25 @@ include references, scripts, assets, previews, or eval cases.
 
 | Skill | Description | Source |
 |-------|-------------|--------|
-| `code-knowledge` | Builds, updates, archives, and continuously grows repository knowledge bases for humans and future AI agents. It manages `docs/`, `AGENTS.md`, state files, topic docs, and post-work archival checks. | [`skills/code-knowledge/`](./skills/code-knowledge/) |
-| `deweyou-design` | Dewey Ou's personal design system for branded interfaces, prototypes, visual assets, and production UI work. It includes design guidelines, tokens, logos, fonts, previews, and React UI kit references. | [`skills/deweyou-design/`](./skills/deweyou-design/) |
+| `repo-memory` | Hermes-style long-term repository memory workflow. It initializes and refreshes durable repo context, runs pre-commit memory checks, updates docs when work changes important knowledge, and checks local skill drift. | [`skills/repo-memory/`](./skills/repo-memory/) |
+| `git-delivery` | Dewey's git delivery workflow for branch setup, intentional staging, commits, base-branch conflict checks, safe rebases, pushes, PR creation, and CI follow-up. | [`skills/git-delivery/`](./skills/git-delivery/) |
+| `spec-driven-coding` | Spec-driven coding workflow for features, behavior changes, and multi-step implementation. It keeps Superpowers specs, plans, TDD, verification, and requirement updates aligned before and during coding. | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | Repository-local evaluation workflow for skills. It generates eval cases, runs routing or execution tests through an agent CLI, grades transcripts, and summarizes trigger accuracy. | [`skills/skill-eval/`](./skills/skill-eval/) |
-| `web-page-debugger` | AI-driven web product verification and debugging. It acceptance-tests pages against specs, triages console/network/DOM anomalies, and can run an optional repair loop. | [`skills/web-page-debugger/`](./skills/web-page-debugger/) |
 
 ### Installing Skills Directly
 
 Install one skill with the Skills CLI:
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill code-knowledge
+npx skills add https://github.com/deweyou/agents --skill repo-memory
 ```
 
 Replace the skill name as needed:
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill deweyou-design
+npx skills add https://github.com/deweyou/agents --skill git-delivery
+npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
 npx skills add https://github.com/deweyou/agents --skill skill-eval
-npx skills add https://github.com/deweyou/agents --skill web-page-debugger
 ```
 
 For repository-wide setup, prefer `deweyou-cli agent init` so the chosen skills
@@ -116,7 +116,6 @@ and are selected per repository through `deweyou-cli`.
 | Rule | Description | Source |
 |------|-------------|--------|
 | `code-style` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code across Dewey's personal projects. | [`rules/code-style.md`](./rules/code-style.md) |
-| `development-workflow` | Personal development workflow rules for Superpowers usage, no-guessing behavior, branch hygiene, tests, pull requests, and knowledge capture. | [`rules/development-workflow.md`](./rules/development-workflow.md) |
 
 ## Development
 

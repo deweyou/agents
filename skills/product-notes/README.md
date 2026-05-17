@@ -6,10 +6,10 @@
 
 `product-notes` helps agents classify product discussions before writing them
 down. It first resolves the product notes root, which can be a repo directory,
-Obsidian project folder, or another user-provided path, then routes input into
-positioning notes, iteration specs, decision records, insight notes, process
-notes, or iteration reviews. It is designed for early-stage products where
-positioning, scope, and version plans evolve through ongoing AI collaboration.
+Obsidian project folder, or another user-provided path, and persists that
+location in a readable convention file when the user wants it remembered. It then
+routes input into positioning notes, iteration specs, decision records, insight
+notes, process notes, or iteration reviews.
 
 ## When it triggers
 

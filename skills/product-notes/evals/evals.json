@@ -85,6 +85,18 @@
         "Planned to ask which product to use when the target product is ambiguous",
         "Kept the standard note-type directories under each custom product root"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "以后都记住：我的产品笔记放在 docs/products/weave，之后不要每次问我路径。",
+      "expected_output": "The agent should explain that path memory must be persisted in a readable convention file, update or propose AGENTS.md, .agents/product-notes.md, docs/products/index.md, or the product root index with a Product Notes Location block, and use that stored convention on future runs.",
+      "files": [],
+      "expectations": [
+        "Explained that long-term path memory comes from persisted convention files, not model memory",
+        "Planned to write or update a durable convention file",
+        "Included the product notes root and relative note-type paths in the persisted convention",
+        "Committed to reading the persisted convention before asking for the path in future runs"
+      ]
     }
   ]
 }

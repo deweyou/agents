@@ -49,10 +49,11 @@ Use this precedence order:
 1. Use the explicit path from the user when they provide one.
 2. Use a configured convention in the repo or conversation, such as "product notes
    live under `docs/product/`" or "use the Weave Obsidian folder".
-3. Detect an existing product workspace near the current task by looking for the
+3. Use a persisted location memory from one of the files listed below.
+4. Detect an existing product workspace near the current task by looking for the
    structure below.
-4. If multiple candidates exist, ask the user which product root to use.
-5. If no candidate exists, propose a root path and ask before creating files.
+5. If multiple candidates exist, ask the user which product root to use.
+6. If no candidate exists, propose a root path and ask before creating files.
 
 Common roots include:
 
@@ -86,6 +87,44 @@ Product notes root: <path>
 If the user wants a reusable convention, document it in the root index or a
 `doc-system.md` / `文档体系.md` file. Keep custom names intact; do not rename
 Chinese folders or Obsidian-style documents to English just to match examples.
+
+### Persist Location Memory
+
+Do not rely on model memory to remember where product notes live. Persist the
+directory convention in files that future agents can read.
+
+When the user says this location should be remembered, or when a custom root is
+used more than once, write or update the narrowest durable convention:
+
+1. Product-specific convention inside the product root:
+   - `doc-system.md`, `文档体系.md`, `index.md`, or `索引.md`
+   - Best when the root is an Obsidian project folder or standalone product folder.
+2. Repository-level convention:
+   - `AGENTS.md`, `CLAUDE.md` when it is the repo convention file, or
+     `.agents/product-notes.md`
+   - Best when many product notes live under one repository.
+3. Multi-product convention:
+   - a root index such as `docs/products/index.md` or a repo convention note that
+     maps product names to roots.
+
+Record the convention in a small, explicit block:
+
+```markdown
+## Product Notes Location
+
+- Product notes root: `<path>`
+- Scope: <product name or "all products in this repo">
+- Note paths are relative to this root:
+  - iterations: `iterations/`
+  - decisions: `decisions/`
+  - insights: `insights/`
+  - process: `process/`
+- Last confirmed: <YYYY-MM-DD>
+```
+
+On future runs, read these convention files before guessing. If a persisted
+location points to a missing or inaccessible path, report the stale convention and
+ask whether to update it instead of silently creating a new workspace.
 
 ### 2. Classify The Input
 

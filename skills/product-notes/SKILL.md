@@ -104,9 +104,15 @@ Use these planning cues:
 
 - Early unclear idea: classify as a process note; ask up to three focused
   questions or draft with an `Open Questions` section.
+  - If the user says they have an idea but does not provide the actual idea
+    content, ask clarification before writing. Ask for the idea, why it matters,
+    and where product notes should live if the root is unknown.
 - Positioning change: update current positioning; also consider a decision
   record; preserve current consensus separately from historical process notes;
   separate facts, judgments, and assumptions.
+  - In routing output, name these obligations explicitly: `Facts`,
+    `Judgments`, `Assumptions`, `Current positioning`, and historical
+    `process` notes or superseded notes.
 - Iteration request: create an iteration spec with scope, non-goals, product
   hypotheses, acceptance criteria, risks, and future-iteration relationship.
 - Trade-off request: create an ADR-style decision record with context, options,
@@ -117,9 +123,13 @@ Use these planning cues:
 - Multi-product convention: record that each product has its own root under the
   convention, and ask which product root to use when a later note request is
   ambiguous.
+  - In routing output, explicitly say: "Ask which product to use when a future
+    note request does not name a product."
 - Remembered location: explain that long-term location memory comes from a
   persisted convention file, record the root and relative subpaths, and read that
   persisted convention before asking for the path on future runs.
+  - In routing output, include the root and relative subpaths: `iterations/`,
+    `decisions/`, `insights/`, and `process/`.
 
 ### Persist Location Memory
 

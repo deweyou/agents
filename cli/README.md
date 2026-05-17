@@ -37,6 +37,8 @@ cd /path/to/your/repo
 deweyou-cli agent init
 deweyou-cli agent doctor
 deweyou-cli agent context --format markdown
+deweyou-cli agent -h
+deweyou-cli -v
 ```
 
 For a non-interactive setup that selects everything:
@@ -58,6 +60,13 @@ Each repository chooses its own asset set. A coding repo can select coding
 skills and rules; a writing or design repo can select different ones.
 
 ## Commands
+
+General options:
+
+| Option | Meaning |
+|--------|---------|
+| `-h`, `--help` | Show help. Supports nested help such as `deweyou-cli agent -h` and `deweyou-cli agent init -h`. |
+| `-v`, `--version` | Show the installed CLI version. |
 
 ### `deweyou-cli agent update`
 

@@ -66,7 +66,9 @@ export async function updateCache({
 }
 
 export async function runUpdate(flags: CacheOptions = {}): Promise<CacheManifest> {
-  const sourceRoot = flags.sourceRoot ?? resolveSourceRoot()
+  const sourceRoot = flags.sourceRoot ?? await resolveSourceRoot({
+    homeDir: flags.homeDir,
+  })
   const manifest = await updateCache({
     homeDir: flags.homeDir,
     sourceRoot,

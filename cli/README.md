@@ -19,13 +19,16 @@ From npm:
 npm install -g deweyou-cli
 ```
 
-During v0, point the CLI at your local `deweyou/agents` checkout before updating
-the cache:
+Then refresh the local asset cache:
 
 ```bash
-export DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents
 deweyou-cli agent update
 ```
+
+By default, `agent update` clones or pulls `https://github.com/deweyou/agents.git`
+into `~/.deweyou/agents/source`. For local development, set
+`DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents` to use a specific checkout
+instead.
 
 ## Quick Start
 
@@ -58,10 +61,11 @@ skills and rules; a writing or design repo can select different ones.
 
 ### `deweyou-cli agent update`
 
-Refreshes the local Dewey asset cache from `DEWEYOU_AGENTS_SOURCE`.
+Refreshes the local Dewey asset cache from the default `deweyou/agents` source
+checkout.
 
 ```bash
-DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents deweyou-cli agent update
+deweyou-cli agent update
 ```
 
 This command writes the global cache at:
@@ -71,6 +75,13 @@ This command writes the global cache at:
 ```
 
 Run this after changing or pulling updates in the asset hub.
+
+Source selection:
+
+- Default: clone or pull `https://github.com/deweyou/agents.git` under
+  `~/.deweyou/agents/source`.
+- Override: set `DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents` to scan a local
+  checkout.
 
 ### `deweyou-cli agent init`
 
@@ -178,8 +189,8 @@ workflow context. Existing content outside that managed section is preserved.
 - `--force` only replaces destinations that are already Dewey-managed. It
   refuses to overwrite unrelated user-created files or directories.
 - `--dry-run` is the safest way to preview what `init` would write.
-- In v0, the asset source is local. Set `DEWEYOU_AGENTS_SOURCE` to the
-  `deweyou/agents` checkout you want to use.
+- Set `DEWEYOU_AGENTS_SOURCE` only when you want to override the default source
+  checkout, usually while developing this asset hub locally.
 
 ## Development
 

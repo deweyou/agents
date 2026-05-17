@@ -736,15 +736,36 @@ description: ""
     await assert.rejects(() => loadRegistry(root), /frontmatter description/)
   })
 
-  it('reports missing source root environment variable', () => {
-    const original = process.env.DEWEYOU_AGENTS_SOURCE
-    delete process.env.DEWEYOU_AGENTS_SOURCE
+  it('bubbles default source clone failures when no source override exists', async () => {
+    await assert.rejects(
+      () =>
+        resolveSourceRoot({
+          env: {},
+          execFile: async () => {
+            throw new Error('clone failed')
+          },
+        }),
+      /clone failed/,
+    )
+  })
 
-    try {
-      assert.throws(() => resolveSourceRoot(), /DEWEYOU_AGENTS_SOURCE/)
-    } finally {
-      process.env.DEWEYOU_AGENTS_SOURCE = original
-    }
+  it('bubbles default source pull failures for existing source checkouts', async () => {
+    const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
+    await mkdir(join(homeDir, '.deweyou/agents/source/.git'), {
+      recursive: true,
+    })
+
+    await assert.rejects(
+      () =>
+        resolveSourceRoot({
+          env: {},
+          homeDir,
+          execFile: async () => {
+            throw new Error('pull failed')
+          },
+        }),
+      /pull failed/,
+    )
   })
 
   it('rejects prompts that return no selected asset object', async () => {

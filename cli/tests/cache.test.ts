@@ -167,13 +167,72 @@ describe('manifest json helpers', () => {
 })
 
 describe('resolveSourceRoot', () => {
-  it('returns DEWEYOU_AGENTS_SOURCE when configured', () => {
+  it('returns DEWEYOU_AGENTS_SOURCE when configured', async () => {
     const sourceRoot = '/tmp/deweyou-assets'
+    const execCalls = []
 
     assert.equal(
-      resolveSourceRoot({ env: { DEWEYOU_AGENTS_SOURCE: sourceRoot } }),
+      await resolveSourceRoot({
+        env: { DEWEYOU_AGENTS_SOURCE: sourceRoot },
+        execFile: async (...args) => {
+          execCalls.push(args)
+          return { stdout: '', stderr: '' }
+        },
+      }),
       sourceRoot,
     )
+    assert.deepEqual(execCalls, [])
+  })
+
+  it('clones the default agents source into the Dewey cache when no override exists', async () => {
+    const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
+    const execCalls = []
+
+    const sourceRoot = await resolveSourceRoot({
+      homeDir,
+      env: {},
+      execFile: async (...args) => {
+        execCalls.push(args)
+        return { stdout: '', stderr: '' }
+      },
+    })
+
+    assert.equal(sourceRoot, join(homeDir, '.deweyou/agents/source'))
+    assert.deepEqual(execCalls, [
+      [
+        'git',
+        [
+          'clone',
+          '--depth',
+          '1',
+          'https://github.com/deweyou/agents.git',
+          sourceRoot,
+        ],
+      ],
+    ])
+  })
+
+  it('pulls the default agents source when the cached checkout already exists', async () => {
+    const homeDir = await mkdtemp(join(tmpdir(), 'deweyou-home-'))
+    const sourceRoot = join(homeDir, '.deweyou/agents/source')
+    const execCalls = []
+
+    await mkdir(join(sourceRoot, '.git'), { recursive: true })
+
+    assert.equal(
+      await resolveSourceRoot({
+        homeDir,
+        env: {},
+        execFile: async (...args) => {
+          execCalls.push(args)
+          return { stdout: '', stderr: '' }
+        },
+      }),
+      sourceRoot,
+    )
+    assert.deepEqual(execCalls, [
+      ['git', ['-C', sourceRoot, 'pull', '--ff-only']],
+    ])
   })
 })
 

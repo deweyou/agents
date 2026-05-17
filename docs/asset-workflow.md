@@ -28,9 +28,14 @@ plain for registry and CLI consumption.
 ## Generated Registry
 
 The source repository does not commit `registry.json`. `deweyou-cli agent update`
-scans `skills/` and `rules/`, generates a registry with paths, descriptions,
-optional frontmatter tags, and `sha256:` content hashes, then writes that registry
-into the local cache at `~/.deweyou/agents/assets/registry.json`.
+clones or pulls `https://github.com/deweyou/agents.git` into
+`~/.deweyou/agents/source` by default, scans `skills/` and `rules/`, generates a
+registry with paths, descriptions, optional frontmatter tags, and `sha256:`
+content hashes, then writes that registry into the local cache at
+`~/.deweyou/agents/assets/registry.json`.
+
+Set `DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents` only when you want to scan a
+specific local checkout instead of the default cached source.
 
 Run:
 

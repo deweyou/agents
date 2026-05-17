@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 - 2026-05-17
+
+### Added
+
+- default agent update to cached source
 ## 0.2.1 - 2026-05-17
 
 ### Fixed

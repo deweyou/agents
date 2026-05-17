@@ -94,6 +94,33 @@ If the user wants a reusable convention, document it in the root index or a
 `doc-system.md` / `文档体系.md` file. Keep custom names intact; do not rename
 Chinese folders or Obsidian-style documents to English just to match examples.
 
+### Routing And Planning Visibility
+
+When the environment asks for routing or planning only, still make the intended
+note type and required sections explicit. The next action summary should mention
+the key template obligations, not only "write the relevant note."
+
+Use these planning cues:
+
+- Early unclear idea: classify as a process note; ask up to three focused
+  questions or draft with an `Open Questions` section.
+- Positioning change: update current positioning; also consider a decision
+  record; preserve current consensus separately from historical process notes;
+  separate facts, judgments, and assumptions.
+- Iteration request: create an iteration spec with scope, non-goals, product
+  hypotheses, acceptance criteria, risks, and future-iteration relationship.
+- Trade-off request: create an ADR-style decision record with context, options,
+  decision, rationale, rejected alternatives, consequences, and revisit trigger.
+- Feedback or observation: create an insight note with observation, product
+  interpretation, opportunity, hypotheses to validate, and possible iteration
+  impact; do not turn it into an iteration spec unless requested.
+- Multi-product convention: record that each product has its own root under the
+  convention, and ask which product root to use when a later note request is
+  ambiguous.
+- Remembered location: explain that long-term location memory comes from a
+  persisted convention file, record the root and relative subpaths, and read that
+  persisted convention before asking for the path on future runs.
+
 ### Persist Location Memory
 
 Do not rely on model memory to remember where product notes live. Persist the

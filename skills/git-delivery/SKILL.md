@@ -8,8 +8,10 @@ description: >
   "提交吧", "commit it", "发一下", "ship it", "开 PR", "push", or asks to finish
   work, so the agent runs memory check, verification, intentional staging, commit,
   base-branch conflict check, rebase when safe, push, PR creation or exact blocker
-  reporting, and CI follow-up. Always protect dirty work: never discard, overwrite,
-  or stage unrelated files.
+  reporting, and CI follow-up. When CI polling finds a clear failure, automatically
+  inspect, fix, verify, commit, and push the repair; stop and ask Dewey when the
+  failure is ambiguous, risky, or has multiple reasonable solutions. Always protect
+  dirty work: never discard, overwrite, or stage unrelated files.
 ---
 
 # Git Delivery
@@ -18,8 +20,7 @@ Run the repository delivery flow without making the user spell out every git ste
 
 When invoked, make the safety and delivery decisions explicit. Reviewers need to
 see the branch choice, dirty-work protection, intended staging boundary, PR
-creation or blocker, base-branch conflict/rebase status, and CI repair consent
-policy.
+creation or blocker, base-branch conflict/rebase status, and CI repair decision.
 
 ## Start Of Work
 
@@ -122,12 +123,50 @@ After a PR is opened or a pushed branch has CI:
 
 - Create a follow-up automation or reminder to check CI when the environment
   supports it.
-- If CI fails, tell the user what failed and ask before starting any repair work.
-- When subagents are available and the user approves, run CI repair in a separate
-  branch or isolated workstream so the main delivery flow stays readable.
+- When CI polling finds a failure, inspect the failing job, failing step, and
+  relevant logs before deciding whether to repair or stop.
+- Automatically repair clear, low-risk failures. This includes deterministic
+  lint, format, typecheck, unit test, snapshot, dependency-lock, or obvious
+  compatibility failures where the intended fix follows directly from the code,
+  test output, and user request.
+- For an automatic repair, edit only the necessary files, run the smallest
+  relevant verification first, then rerun the broader failed check when practical.
+  Commit the repair with a concise conventional message, push the same branch,
+  and report the conclusion.
+- When the CI failure is from a previous commit on the same delivery branch,
+  include the repair in a new follow-up commit unless amending is explicitly safer
+  and the branch has not been shared.
+- If the automation environment can continue polling after the repair push,
+  continue watching until CI passes or another failure appears. Apply the same
+  repair-or-stop decision to each new failure.
 
-Never silently fix CI after a failure. The next action after a CI failure is:
-"CI failed for <job>. Do you want me to start a separate repair pass?"
+Stop and ask Dewey instead of guessing when any of these are true:
+
+- The root cause is unclear after inspecting the logs and local reproduction.
+- Several fixes are reasonable and the choice changes product behavior,
+  architecture, public API, data model, migration shape, or user experience.
+- The repair would require deleting or rewriting substantial code, changing
+  unrelated files, or touching user-owned dirty work.
+- The fix depends on secrets, permissions, deployment configuration, CI provider
+  settings, billing, or another external system Dewey controls.
+- Local verification cannot reproduce or confirm the failure and the proposed
+  change would be speculative.
+- The test expectation appears wrong, stale, or intentionally changed by the user.
+- The branch or PR state is unsafe, such as a detached HEAD, missing remote,
+  protected branch, failed force-with-lease, or unexpected divergence.
+
+When stopping, give Dewey the exact blocker, the failing job or step, the relevant
+file paths, and the concrete decision needed. Do not continue by picking one of
+several plausible fixes.
+
+Always report the CI repair boundary:
+
+- `ci_poll`: automation/reminder created, checked manually, or unavailable
+- `ci_failure`: failing job and step, or none
+- `ci_decision`: auto-repaired, still polling, passed, or stopped for Dewey
+- `ci_repair_commit`: hash and message, or not created
+- `ci_repair_verification`: commands run, or exact blocker
+- `ci_repair_push`: destination, or exact blocker
 
 ## Output
 
@@ -140,4 +179,5 @@ Report:
 - PR URL when created, or exact PR blocker
 - verification commands run
 - CI follow-up status
-- whether CI repair needs user approval
+- CI repair decision, repair commit, verification, push, or the exact question for
+  Dewey when repair is ambiguous

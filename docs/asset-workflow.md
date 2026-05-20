@@ -2,7 +2,7 @@
 
 This document defines how to create and maintain assets in this repository.
 
-*Last updated: 2026-05-17 | Reason: Documented generated registry and CLI release automation.*
+*Last updated: 2026-05-20 | Reason: Documented bilingual README update expectations.*
 
 ## Repository Conventions
 
@@ -132,6 +132,8 @@ This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent u
 ### 6. Update Root README
 
 Add or update the skill row in the root README skills table.
+When a public description changes in `README.md`, check whether the matching
+entry exists in `README_ZH.md` and update it in the same change.
 
 ## Updating An Existing Skill
 
@@ -150,6 +152,7 @@ Add or update the skill row in the root README skills table.
    when the user explicitly requests execution.
 7. Run `pnpm run lint:assets` so frontmatter and naming stay valid.
 8. Update the root README skills table when the public description changes.
+   If `README_ZH.md` has a matching entry, update it in the same change.
 
 ## Creating Or Updating Rules
 

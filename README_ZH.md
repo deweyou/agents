@@ -79,7 +79,7 @@ Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包
 | Skill | 介绍 | 来源 |
 |-------|------|------|
 | `repo-memory` | Hermes 风格的仓库长期记忆工作流。它初始化和刷新 durable repo context，运行提交前记忆检查，在工作改变重要知识时更新文档，并检查本地 skill drift。 | [`skills/repo-memory/`](./skills/repo-memory/) |
-| `git-delivery` | Dewey 的 git 交付工作流，覆盖分支准备、有意 staging、提交、base 分支冲突检查、安全 rebase、push、PR 创建和 CI 跟进。 | [`skills/git-delivery/`](./skills/git-delivery/) |
+| `git-delivery` | Dewey 的 git 交付工作流，覆盖分支准备、有意 staging、提交、base 分支冲突检查、安全 rebase、push、PR 创建、CI 跟进和明确低风险 CI 失败的自动修复。 | [`skills/git-delivery/`](./skills/git-delivery/) |
 | `spec-driven-coding` | 面向功能、行为变更和多步骤实现的 spec-driven coding 工作流。它让 Superpowers spec、plan、TDD、验证和需求更新在编码前后保持一致。 | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | 仓库本地的 skill 评测工作流。它可以生成 eval cases，通过 agent CLI 运行 routing 或 execution 测试，给 transcript 打分并汇总触发准确率。 | [`skills/skill-eval/`](./skills/skill-eval/) |
 | `product-notes` | 产品笔记工作流，用于分类并沉淀产品想法、定位变化、迭代规格、决策、洞察和复盘。 | [`skills/product-notes/`](./skills/product-notes/) |

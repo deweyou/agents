@@ -76,12 +76,27 @@
     },
     {
       "id": 3,
-      "prompt": "PR 开好了，帮我盯一下 CI，如果挂了告诉我。",
-      "expected_output": "创建或建议一个 CI follow-up automation/reminder；CI 失败时应通知用户并询问是否开启独立修复流程，而不是直接在主流程里悄悄修。",
+      "prompt": "PR 开好了，帮我盯一下 CI，如果挂了，能明确修的话就直接修完提交。",
+      "expected_output": "创建或建议一个 CI follow-up automation/reminder；CI 失败时先检查失败 job、step 和日志；如果是明确、低风险的 lint、format、typecheck、单测、snapshot、lockfile 或明显兼容性问题，就自动修复、运行相关验证、提交并推送，然后报告失败原因、修复内容、验证命令、修复 commit 和 push 状态。",
       "files": [],
       "expectations": [
         "The run creates or proposes a CI follow-up using available automation support",
-        "The run asks before starting CI repair work after a failure"
+        "The run inspects failing CI jobs, steps, and logs before deciding what to do",
+        "The run automatically repairs clear low-risk CI failures without asking for extra approval",
+        "The run verifies, commits, and pushes automatic CI repairs",
+        "The run reports the CI failure, repair commit, verification, and push status"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "CI 挂了。日志看起来可能是测试期望不对，也可能是接口行为要改，你自己判断一下吧。",
+      "expected_output": "识别为模棱两可的 CI 修复场景；读取失败 job 和日志后，不应自行选择一个会改变行为或测试期望的方案；需要停止并向用户说明 blocker、相关文件、可选方案以及需要用户决策的问题。",
+      "files": [],
+      "expectations": [
+        "The run treats the CI failure as ambiguous after inspecting the failure context",
+        "The run does not guess between changing product behavior and changing test expectations",
+        "The run stops and asks Dewey for a concrete decision",
+        "The run reports the failing job or step, relevant files, blocker, and plausible options"
       ]
     }
   ]

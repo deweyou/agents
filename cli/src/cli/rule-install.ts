@@ -1,8 +1,11 @@
 import { lstat, mkdir, readFile, readlink, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 
+import yaml from 'js-yaml'
 import { upsertManagedSection } from './managed-section.ts'
 import type { InstallScope, InstallTool, RuleWiring } from './types.ts'
+
+const { load: loadYaml } = yaml
 
 export interface RuleInstallInput {
   repoRoot: string
@@ -13,6 +16,7 @@ export interface RuleInstallInput {
   ruleWiring: RuleWiring
   selectedRules: string[]
   rulePaths: Map<string, string>
+  ruleDescriptions?: Map<string, string>
 }
 
 export interface RuleInstallPlan {
@@ -157,9 +161,13 @@ ${bodies.join('\n\n')}`
 
   return `## Dewey Rules for ${toolLabel}
 
-Follow these selected Dewey rules. Read the referenced files before applying a rule:
+Follow these selected Dewey rules. Read a rule only when its description is relevant to the current task.
 
-${input.selectedRules.map((rule) => `- ${rule}: ${displayPath(input, requireRulePath(input, rule))}`).join('\n')}`
+${(await Promise.all(input.selectedRules.map(async (rule) => {
+  const path = requireRulePath(input, rule)
+  const description = input.ruleDescriptions?.get(rule) ?? await readRuleDescription(path)
+  return `- ${rule} - ${description}\n  Path: ${displayPath(input, path)}`
+}))).join('\n')}`
 }
 
 function requireRulePath(input: RuleInstallInput, rule: string): string {
@@ -186,6 +194,29 @@ async function readTextIfPresent(path: string): Promise<string> {
     if (error.code === 'ENOENT') return ''
     throw error
   }
+}
+
+async function readRuleDescription(path: string): Promise<string> {
+  const contents = await readFile(path, 'utf8')
+  const match = contents.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)
+  if (!match) {
+    throw new Error(`${path} must include YAML frontmatter`)
+  }
+
+  const frontmatter = loadYaml(match[1])
+  if (
+    !isPlainObject(frontmatter) ||
+    typeof frontmatter.description !== 'string' ||
+    frontmatter.description.length === 0
+  ) {
+    throw new Error(`${path} frontmatter description must be a non-empty string`)
+  }
+
+  return frontmatter.description
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 async function validateInstructionWritePath(path: string): Promise<void> {
@@ -218,7 +249,10 @@ async function isSymlinkToAgentsMd(path: string, repoRoot: string): Promise<bool
     if (!stat.isSymbolicLink()) return false
 
     const target = await readlink(path)
-    return target === 'AGENTS.md' || resolve(dirname(path), target) === resolve(repoRoot, 'AGENTS.md')
+    return (
+      target === 'AGENTS.md' ||
+      resolve(dirname(path), target) === resolve(repoRoot, 'AGENTS.md')
+    )
   } catch (error) {
     if (!(error instanceof Error) || !('code' in error)) throw error
     if (error.code === 'ENOENT') return false

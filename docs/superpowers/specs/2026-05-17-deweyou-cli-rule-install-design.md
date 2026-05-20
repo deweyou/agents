@@ -246,6 +246,8 @@ Add CLI tests for:
 - A `CLAUDE.md -> AGENTS.md` symlink is preserved.
 - Global Codex install updates a test-home `~/.codex/AGENTS.md`.
 - Global Claude install updates a test-home `~/.claude/CLAUDE.md`.
+- Global skill installs symlink selected skills into test-home
+  `~/.codex/skills/` and `~/.claude/skills/`.
 - Interactive prompts collect scope, tools, assets, wiring, selected rules, and
   final confirmation.
 - Dry-run lists planned files without writing.
@@ -260,9 +262,15 @@ npm run coverage:cli
 cd cli && npm pack --dry-run
 ```
 
+## Resolved Decisions
+
+- Global installs support skills by symlinking selected skill directories into
+  tool-native skill locations. Rules still use `reference` or `inline` managed
+  instruction sections.
+- Rule `reference` sections include each rule's name, description, and path so
+  agents can decide whether to read the rule body.
+
 ## Open Decisions
 
-- Whether global installs should support skills later, or remain rules-only until
-  tool-native skill systems are designed.
 - Whether `deweyou-cli agent doctor` should check both project and global installs
   by default, or require an explicit `--scope global`.

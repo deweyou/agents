@@ -44,6 +44,8 @@ describe('rule install adapters', () => {
     await applyRuleInstall(plan)
 
     assert.match(await readFile(join(root, 'AGENTS.md'), 'utf8'), /demo-rule/)
+    assert.match(await readFile(join(root, 'AGENTS.md'), 'utf8'), /Demo rule/)
+    assert.match(await readFile(join(root, 'AGENTS.md'), 'utf8'), /Read a rule only when its description is relevant/)
     assert.match(await readFile(join(root, 'AGENTS.md'), 'utf8'), /\.agents\/rules\/demo-rule\.md/)
     assert.match(await readFile(join(root, 'CLAUDE.md'), 'utf8'), /@AGENTS\.md/)
   })
@@ -318,6 +320,49 @@ describe('rule install adapters', () => {
         rulePaths: new Map(),
       }),
       /Missing path for Dewey rule: demo-rule/,
+    )
+  })
+
+  it('requires frontmatter descriptions when reference metadata is not provided', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dewey-rules-'))
+    const missingFrontmatterPath = join(root, 'missing-frontmatter.md')
+    const missingDescriptionPath = join(root, 'missing-description.md')
+    await writeFile(missingFrontmatterPath, '# Missing frontmatter\n')
+    await writeFile(
+      missingDescriptionPath,
+      `---
+name: missing-description
+---
+
+# Missing description
+`,
+    )
+
+    await assert.rejects(
+      planRuleInstall({
+        repoRoot: root,
+        homeDir: root,
+        cacheRoot: root,
+        scope: 'project',
+        tools: ['codex'],
+        ruleWiring: 'reference',
+        selectedRules: ['missing-frontmatter'],
+        rulePaths: new Map([['missing-frontmatter', missingFrontmatterPath]]),
+      }),
+      /must include YAML frontmatter/,
+    )
+    await assert.rejects(
+      planRuleInstall({
+        repoRoot: root,
+        homeDir: root,
+        cacheRoot: root,
+        scope: 'project',
+        tools: ['codex'],
+        ruleWiring: 'reference',
+        selectedRules: ['missing-description'],
+        rulePaths: new Map([['missing-description', missingDescriptionPath]]),
+      }),
+      /frontmatter description must be a non-empty string/,
     )
   })
 

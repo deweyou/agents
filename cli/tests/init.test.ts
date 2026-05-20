@@ -5,6 +5,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readlink,
   realpath,
   rm,
   stat,
@@ -561,19 +562,31 @@ Keep this outro.
     })
   })
 
-  it('scripted global runInit rejects selected skills', async () => {
+  it('scripted global runInit links selected skills into tool skill directories', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
 
-    await assert.rejects(
-      () =>
-        runInit({
-          homeDir,
-          repoRoot,
-          scope: 'global',
-          skills: ['demo'],
-          yes: true,
-        }),
-      /Global installs currently support rules only/,
+    const manifest = await runInit({
+      homeDir,
+      repoRoot,
+      scope: 'global',
+      skills: ['demo'],
+      tools: ['codex', 'claude'],
+      yes: true,
+    })
+
+    assert.equal(manifest.scope, 'global')
+    assert.deepEqual(manifest.assets, { skills: ['demo'], rules: [] })
+    assert.equal(
+      await readlink(join(homeDir, '.codex/skills/demo')),
+      await realpath(join(homeDir, '.deweyou/agents/assets/skills/demo')),
+    )
+    assert.equal(
+      await readlink(join(homeDir, '.claude/skills/demo')),
+      await realpath(join(homeDir, '.deweyou/agents/assets/skills/demo')),
+    )
+    assert.deepEqual(
+      await readJson(join(homeDir, '.deweyou/agents/global-manifest.json')),
+      manifest,
     )
     await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
   })

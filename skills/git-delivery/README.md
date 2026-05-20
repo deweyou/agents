@@ -1,6 +1,6 @@
 # git-delivery
 
-> Manage Dewey's branch, commit, push, PR, and CI follow-up workflow.
+> Manage branch, commit, push, PR, and CI follow-up workflow.
 
 ## What it does
 
@@ -10,7 +10,7 @@ without moving the worktree unless the user asks for branch preparation. At task
 finish it runs repo memory, verification, commit, push, PR creation, and CI
 follow-up. When CI polling finds a clear failure, it automatically inspects logs,
 repairs the issue, verifies, commits, pushes, and reports the result; it stops and
-asks Dewey when the root cause or right fix is ambiguous.
+asks for a concrete decision when the root cause or right fix is ambiguous.
 
 ## When it triggers
 

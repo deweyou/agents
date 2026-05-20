@@ -1,10 +1,10 @@
 # ui-design
 
-> Apply Dewey's current interface design taste to UI planning, implementation, review, and AI design prompts.
+> Apply a bundled interface design workflow to UI planning, implementation, review, and AI design prompts.
 
 ## What it does
 
-`ui-design` turns Dewey's current interface style into an executable workflow.
+`ui-design` turns a portable interface style into an executable workflow.
 It covers web components, dashboards, mobile/H5, iOS/Android, HarmonyOS, mini
 programs, macOS apps, landing pages, and Sleek or other AI design prompts. The
 skill emphasizes restrained Chinese-first product UI, neutral bordered
@@ -18,7 +18,7 @@ platform-native interaction patterns.
 - Web, dashboard, component-library, landing page, H5, or mobile UI work
 - iOS/Android, HarmonyOS, WeChat/Alipay mini program, or macOS interface work
 - Sleek prompts or other AI design-generation prompts
-- UI review requests that need Dewey's personal visual system and implementation checks
+- UI review requests that need the bundled visual system and implementation checks
 
 ## Installation
 

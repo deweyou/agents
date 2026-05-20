@@ -1,6 +1,6 @@
 # product-design
 
-> Research, design, and shape product directions for Dewey's personal products.
+> Research, design, and shape product directions for personal products.
 
 ## What it does
 

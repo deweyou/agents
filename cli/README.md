@@ -73,7 +73,7 @@ General options:
 
 ### `deweyou-cli agent update`
 
-Refreshes the local Dewey asset cache from the default `deweyou/agents` source
+Refreshes the local agent asset cache from the default `deweyou/agents` source
 checkout.
 
 ```bash
@@ -140,14 +140,14 @@ Flags:
 | `--mode link\|copy\|pointer` | Choose how project repositories reference selected assets. Global skill installs always use symlinks. |
 | `--yes` | Run without prompts. Requires `--all`, `--skills`, `--rules`, or `--design`. |
 | `--dry-run` | Print the planned files without writing them. |
-| `--force` | Replace existing Dewey-managed asset destinations when needed. |
+| `--force` | Replace existing managed asset destinations when needed. |
 
 `--yes` does not guess a default asset set. It only confirms a scripted
 selection you already provided.
 
 ### `deweyou-cli agent context`
 
-Prints the active Dewey agent context for the current repository.
+Prints the active agent context for the current repository.
 
 ```bash
 deweyou-cli agent context --format markdown
@@ -205,7 +205,7 @@ AGENTS.md
 DESIGN.md
 ```
 
-`AGENTS.md` receives a managed Dewey section that points agents at the selected
+`AGENTS.md` receives a managed workflow section that points agents at the selected
 workflow context. Existing content outside that managed section is preserved.
 
 Project installs write repository instruction files such as `AGENTS.md` and
@@ -218,7 +218,7 @@ files such as `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`.
 
 - Run `deweyou-cli agent update` before `deweyou-cli agent init`.
 - Asset ids must be kebab-case and must exist in the cached registry.
-- `--force` only replaces destinations that are already Dewey-managed. It
+- `--force` only replaces destinations that are already managed by this CLI. It
   refuses to overwrite unrelated user-created files or directories.
 - `--dry-run` is the safest way to preview what `init` would write.
 - Set `DEWEYOU_AGENTS_SOURCE` only when you want to override the default source

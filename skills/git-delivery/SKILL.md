@@ -2,16 +2,20 @@
 name: git-delivery
 description: >
   Manage Dewey's git delivery workflow. Use this skill at the start of a coding
-  session to inspect the current branch, protect dirty work, and fetch the primary
-  branch without moving the worktree unless the user asks for a new branch. Also
-  use when the user says
-  "提交吧", "commit it", "发一下", "ship it", "开 PR", "push", or asks to finish
-  work, so the agent runs memory check, verification, intentional staging, commit,
-  base-branch conflict check, rebase when safe, push, PR creation or exact blocker
-  reporting, and CI follow-up. When CI polling finds a clear failure, automatically
-  inspect, fix, verify, commit, and push the repair; stop and ask Dewey when the
-  failure is ambiguous, risky, or has multiple reasonable solutions. Always protect
-  dirty work: never discard, overwrite, or stage unrelated files.
+  session or before editing files for a new task to inspect the current branch,
+  protect dirty work, fetch the primary branch, and pass a pre-edit base gate.
+  Also use when the user says "提交吧", "commit it", "发一下", "ship it", "开 PR",
+  "push", or asks to finish work, so the agent treats it as a full delivery intent
+  unless the user narrows the scope: memory check, verification, intentional
+  staging, commit, base-branch conflict check, rebase when safe, push, PR creation
+  or exact blocker reporting, and CI follow-up. When CI polling finds a clear
+  failure, automatically inspect, fix, verify, commit, and push the repair; stop
+  and ask Dewey when the failure is ambiguous, risky, or has multiple reasonable
+  solutions. After completing work with local changes, ask whether to submit,
+  push, and open a PR unless the user already requested delivery or opted out.
+  Before creating a new commit on a branch with CI polling, pause the previous
+  CI follow-up automation so stale checks do not report on superseded commits.
+  Always protect dirty work: never discard, overwrite, or stage unrelated files.
 ---
 
 # Git Delivery
@@ -25,6 +29,41 @@ creation or blocker, base-branch conflict/rebase status, and CI repair decision.
 ## Start Of Work
 
 Use this section when beginning a new implementation task.
+
+### Pre-Edit Base Gate
+
+Before editing any file for a new task, run this gate. This applies when the user
+asks to implement, fix, refactor, create a skill, update CLI behavior, or make any
+code or asset change, even if the request arrives after a long design discussion.
+
+1. Check `git status --short --branch` and the current branch.
+2. Identify the primary branch, usually `main`.
+3. Fetch the latest remote primary branch, for example `git fetch origin <primary>`.
+4. If the worktree is detached, create a task branch before editing. Use the
+   `codex/` prefix unless the user requested another branch name.
+5. If the worktree is clean and the user did not explicitly say "continue here",
+   "use this branch", or similar, start from the fetched baseline:
+   - create a new task branch from `origin/<primary>` for new implementation work;
+   - or rebase the current task branch onto `origin/<primary>` before editing when
+     it is already a task branch.
+6. If the current branch is behind `origin/<primary>` and the worktree is clean,
+   rebase before editing. If the branch has local commits and the rebase would be
+   risky, stop and report the blocker.
+7. If there is dirty work, do not switch, rebase, or create a new branch over it.
+   Report `dirty_work=blocks_base_sync` unless the user explicitly told you to
+   continue in the current worktree.
+
+Do not postpone this gate until commit or PR time. If the gate cannot complete,
+say exactly what blocked it before touching files.
+
+Always report the pre-edit gate:
+
+- `prework_base`: fetched baseline and whether HEAD is based on it.
+- `prework_branch`: current branch, created branch, rebased branch, or detached
+  branch fixed.
+- `prework_dirty_work`: none, protected, or blocks base sync.
+- `prework_decision`: safe to edit, continuing by explicit user instruction, or
+  blocked.
 
 1. Check `git status --short` and the current branch.
 2. Identify the primary branch, usually `main`.
@@ -56,28 +95,77 @@ Always report the dirty-work decision:
 
 Use this section when the user asks to commit, push, open a PR, or ship the work.
 
+### Completion Prompt
+
+Use this when a task is complete, verification has run or the blocker is known,
+and local changes from the current task remain uncommitted.
+
+If the user has not already requested commit, push, or PR, and has not opted out
+with phrases like "先别提交", "不要提交", "只改代码", or "我自己提交", ask before
+the final handoff:
+
+```text
+要我现在提交、push 并开 PR 吗？
+```
+
+Do not silently commit, push, or open a PR without confirmation. If Dewey
+confirms, run the full Finish Work delivery path. If Dewey declines, leave files
+unstaged unless they were already intentionally staged, and report verification
+plus remaining local changes.
+
+Do not ask this question when the user has already given a clear delivery intent;
+in that case, continue through the requested delivery path.
+
+### Delivery Intent
+
+Treat these as delivery intents:
+
+- "提交吧", "commit it", "commit this", "保存成提交"
+- "push", "发一下", "ship it", "发布这个分支"
+- "开 PR", "提 PR", "create/open a PR", "提交并建 PR"
+- "可以了", "收尾", "finish this", when code or asset changes are present
+
+Default to the fullest safe delivery path implied by the request:
+
+- If the user asks for **PR**, run commit → base check/rebase → push → PR.
+- If the user asks for **push** and changes are uncommitted, run commit → base
+  check/rebase → push. Do not stop after committing.
+- If the user asks only for **commit**, commit intentionally, then report that push
+  and PR were not requested.
+- If the user says **ship it** or **发一下**, treat it as commit → push → PR unless
+  the repository has no remote or the user explicitly narrows the scope.
+
+Do not ask "should I push/open a PR?" after a clear delivery intent. Continue
+through the requested delivery path and report exact blockers only when a step
+cannot be completed safely.
+
 1. Inspect `git status --short`.
 2. Run `repo-memory` before committing when that skill is available.
 3. Run relevant verification commands for the changed files.
-4. Stage only intended files.
-5. Commit with a concise conventional message when the repo uses conventional
+4. Before creating a new commit, pause any existing CI follow-up automation for
+   the same PR, branch, or thread. This prevents old polling jobs from reporting
+   stale results after a new commit changes the head SHA. If no matching
+   automation exists, report `ci_poll_pause=not_needed`; if automation support is
+   unavailable, report `ci_poll_pause=unavailable`.
+5. Stage only intended files.
+6. Commit with a concise conventional message when the repo uses conventional
    commits, otherwise match local history.
-6. Fetch the target merge branch, usually `origin/main`, and check whether the
+7. Fetch the target merge branch, usually `origin/main`, and check whether the
    current branch can cleanly merge or rebase onto it.
-7. If the branch is behind or would conflict with the target merge branch, rebase
+8. If the branch is behind or would conflict with the target merge branch, rebase
    onto the target branch before pushing when the worktree is clean and the rebase
    is safe. Resolve straightforward conflicts when the intended result is clear.
    If conflicts are non-trivial, stop and report the conflicting files and exact
    blocker.
-8. After any successful rebase or conflict resolution, re-run relevant verification
+9. After any successful rebase or conflict resolution, re-run relevant verification
    before pushing. Always say `verification_after_rebase`: commands run, not needed,
    or blocked with reason.
-9. Push the branch. Use `--force-with-lease` only after a rebase rewrote the branch
+10. Push the branch. Use `--force-with-lease` only after a rebase rewrote the branch
    and only for the task branch.
-10. Open a pull request using the repository's normal tool or hosting CLI. If a PR
+11. Open a pull request using the repository's normal tool or hosting CLI. If a PR
    cannot be created, report the exact blocker, such as missing auth, missing remote,
    detached HEAD, no GitHub CLI, or no network.
-11. Summarize the problem, solution, and verification in the PR body.
+12. Summarize the problem, solution, and verification in the PR body.
 
 Never include unrelated dirty files in the commit. If unrelated changes exist, leave
 them unstaged and call them out.
@@ -110,6 +198,7 @@ Always report the finish-work boundary:
 
 - `repo_memory`: run, skipped with reason, or unavailable
 - `verification`: commands run, or exact blocker
+- `ci_poll_pause`: paused automation id, not needed, unavailable, or blocked
 - `staging`: intended files only; unrelated files left unstaged
 - `commit`: hash and message, or exact blocker
 - `base_conflict_check`: base branch, result, rebase status, conflict files

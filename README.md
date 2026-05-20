@@ -91,8 +91,8 @@ include references, scripts, assets, previews, or eval cases.
 | `spec-driven-coding` | Spec-driven coding workflow for features, behavior changes, and multi-step implementation. It keeps Superpowers specs, plans, TDD, verification, and requirement updates aligned before and during coding. | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | Repository-local evaluation workflow for skills. It generates eval cases, runs routing or execution tests through an agent CLI, grades transcripts, and summarizes trigger accuracy. | [`skills/skill-eval/`](./skills/skill-eval/) |
 | `product-notes` | Living product note workflow for classifying and capturing product ideas, positioning changes, iteration specs, decisions, insights, and reviews. | [`skills/product-notes/`](./skills/product-notes/) |
-| `ui-design` | Dewey's UX/UI design workflow for pattern research, flow design, visual style, implementation, review, and AI design prompts across web, mobile, HarmonyOS, mini programs, macOS, dashboards, and tools. | [`skills/ui-design/`](./skills/ui-design/) |
-| `product-design` | Product design workflow for Dewey's personal products. It researches existing products when needed, avoids enterprise process theater, and recommends right-sized directions, versions, or validation steps. | [`skills/product-design/`](./skills/product-design/) |
+| `ui-design` | UX/UI design workflow for pattern research, flow design, visual style, implementation, review, and AI design prompts across web, mobile, HarmonyOS, mini programs, macOS, dashboards, and tools. | [`skills/ui-design/`](./skills/ui-design/) |
+| `product-design` | Product design workflow for personal products. It researches existing products when needed, avoids enterprise process theater, and recommends right-sized directions, versions, or validation steps. | [`skills/product-design/`](./skills/product-design/) |
 
 ### Installing Skills Directly
 
@@ -137,7 +137,7 @@ repository as `DESIGN.md`.
 
 | Design Contract | Description | Source |
 |-----------------|-------------|--------|
-| `dewey-interface` | Dewey's restrained, typographic, component-driven interface style for personal products. | [`design/dewey-interface.md`](./design/dewey-interface.md) |
+| `dewey-interface` | Restrained, typographic, component-driven interface style for personal products. | [`design/dewey-interface.md`](./design/dewey-interface.md) |
 
 ## Development
 

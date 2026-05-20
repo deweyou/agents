@@ -8,7 +8,9 @@
 checks the current branch, protects dirty work, and fetches the primary branch
 without moving the worktree unless the user asks for branch preparation. At task
 finish it runs repo memory, verification, commit, push, PR creation, and CI
-follow-up.
+follow-up. When CI polling finds a clear failure, it automatically inspects logs,
+repairs the issue, verifies, commits, pushes, and reports the result; it stops and
+asks Dewey when the root cause or right fix is ambiguous.
 
 ## When it triggers
 
@@ -16,7 +18,7 @@ follow-up.
 - Preparing an explicit new task branch or parallel worktree
 - "提交吧", "commit it", "发一下", "ship it"
 - "开 PR", "push", "提交并建 PR"
-- After a PR is opened and CI needs monitoring
+- After a PR is opened and CI needs monitoring or repair
 
 ## Installation
 

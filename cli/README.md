@@ -1,6 +1,6 @@
 # deweyou-cli
 
-`deweyou-cli` bootstraps Dewey's personal agent workflows into any local
+`deweyou-cli` bootstraps reusable agent workflows into any local
 repository. It manages the repo-level wiring for selected skills and rules while
 keeping the source assets in the central `deweyou/agents` hub.
 
@@ -118,6 +118,7 @@ Scripted examples:
 deweyou-cli agent init --all --mode link --yes
 deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
 deweyou-cli agent init --scope project --tools codex,claude --rules code-style --mode link
+deweyou-cli agent init --scope global --tools codex,claude --skills repo-memory,git-delivery --yes
 deweyou-cli agent init --scope global --tools all --rules code-style --rule-wiring reference --yes
 deweyou-cli agent init --dry-run
 ```
@@ -129,7 +130,7 @@ Flags:
 | `--all` | Select every skill and rule from the cached registry. |
 | `--skills a,b` | Select only the listed skill ids. Values are comma-separated. |
 | `--rules a,b` | Select only the listed rule ids. Values are comma-separated. |
-| `--mode link\|copy\|pointer` | Choose how the repository references selected assets. |
+| `--mode link\|copy\|pointer` | Choose how project repositories reference selected assets. Global skill installs always use symlinks. |
 | `--yes` | Run without prompts. Requires `--all`, `--skills`, or `--rules`. |
 | `--dry-run` | Print the planned files without writing them. |
 | `--force` | Replace existing Dewey-managed asset destinations when needed. |
@@ -200,8 +201,10 @@ AGENTS.md
 workflow context. Existing content outside that managed section is preserved.
 
 Project installs write repository instruction files such as `AGENTS.md` and
-`CLAUDE.md`. Global installs write user-level instruction files such as
-`~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`.
+`CLAUDE.md`. Global skill installs symlink selected skills into tool-native
+directories such as `~/.codex/skills/<skill>` and
+`~/.claude/skills/<skill>`. Global rule installs write user-level instruction
+files such as `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`.
 
 ## Safety Notes
 

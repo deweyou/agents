@@ -79,19 +79,6 @@ const ASSET_SCOPES = [
   },
 ]
 
-const GLOBAL_ASSET_SCOPES = [
-  {
-    value: 'all',
-    label: 'all rules',
-    hint: 'Enable every cached rule.',
-  },
-  {
-    value: 'rules',
-    label: 'choose rules',
-    hint: 'Choose rules individually.',
-  },
-]
-
 export async function promptForInit({
   registry,
   repoRoot,
@@ -148,14 +135,13 @@ export async function promptForInit({
   const assetScope = await promptOrExit<'all' | 'custom' | 'skills' | 'rules'>(
     select({
       message: 'Select asset scope',
-      options: selectedScope === 'global' ? GLOBAL_ASSET_SCOPES : ASSET_SCOPES,
+      options: ASSET_SCOPES,
     }) as Promise<'all' | 'custom' | 'skills' | 'rules'>,
   )
 
   const selected = await selectAssets({
     registry,
     scope: assetScope,
-    installScope: selectedScope,
   })
   const selectedRuleWiring =
     ruleWiring ??
@@ -198,15 +184,13 @@ export async function promptForInit({
 async function selectAssets({
   registry,
   scope,
-  installScope,
 }: {
   registry: AssetRegistry
   scope: 'all' | 'custom' | 'skills' | 'rules'
-  installScope: InstallScope
 }): Promise<SelectedAssets> {
   if (scope === 'all') {
     return {
-      skills: installScope === 'global' ? [] : Object.keys(registry.assets.skills),
+      skills: Object.keys(registry.assets.skills),
       rules: Object.keys(registry.assets.rules),
     }
   }
@@ -216,7 +200,7 @@ async function selectAssets({
     rules: [],
   }
 
-  if (installScope === 'project' && (scope === 'custom' || scope === 'skills')) {
+  if (scope === 'custom' || scope === 'skills') {
     selected.skills = await promptOrExit<string[]>(
       multiselect({
         message: 'Select skills',
@@ -270,8 +254,18 @@ function plannedFiles({
 }): string {
   const files: string[] = []
   if (scope === 'global') {
-    if (tools.includes('codex')) files.push('~/.codex/AGENTS.md')
-    if (tools.includes('claude')) files.push('~/.claude/CLAUDE.md')
+    if (selected.rules.length > 0 && tools.includes('codex')) {
+      files.push('~/.codex/AGENTS.md')
+    }
+    if (selected.rules.length > 0 && tools.includes('claude')) {
+      files.push('~/.claude/CLAUDE.md')
+    }
+    if (selected.skills.length > 0 && tools.includes('codex')) {
+      files.push('~/.codex/skills/<skill>')
+    }
+    if (selected.skills.length > 0 && tools.includes('claude')) {
+      files.push('~/.claude/skills/<skill>')
+    }
     files.push('~/.deweyou/agents/global-manifest.json')
     return files.join('\n')
   }

@@ -1,6 +1,6 @@
 # spec-driven-coding
 
-> Enforce Dewey's Superpowers-first spec, plan, TDD, and verification workflow.
+> Enforce a Superpowers-first spec, plan, TDD, and verification workflow.
 
 ## What it does
 

@@ -2,7 +2,7 @@
 
 [English](./README.md) | [简体中文](./README_ZH.md)
 
-Dewey Ou's personal agent asset hub. This repository keeps reusable **skills**,
+Personal agent asset hub. This repository keeps reusable **skills**,
 **rules**, and the `deweyou-cli` package in one place so they can be installed
 or wired into other repositories consistently.
 
@@ -21,7 +21,7 @@ in [`docs/asset-workflow.md`](./docs/asset-workflow.md).
 
 ## deweyou-cli
 
-`deweyou-cli` bootstraps Dewey's personal agent workflows into any local
+`deweyou-cli` bootstraps reusable agent workflows into any local
 repository. It refreshes a local cache of skills and rules from this hub,
 initializes repositories with selected assets, renders the active agent context,
 and diagnoses whether a repository is wired correctly.
@@ -85,11 +85,11 @@ include references, scripts, assets, previews, or eval cases.
 | Skill | Description | Source |
 |-------|-------------|--------|
 | `repo-memory` | Hermes-style long-term repository memory workflow. It initializes and refreshes durable repo context, runs pre-commit memory checks, updates docs when work changes important knowledge, and checks local skill drift. | [`skills/repo-memory/`](./skills/repo-memory/) |
-| `git-delivery` | Dewey's branch-aware git delivery workflow for start-of-work checks, intentional staging, commits, base-branch conflict checks, safe rebases, pushes, PR creation, CI follow-up, and automatic low-risk CI repair. | [`skills/git-delivery/`](./skills/git-delivery/) |
+| `git-delivery` | Branch-aware git delivery workflow for start-of-work checks, intentional staging, commits, base-branch conflict checks, safe rebases, pushes, PR creation, CI follow-up, and automatic low-risk CI repair. | [`skills/git-delivery/`](./skills/git-delivery/) |
 | `spec-driven-coding` | Spec-driven coding workflow for features, behavior changes, and multi-step implementation. It keeps Superpowers specs, plans, TDD, verification, and requirement updates aligned before and during coding. | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | Repository-local evaluation workflow for skills. It generates eval cases, runs routing or execution tests through an agent CLI, grades transcripts, and summarizes trigger accuracy. | [`skills/skill-eval/`](./skills/skill-eval/) |
 | `product-notes` | Living product note workflow for classifying and capturing product ideas, positioning changes, iteration specs, decisions, insights, and reviews. | [`skills/product-notes/`](./skills/product-notes/) |
-| `ui-design` | Dewey's interface design workflow for planning, implementing, reviewing, and prompting UI across web, mobile, HarmonyOS, mini programs, macOS, dashboards, and tools. | [`skills/ui-design/`](./skills/ui-design/) |
+| `ui-design` | Interface design workflow for planning, implementing, reviewing, and prompting UI across web, mobile, HarmonyOS, mini programs, macOS, dashboards, and tools. | [`skills/ui-design/`](./skills/ui-design/) |
 
 ### Installing Skills Directly
 
@@ -119,7 +119,8 @@ and are selected per repository through `deweyou-cli`.
 
 | Rule | Description | Source |
 |------|-------------|--------|
-| `code-style` | Language-agnostic code style and design rules for readable, changeable, and easy-to-delete code across Dewey's personal projects. | [`rules/code-style.md`](./rules/code-style.md) |
+| `code-style` | Code expression preferences for naming, functions, comments, errors, and tests. | [`rules/code-style.md`](./rules/code-style.md) |
+| `engineering-principles` | Design preferences for module boundaries, abstraction, dependencies, state, and easy-to-delete code. | [`rules/engineering-principles.md`](./rules/engineering-principles.md) |
 
 ## Development
 

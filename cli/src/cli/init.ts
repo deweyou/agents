@@ -84,6 +84,7 @@ export async function initRepo(options: InitRepoOptions = {}): Promise<InitResul
       assets,
       tools,
       ruleWiring,
+      force,
       dryRun,
     })
   }
@@ -134,6 +135,7 @@ export async function initRepo(options: InitRepoOptions = {}): Promise<InitResul
       mode,
       ruleWiring,
     ),
+    ruleDescriptions: ruleDescriptionMap(registry, assets.rules),
   })
 
   if (dryRun) {
@@ -166,6 +168,7 @@ async function initGlobal({
   assets,
   tools,
   ruleWiring,
+  force,
   dryRun,
 }: {
   homeDir: string
@@ -176,12 +179,16 @@ async function initGlobal({
   assets: SelectedAssets
   tools: InstallTool[]
   ruleWiring: RuleWiring
+  force: boolean
   dryRun: boolean
 }): Promise<InitResult> {
-  if (assets.skills.length > 0) {
-    throw new Error('Global installs currently support rules only')
-  }
-
+  const skillPlan = await buildGlobalSkillPlan({
+    homeDir,
+    assetsRoot: paths.assetsRoot,
+    registry,
+    assets,
+    tools,
+  })
   const rulePlan = await planRuleInstall({
     repoRoot,
     homeDir,
@@ -191,6 +198,14 @@ async function initGlobal({
     ruleWiring,
     selectedRules: assets.rules,
     rulePaths: rulePathMap(paths.assetsRoot, registry, assets.rules),
+    ruleDescriptions: ruleDescriptionMap(registry, assets.rules),
+  })
+  await validateGlobalSkillDestinationSafety({
+    plan: skillPlan,
+    manifestPath: join(homeDir, '.deweyou/agents/global-manifest.json'),
+    assetsRoot: paths.assetsRoot,
+    tools,
+    force,
   })
 
   const manifest: GlobalManifest = {
@@ -209,12 +224,14 @@ async function initGlobal({
       ...manifest,
       dryRun: true,
       files: uniqueFiles([
+        ...skillPlan.files,
         ...rulePlan.files,
         join(homeDir, '.deweyou/agents/global-manifest.json'),
       ]),
     }
   }
 
+  await installAssets(skillPlan.assets)
   await applyRuleInstall(rulePlan)
   await writeJson(join(homeDir, '.deweyou/agents/global-manifest.json'), manifest)
   return manifest
@@ -498,6 +515,103 @@ function rulePathMap(
 ): Map<string, string> {
   return new Map(
     rules.map((rule) => [rule, join(assetsRoot, registry.assets.rules[rule].path)]),
+  )
+}
+
+function ruleDescriptionMap(
+  registry: AssetRegistry,
+  rules: string[],
+): Map<string, string> {
+  return new Map(
+    rules.map((rule) => [rule, registry.assets.rules[rule].description]),
+  )
+}
+
+async function buildGlobalSkillPlan({
+  homeDir,
+  assetsRoot,
+  registry,
+  assets,
+  tools,
+}: {
+  homeDir: string
+  assetsRoot: string
+  registry: AssetRegistry
+  assets: SelectedAssets
+  tools: InstallTool[]
+}): Promise<InitPlan> {
+  const destinations = tools.flatMap((tool) =>
+    assets.skills.map((id) => ({
+      id,
+      destination: join(homeDir, toolSkillDirectory(tool), id),
+    })),
+  )
+  const assetPlans = await Promise.all(
+    destinations.map(({ id, destination }) =>
+      buildAssetPlan({
+        kind: 'skill',
+        id,
+        source: join(assetsRoot, registry.assets.skills[id].path),
+        destination,
+        mode: 'link',
+      }),
+    ),
+  )
+
+  return {
+    assets: assetPlans,
+    files: assetPlans.map((asset) => asset.destination),
+  }
+}
+
+function toolSkillDirectory(tool: InstallTool): string {
+  if (tool === 'codex') return '.codex/skills'
+  return '.claude/skills'
+}
+
+async function validateGlobalSkillDestinationSafety({
+  plan,
+  manifestPath,
+  assetsRoot,
+  tools,
+  force,
+}: {
+  plan: InitPlan
+  manifestPath: string
+  assetsRoot: string
+  tools: InstallTool[]
+  force: boolean
+}): Promise<void> {
+  const previousManifest = await readJson<GlobalManifest | null>(
+    manifestPath,
+    null,
+  )
+  const homeDir = dirname(dirname(dirname(manifestPath)))
+  const safeManifestDestinations = new Set(
+    globalSkillDestinations(homeDir, previousManifest, tools),
+  )
+
+  for (const asset of plan.assets) {
+    await validateDestination(asset, {
+      assetsRoot,
+      force,
+      safeManifestDestinations,
+    })
+  }
+}
+
+function globalSkillDestinations(
+  homeDir: string,
+  manifest: GlobalManifest | null,
+  tools: InstallTool[],
+): string[] {
+  if (!manifest?.assets) return []
+  const manifestTools = manifest.tools.length > 0 ? manifest.tools : tools
+
+  return manifestTools.flatMap((tool) =>
+    (manifest.assets.skills ?? []).map((id) =>
+      join(homeDir, toolSkillDirectory(tool), id),
+    ),
   )
 }
 

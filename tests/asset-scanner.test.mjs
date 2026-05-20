@@ -20,6 +20,7 @@ describe('asset scanner', () => {
     ])
     assert.deepEqual(Object.keys(scanned.rules).sort(), [
       'code-style',
+      'engineering-principles',
     ])
 
     for (const asset of [

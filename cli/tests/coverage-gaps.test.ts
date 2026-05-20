@@ -5,6 +5,8 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readlink,
+  realpath,
   rm,
   stat,
   symlink,
@@ -528,7 +530,7 @@ describe('coverage gaps', () => {
     assert.deepEqual(onlyRule.assets, { skills: [], rules: ['demo-rule'] })
   })
 
-  it('validates init scope, tools, rule wiring, and global skill installs', async () => {
+  it('validates init scope and links global skill installs', async () => {
     const { homeDir, repoRoot } = await createFixture({ mode: 'pointer' })
 
     await assert.rejects(
@@ -561,15 +563,17 @@ describe('coverage gaps', () => {
         }),
       /ruleWiring must be one of reference or inline/,
     )
-    await assert.rejects(
-      () =>
-        initRepo({
-          homeDir,
-          repoRoot,
-          selected: { skills: ['demo'], rules: [] },
-          scope: 'global',
-        }),
-      /Global installs currently support rules only/,
+    const globalSkills = await initRepo({
+      homeDir,
+      repoRoot,
+      selected: { skills: ['demo'], rules: [] },
+      scope: 'global',
+      tools: ['codex'],
+    })
+    assert.deepEqual(globalSkills.assets, { skills: ['demo'], rules: [] })
+    assert.equal(
+      await readlink(join(homeDir, '.codex/skills/demo')),
+      await realpath(join(homeDir, '.deweyou/agents/assets/skills/demo')),
     )
 
     const allTools = await initRepo({

@@ -90,7 +90,7 @@ describe('promptForInit', () => {
     assert.doesNotMatch(calls.note.at(-1)[0], /CLAUDE\.md/)
   })
 
-  it('limits global setup to rules and previews global files', async () => {
+  it('supports global setup for skills and rules and previews global files', async () => {
     const calls = mockClack({
       selectValues: ['global', 'both', 'all', 'reference'],
       confirmValue: true,
@@ -107,12 +107,13 @@ describe('promptForInit', () => {
       scope: 'global',
       tools: ['codex', 'claude'],
       ruleWiring: 'reference',
-      selected: { skills: [], rules: ['demo-rule'] },
+      selected: { skills: ['demo'], rules: ['demo-rule'] },
     })
     assert.match(calls.note.at(-1)[0], /~\/\.codex\/AGENTS\.md/)
     assert.match(calls.note.at(-1)[0], /~\/\.claude\/CLAUDE\.md/)
+    assert.match(calls.note.at(-1)[0], /~\/\.codex\/skills\/<skill>/)
+    assert.match(calls.note.at(-1)[0], /~\/\.claude\/skills\/<skill>/)
     assert.match(calls.note.at(-1)[0], /~\/\.deweyou\/agents\/global-manifest\.json/)
-    assert.doesNotMatch(calls.note.at(-1)[0], /\.agents\/skills/)
   })
 
   it('uses provided mode and prompts for custom skill and rule selections', async () => {

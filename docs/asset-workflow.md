@@ -1,8 +1,20 @@
 # Asset Workflow
 
-This document defines how to create and maintain assets in this repository.
+This document defines how to create, install, and maintain assets in this
+repository.
 
-*Last updated: 2026-05-20 | Reason: Documented bilingual README update expectations.*
+```mermaid
+flowchart TD
+    Source["skills/ and rules/"] --> Registry["deweyou-cli agent update"]
+    Registry --> Project["project init"]
+    Registry --> Global["global init"]
+    Project --> ProjectAssets[".agents/manifest.json and .agents assets"]
+    Project --> ProjectInstructions["AGENTS.md and CLAUDE.md rule sections"]
+    Global --> GlobalSkills["tool-native skill symlinks"]
+    Global --> GlobalRules["user-level instruction rule sections"]
+```
+
+*Last updated: 2026-05-20 | Reason: Documented rule reference metadata and global skill install semantics.*
 
 ## Repository Conventions
 
@@ -38,6 +50,10 @@ repository policy with one user's local language preference.
 Do not rename rule files to `*.rules.md`; this repository keeps rule filenames
 plain for registry and CLI consumption.
 
+Public README descriptions should explain what each skill or rule does. Avoid
+leading with ownership language such as a person's name when the functionality
+can be described directly.
+
 ## Generated Registry
 
 The source repository does not commit `registry.json`. `deweyou-cli agent update`
@@ -58,6 +74,29 @@ pnpm run lint:assets
 
 after asset changes so frontmatter and naming stay valid before the CLI scans
 them.
+
+## Installation Semantics
+
+`deweyou-cli agent init` supports project and global scopes.
+
+Project installs write selected assets into `.agents/` according to the selected
+mode and wire repository instruction files:
+
+- Skills are installed under `.agents/skills/<skill>/`.
+- Rules are installed under `.agents/rules/<rule>.md`.
+- `AGENTS.md` and `CLAUDE.md` receive managed rule sections when rules are
+  selected.
+
+Global installs keep instruction files lean:
+
+- Skills are symlinked into tool-native directories such as
+  `~/.codex/skills/<skill>` and `~/.claude/skills/<skill>`.
+- Rules are written into user-level instruction files such as
+  `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`.
+- Rule `reference` wiring writes the rule name, description, and path. Agents
+  should read the rule body only when the description is relevant to the task.
+- Rule `inline` wiring writes full rule bodies and should be reserved for
+  environments that cannot follow file references.
 
 ## Creating A New Skill
 
@@ -169,7 +208,9 @@ description: Short description of what the rule governs.
 ```
 
 Rule names must match filenames without `.md`. Keep rule language direct and
-actionable. If a rule becomes a task-specific step-by-step workflow, promote it to a
+actionable. The description is used in `reference` wiring so agents can decide
+whether to read the rule body; write it as a concrete one-sentence applicability
+summary. If a rule becomes a task-specific step-by-step workflow, promote it to a
 skill.
 
 Rules must be authored in English, following the same language policy as skills.

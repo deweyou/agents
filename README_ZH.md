@@ -2,7 +2,7 @@
 
 [English](./README.md) | [简体中文](./README_ZH.md)
 
-Dewey Ou 的个人 agent 资产中心。这个仓库集中维护可复用的 **skills**、
+个人 agent 资产中心。这个仓库集中维护可复用的 **skills**、
 **rules**，以及 `deweyou-cli` 包，用来把这些资产一致地安装或接入到其他仓库。
 
 ## 当前仓库包含什么
@@ -20,7 +20,7 @@ Dewey Ou 的个人 agent 资产中心。这个仓库集中维护可复用的 **s
 
 ## deweyou-cli
 
-`deweyou-cli` 用来把 Dewey 的个人 agent 工作流引入任意本地仓库。它会从这个资产中心刷新本地 skills 和 rules 缓存，给仓库初始化选中的资产，渲染当前仓库启用的 agent context，并诊断仓库接入是否正常。
+`deweyou-cli` 用来把可复用 agent 工作流引入任意本地仓库。它会从这个资产中心刷新本地 skills 和 rules 缓存，给仓库初始化选中的资产，渲染当前仓库启用的 agent context，并诊断仓库接入是否正常。
 
 全局安装：
 
@@ -79,11 +79,11 @@ Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包
 | Skill | 介绍 | 来源 |
 |-------|------|------|
 | `repo-memory` | Hermes 风格的仓库长期记忆工作流。它初始化和刷新 durable repo context，运行提交前记忆检查，在工作改变重要知识时更新文档，并检查本地 skill drift。 | [`skills/repo-memory/`](./skills/repo-memory/) |
-| `git-delivery` | Dewey 的 git 交付工作流，覆盖分支准备、有意 staging、提交、base 分支冲突检查、安全 rebase、push、PR 创建、CI 跟进和明确低风险 CI 失败的自动修复。 | [`skills/git-delivery/`](./skills/git-delivery/) |
+| `git-delivery` | 分支感知的 git 交付工作流，覆盖分支准备、有意 staging、提交、base 分支冲突检查、安全 rebase、push、PR 创建、CI 跟进和明确低风险 CI 失败的自动修复。 | [`skills/git-delivery/`](./skills/git-delivery/) |
 | `spec-driven-coding` | 面向功能、行为变更和多步骤实现的 spec-driven coding 工作流。它让 Superpowers spec、plan、TDD、验证和需求更新在编码前后保持一致。 | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | 仓库本地的 skill 评测工作流。它可以生成 eval cases，通过 agent CLI 运行 routing 或 execution 测试，给 transcript 打分并汇总触发准确率。 | [`skills/skill-eval/`](./skills/skill-eval/) |
 | `product-notes` | 产品笔记工作流，用于分类并沉淀产品想法、定位变化、迭代规格、决策、洞察和复盘。 | [`skills/product-notes/`](./skills/product-notes/) |
-| `ui-design` | Dewey 的界面设计工作流，用于跨 Web、移动端、HarmonyOS、小程序、macOS、仪表盘和工具进行 UI 规划、实现、审查和 prompt 生成。 | [`skills/ui-design/`](./skills/ui-design/) |
+| `ui-design` | 界面设计工作流，用于跨 Web、移动端、HarmonyOS、小程序、macOS、仪表盘和工具进行 UI 规划、实现、审查和 prompt 生成。 | [`skills/ui-design/`](./skills/ui-design/) |
 
 ### 直接安装 Skills
 
@@ -112,7 +112,8 @@ Rules 是被动偏好和约束。它们位于 `rules/<name>.md`，并通过 `dew
 
 | Rule | 介绍 | 来源 |
 |------|------|------|
-| `code-style` | Dewey 个人项目通用的语言无关代码风格和设计规则，强调代码可读、易改、易删。 | [`rules/code-style.md`](./rules/code-style.md) |
+| `code-style` | 命名、函数、注释、错误处理和测试的局部代码表达偏好。 | [`rules/code-style.md`](./rules/code-style.md) |
+| `engineering-principles` | 模块边界、抽象、依赖、状态和易删除代码的设计偏好。 | [`rules/engineering-principles.md`](./rules/engineering-principles.md) |
 
 ## 开发
 

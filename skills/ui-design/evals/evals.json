@@ -58,7 +58,7 @@
       "expectations": [
         "Did NOT trigger the ui-design skill",
         "Treated the request as backend debugging or normal code repair",
-        "Did not introduce Dewey visual style guidance into an unrelated server-side fix"
+        "Did not introduce DESIGN.md visual style guidance into an unrelated server-side fix"
       ]
     },
     {
@@ -117,6 +117,74 @@
         "Treated the task as a generic landing-page or visual design request",
         "Did not impose Dewey's personal style when the user requested a different visual direction",
         "Did not reject colorful gradients solely because they conflict with ui-design constraints"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "这个交互别人怎么做？我想调研一下几个写作工具的首次创建文档流程，再决定我的版本。",
+      "expected_output": "The agent should trigger ui-design in UX Pattern Research mode, inspect or plan to inspect relevant writing-tool UX references, summarize patterns, separate observations from recommendations, and propose a buildable UX direction without jumping straight to visual styling.",
+      "files": [],
+      "expectations": [
+        "Triggered the ui-design skill",
+        "Chose UX Pattern Research mode before designing",
+        "Planned to inspect 3-6 relevant UX references or products",
+        "Separated observed patterns from design recommendations",
+        "Recommended a buildable flow or UX direction",
+        "Did not make visual style or DESIGN.md the main focus"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "审一下这个 onboarding 流程顺不顺，先不要做视觉风格。",
+      "expected_output": "The agent should trigger ui-design in UX review mode, focus on flow clarity rather than visual style, lead with the most important UX issues, cover state/recovery gaps when relevant, and avoid applying DESIGN.md visual style as the main answer.",
+      "files": [],
+      "expectations": [
+        "Triggered the ui-design skill",
+        "Treated the request as UX review rather than visual UI styling",
+        "Prioritized flow clarity, uncertainty, state, or recovery issues",
+        "Kept findings concise and concrete",
+        "Did not make visual style or DESIGN.md the main focus"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "帮我设计一个设置页，适合个人产品第一版，不要做太复杂。",
+      "expected_output": "The agent should trigger ui-design in UX Flow / Interaction Design mode, produce a buildable settings-page structure, cover key states or interaction notes, avoid heavy SaaS complexity, and identify what can wait.",
+      "files": [],
+      "expectations": [
+        "Triggered the ui-design skill",
+        "Chose UX Flow / Interaction Design mode",
+        "Included structure, interaction notes, or states to cover",
+        "Identified complexity that can wait",
+        "Did not produce an enterprise-level settings system"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "生成一个 Sleek prompt，用我的风格做一个移动端 AI 阅读 App，并告诉我生成后应该怎么验收。",
+      "expected_output": "The agent should trigger ui-design, use the relevant DESIGN.md and AI design tool playbook, produce a prompt grounded in product workflow and required states, and include generated-screen review expectations such as screenshots, safe areas, touch targets, states, typography, color, and implementation handoff.",
+      "files": [],
+      "expectations": [
+        "Triggered the ui-design skill",
+        "Used DESIGN.md guidance because the user asked for '我的风格'",
+        "Used AI design tool workflow guidance for Sleek-style generation",
+        "Included workflow and state requirements rather than only visual adjectives",
+        "Planned to inspect screenshots or rendered output after generation",
+        "Mentioned implementation handoff details such as generated source, icons, fonts, navigation, or safe areas"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "review my UI against web design guidelines: src/app/dashboard/page.tsx",
+      "expected_output": "The agent should trigger ui-design in review mode, treat this as a web UI guidelines review, fetch or plan to fetch the latest Web Interface Guidelines source, read the specified file, and report concrete file/line findings focused on accessibility, interaction states, layout, performance, and implementation risks.",
+      "files": [],
+      "expectations": [
+        "Triggered the ui-design skill",
+        "Chose review mode for a specified web UI file",
+        "Planned to use the latest Web Interface Guidelines source for formal compliance review",
+        "Planned to read the specified file before reporting findings",
+        "Prioritized accessibility, interaction states, layout, performance, or implementation risks",
+        "Planned file/line grounded findings rather than generic design advice"
       ]
     }
   ]

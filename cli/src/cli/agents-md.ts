@@ -8,7 +8,9 @@ export const DEWEYOU_SECTION_END = '<!-- deweyou-agent:end -->'
 
 const DEWEY_SECTION_BODY = `## Dewey Workflow
 
-This repository uses Dewey's personal agent workflow. Inspect \`.agents/\` before making changes, then run \`deweyou-cli agent context --format markdown\` and follow the returned rules, skill index, asset paths, and runtime notices.`
+This repository uses Dewey's personal agent workflow. Inspect \`.agents/\` before making changes, then run \`deweyou-cli agent context --format markdown\` and follow the returned rules, skill index, asset paths, and runtime notices.
+
+If a root \`DESIGN.md\` exists, read it before making UI, UX, or visual design changes.`
 
 export async function upsertAgentsSection(repoRoot: string): Promise<string> {
   const path = join(repoRoot, 'AGENTS.md')

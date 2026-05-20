@@ -116,6 +116,31 @@ describe('promptForInit', () => {
     assert.match(calls.note.at(-1)[0], /~\/\.deweyou\/agents\/global-manifest\.json/)
   })
 
+  it('supports global skills-only setup without rule wiring prompts', async () => {
+    const calls = mockClack({
+      selectValues: ['global', 'codex', 'skills'],
+      multiselectValues: [['demo']],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    const result = await promptForInit({
+      registry: registryFixture(),
+      repoRoot: '/repo',
+    })
+
+    assert.deepEqual(result, {
+      mode: 'pointer',
+      scope: 'global',
+      tools: ['codex'],
+      ruleWiring: 'reference',
+      selected: { skills: ['demo'], rules: [] },
+    })
+    assert.doesNotMatch(calls.note.at(-1)[0], /~\/\.codex\/AGENTS\.md/)
+    assert.match(calls.note.at(-1)[0], /~\/\.codex\/skills\/<skill>/)
+    assert.doesNotMatch(calls.note.at(-1)[0], /~\/\.claude\/skills\/<skill>/)
+  })
+
   it('uses provided mode and prompts for custom skill and rule selections', async () => {
     mockClack({
       selectValues: ['project', 'both', 'custom', 'reference'],
@@ -140,6 +165,105 @@ describe('promptForInit', () => {
         rules: ['demo-rule'],
       },
     })
+  })
+
+  it('prompts for a design contract during custom project setup', async () => {
+    const calls = mockClack({
+      selectValues: ['project', 'both', 'custom', 'dewey-interface', 'reference'],
+      multiselectValues: [['demo'], ['demo-rule']],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    const result = await promptForInit({
+      registry: registryFixture({ designs: true }),
+      repoRoot: '/repo',
+      mode: 'copy',
+    })
+
+    assert.deepEqual(result, {
+      mode: 'copy',
+      scope: 'project',
+      tools: ['codex', 'claude'],
+      ruleWiring: 'reference',
+      selected: {
+        skills: ['demo'],
+        rules: ['demo-rule'],
+        design: 'dewey-interface',
+      },
+    })
+    assert.match(calls.note.at(-1)[0], /DESIGN\.md/)
+  })
+
+  it('supports design-only project setup without rule wiring prompts', async () => {
+    const calls = mockClack({
+      selectValues: ['project', 'codex', 'design', 'dewey-interface'],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    const result = await promptForInit({
+      registry: registryFixture({ designs: true }),
+      repoRoot: '/repo',
+      mode: 'link',
+    })
+
+    assert.deepEqual(result, {
+      mode: 'link',
+      scope: 'project',
+      tools: ['codex'],
+      ruleWiring: 'reference',
+      selected: {
+        skills: [],
+        rules: [],
+        design: 'dewey-interface',
+      },
+    })
+    assert.match(calls.note.at(-1)[0], /DESIGN\.md/)
+  })
+
+  it('allows skipping design selection when design contracts are available', async () => {
+    const calls = mockClack({
+      selectValues: ['project', 'codex', 'design', ''],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    const result = await promptForInit({
+      registry: registryFixture({ designs: true }),
+      repoRoot: '/repo',
+      mode: 'link',
+    })
+
+    assert.deepEqual(result, {
+      mode: 'link',
+      scope: 'project',
+      tools: ['codex'],
+      ruleWiring: 'reference',
+      selected: {
+        skills: [],
+        rules: [],
+      },
+    })
+    assert.doesNotMatch(calls.note.at(-1)[0], /DESIGN\.md/)
+  })
+
+  it('normalizes provided all-tool selections', async () => {
+    mockClack({
+      selectValues: ['project', 'skills'],
+      multiselectValues: [['demo']],
+      confirmValue: true,
+    })
+    const { promptForInit } = await importPromptModule()
+
+    const result = await promptForInit({
+      registry: registryFixture(),
+      repoRoot: '/repo',
+      mode: 'pointer',
+      tools: ['all'],
+    })
+
+    assert.deepEqual(result.tools, ['codex', 'claude'])
   })
 
   it('supports skills-only and rules-only scopes', async () => {
@@ -271,7 +395,7 @@ async function importPromptModule() {
   return import('../src/cli/prompts.ts')
 }
 
-function registryFixture() {
+function registryFixture({ designs = false } = {}) {
   return {
     assets: {
       skills: {
@@ -284,6 +408,13 @@ function registryFixture() {
           description: 'Demo rule',
         },
       },
+      designs: designs
+        ? {
+            'dewey-interface': {
+              description: 'Dewey design contract',
+            },
+          }
+        : {},
     },
   }
 }

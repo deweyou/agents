@@ -33,6 +33,7 @@ describe('coverage gaps', () => {
 
     const created = await upsertAgentsSection(repoRoot)
     assert.match(created, /Dewey Workflow/)
+    assert.match(created, /If a root `DESIGN\.md` exists/)
 
     await writeFile(join(repoRoot, 'AGENTS.md'), '# Existing')
     const appended = await upsertAgentsSection(repoRoot)
@@ -66,7 +67,7 @@ describe('coverage gaps', () => {
 
     assert.deepEqual(
       JSON.parse(await readFile(join(paths.assetsRoot, 'registry.json'), 'utf8')),
-      { assets: { skills: {}, rules: {} } },
+      { assets: { skills: {}, rules: {}, designs: {} } },
     )
     await assert.rejects(() => updateCache(), /sourceRoot is required/)
   })
@@ -124,7 +125,7 @@ describe('coverage gaps', () => {
       mode: 'pointer',
       source: { root: 'test-source', commit: null },
       cacheRoot: join(homeDir, '.deweyou/agents/assets'),
-      assets: { skills: ['demo'], rules: ['demo-rule'] },
+      assets: { skills: ['demo'], rules: ['demo-rule'], design: 'missing-design' },
       assetSnapshot: { skills: {}, rules: {} },
     })
 
@@ -134,13 +135,14 @@ describe('coverage gaps', () => {
 
     await mkdir(join(homeDir, '.deweyou/agents/assets'), { recursive: true })
     await writeJson(join(homeDir, '.deweyou/agents/assets/registry.json'), {
-      assets: { skills: {}, rules: {} },
+      assets: { skills: {}, rules: {}, designs: {} },
     })
 
     const missingAssets = await resolveContext({ repoRoot, homeDir })
     assert.equal(missingAssets.ok, false)
     assert.match(missingAssets.error, /skill:demo/)
     assert.match(missingAssets.error, /rule:demo-rule/)
+    assert.match(missingAssets.error, /design:missing-design/)
   })
 
   it('prints markdown and json context output including empty asset sections and update notices', async () => {
@@ -154,22 +156,37 @@ describe('coverage gaps', () => {
       mode: 'pointer',
       source: { root: 'test-source', commit: 'old-commit' },
       cacheRoot,
-      assets: { skills: [], rules: [] },
-      assetSnapshot: { skills: {}, rules: {} },
+      assets: { skills: [], rules: [], design: 'dewey-interface' },
+      assetSnapshot: { skills: {}, rules: {}, designs: {} },
     })
     await writeJson(join(homeDir, '.deweyou/agents/manifest.json'), {
       source: { root: 'test-source', commit: 'new-commit' },
       cliVersion: '0.1.0',
       updatedAt: new Date().toISOString(),
     })
+    await mkdir(join(cacheRoot, 'design'), { recursive: true })
+    await writeFile(join(cacheRoot, 'design/dewey-interface.md'), '# Dewey interface')
     await writeJson(join(cacheRoot, 'registry.json'), {
-      assets: { skills: {}, rules: {} },
+      assets: {
+        skills: {},
+        rules: {},
+        designs: {
+          'dewey-interface': {
+            path: 'design/dewey-interface.md',
+            description: 'Dewey design contract',
+            hash: 'sha256:dewey-design',
+            tags: [],
+          },
+        },
+      },
     })
 
     const markdown = await captureLog(() =>
       runContext({ repoRoot, homeDir, format: 'markdown' }),
     )
     assert.match(markdown, /- None selected\./)
+    assert.match(markdown, /Active Design/)
+    assert.match(markdown, /dewey-interface - Dewey design contract/)
     assert.match(markdown, /Dewey asset cache is at commit new-commit/)
 
     const json = await captureLog(() =>
@@ -244,7 +261,7 @@ describe('coverage gaps', () => {
     const context = await resolveContext({ repoRoot, homeDir })
 
     assert.equal(context.ok, true)
-    assert.deepEqual(context.assets, { skills: [], rules: [] })
+    assert.deepEqual(context.assets, { skills: [], rules: [], designs: [] })
   })
 
   it('exercises doctor output for invalid json and failed runs', async () => {
@@ -316,6 +333,7 @@ describe('coverage gaps', () => {
     assert.equal(result.ok, false)
     assert.match(failMessages(result), /registry assets.skills must be an object/)
     assert.match(failMessages(result), /registry assets.rules must be an object/)
+    assert.match(failMessages(result), /registry assets.designs must be an object/)
     assert.match(failMessages(result), /manifest assets must be an object/)
   })
 
@@ -393,6 +411,64 @@ describe('coverage gaps', () => {
     assert.match(failMessages(malformedRegistry), /tags must be an array/)
   })
 
+  it('doctor reports selected design registry and path problems', async () => {
+    const { homeDir, repoRoot } = await createFixture({ mode: 'pointer' })
+    const manifestPath = join(repoRoot, '.agents/manifest.json')
+    const registryPath = join(homeDir, '.deweyou/agents/assets/registry.json')
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+    const registry = JSON.parse(await readFile(registryPath, 'utf8'))
+
+    manifest.assets.design = 'dewey-interface'
+    manifest.assetSnapshot.designs = {
+      'dewey-interface': { description: 'Old design', hash: 'sha256:old-design' },
+    }
+    registry.assets.designs['dewey-interface'].description = 1
+    registry.assets.designs['dewey-interface'].hash = 'not-sha'
+    registry.assets.designs['dewey-interface'].tags = 'design'
+    await writeJson(manifestPath, manifest)
+    await writeJson(registryPath, registry)
+
+    const malformedDesign = await checkDoctor({ homeDir, repoRoot })
+    assert.equal(malformedDesign.ok, false)
+    assert.match(failMessages(malformedDesign), /registry design dewey-interface description must be a string/)
+    assert.match(failMessages(malformedDesign), /registry design dewey-interface hash must be a sha256/)
+    assert.match(failMessages(malformedDesign), /registry design dewey-interface tags must be an array/)
+
+    registry.assets.designs['dewey-interface'] = {
+      path: '',
+      description: 'Dewey design contract',
+      hash: 'sha256:dewey-design',
+      tags: [],
+    }
+    await writeJson(registryPath, registry)
+    const invalidPath = await checkDoctor({ homeDir, repoRoot })
+    assert.match(failMessages(invalidPath), /selected design dewey-interface has invalid registry path/)
+
+    delete registry.assets.designs['dewey-interface']
+    await writeJson(registryPath, registry)
+    const missingDesign = await checkDoctor({ homeDir, repoRoot })
+    assert.match(failMessages(missingDesign), /selected design dewey-interface is missing from the registry/)
+  })
+
+  it('doctor reports missing selected design file paths', async () => {
+    const { homeDir, repoRoot } = await createFixture({ mode: 'copy' })
+    const manifestPath = join(repoRoot, '.agents/manifest.json')
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+
+    manifest.assets.design = 'dewey-interface'
+    manifest.assetSnapshot.designs = {
+      'dewey-interface': {
+        description: 'Dewey design contract',
+        hash: 'sha256:dewey-design',
+      },
+    }
+    await writeJson(manifestPath, manifest)
+
+    const result = await checkDoctor({ homeDir, repoRoot })
+    assert.equal(result.ok, false)
+    assert.match(failMessages(result), /selected design dewey-interface path is missing/)
+  })
+
   it('doctor reports selected invalid registry paths after registry shape validation', async () => {
     const { homeDir, repoRoot } = await createFixture({ mode: 'pointer' })
     const registryPath = join(homeDir, '.deweyou/agents/assets/registry.json')
@@ -457,6 +533,15 @@ describe('coverage gaps', () => {
           selected: { skills: [], rules: ['missing'] },
         }),
       /Unknown Dewey rule/,
+    )
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: [], design: 'missing-design' },
+        }),
+      /Unknown Dewey design/,
     )
     await assert.rejects(
       () =>
@@ -575,6 +660,16 @@ describe('coverage gaps', () => {
       await readlink(join(homeDir, '.codex/skills/demo')),
       await realpath(join(homeDir, '.deweyou/agents/assets/skills/demo')),
     )
+    await assert.rejects(
+      () =>
+        initRepo({
+          homeDir,
+          repoRoot,
+          selected: { skills: [], rules: [], design: 'dewey-interface' },
+          scope: 'global',
+        }),
+      /Global installs currently do not support design contracts/,
+    )
 
     const allTools = await initRepo({
       homeDir,
@@ -670,6 +765,25 @@ describe('coverage gaps', () => {
         }),
       /asset cache is missing/,
     )
+  })
+
+  it('runs scripted init for explicit design contracts', async () => {
+    const { homeDir, repoRoot } = await createFixture({ mode: 'pointer' })
+
+    const result = await runInit({
+      homeDir,
+      repoRoot,
+      design: 'dewey-interface',
+      mode: 'copy',
+      force: true,
+    })
+
+    assert.deepEqual(result.assets, {
+      skills: [],
+      rules: [],
+      design: 'dewey-interface',
+    })
+    assert.match(await readFile(join(repoRoot, 'DESIGN.md'), 'utf8'), /Dewey interface/)
   })
 
   it('dispatches main commands through dynamic command handlers', async () => {
@@ -887,6 +1001,7 @@ async function createAssetHub() {
 
   await mkdir(join(root, 'skills/demo'), { recursive: true })
   await mkdir(join(root, 'rules'), { recursive: true })
+  await mkdir(join(root, 'design'), { recursive: true })
   await writeFile(
     join(root, 'skills/demo/SKILL.md'),
     `---
@@ -905,6 +1020,16 @@ description: Demo rule
 ---
 
 # Demo rule
+`,
+  )
+  await writeFile(
+    join(root, 'design/dewey-interface.md'),
+    `---
+name: dewey-interface
+description: Dewey interface design contract
+---
+
+# Dewey interface
 `,
   )
   return root

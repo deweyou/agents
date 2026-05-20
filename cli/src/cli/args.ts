@@ -1,12 +1,22 @@
 import type { ParsedArgs, UsageError } from './types.ts'
 
 const BOOLEAN_FLAGS = new Set(['all', 'yes', 'dry-run', 'force'])
-const VALUE_FLAGS = new Set(['mode', 'skills', 'rules', 'format', 'scope', 'tools', 'rule-wiring'])
+const VALUE_FLAGS = new Set([
+  'mode',
+  'skills',
+  'rules',
+  'design',
+  'format',
+  'scope',
+  'tools',
+  'rule-wiring',
+])
 const FLAGS_BY_COMMAND: Record<string, Set<string>> = {
   init: new Set([
     'all',
     'skills',
     'rules',
+    'design',
     'mode',
     'scope',
     'tools',

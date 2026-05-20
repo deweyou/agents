@@ -5,16 +5,17 @@ repository.
 
 ```mermaid
 flowchart TD
-    Source["skills/ and rules/"] --> Registry["deweyou-cli agent update"]
+    Source["skills/, rules/, and design/"] --> Registry["deweyou-cli agent update"]
     Registry --> Project["project init"]
     Registry --> Global["global init"]
     Project --> ProjectAssets[".agents/manifest.json and .agents assets"]
+    Project --> ProjectDesign["root DESIGN.md"]
     Project --> ProjectInstructions["AGENTS.md and CLAUDE.md rule sections"]
     Global --> GlobalSkills["tool-native skill symlinks"]
     Global --> GlobalRules["user-level instruction rule sections"]
 ```
 
-*Last updated: 2026-05-20 | Reason: Documented rule reference metadata and global skill install semantics.*
+*Last updated: 2026-05-21 | Reason: Documented design contract assets and global skill install semantics.*
 
 ## Repository Conventions
 
@@ -22,9 +23,11 @@ These rules apply to every agent asset in this repo:
 
 1. **Save location**: Skills live under `skills/`, for example
    `skills/my-feature/SKILL.md`. Rules live under `rules/`, for example
-   `rules/code-style.md`.
+   `rules/code-style.md`. Design contracts live under `design/`, for example
+   `design/dewey-interface.md`.
 2. **Naming**: Directory names, rule filenames, and frontmatter `name` values are
-   kebab-case. Good: `data-export`. Bad: `DataExport`, `data_export`.
+   kebab-case. Design filenames also use kebab-case. Good: `data-export`. Bad:
+   `DataExport`, `data_export`.
 3. **Implementation language**: Implement skills, rules, MCP assets, and plugin
    assets in English. Keep frontmatter, instructions, examples, prompts, script
    help text, and user-facing runtime messages in English unless an asset exists
@@ -34,13 +37,17 @@ These rules apply to every agent asset in this repo:
    to generate or complete cases that cover positive triggers, negative triggers,
    and workflow constraints. Running the eval suite is still a separate,
    explicit user decision because it invokes LLMs.
-5. **Validation**: Run `pnpm run lint:assets` after changing skills or rules. Run
-   `pnpm test` after changing asset-scanning behavior.
+5. **Validation**: Run `pnpm run lint:assets` after changing skills, rules, or
+   design contracts. Run `pnpm test` after changing asset-scanning behavior.
 
 ## Asset Types
 
 - **Skills** are active workflows. They live in `skills/<name>/SKILL.md`.
 - **Rules** are passive reusable constraints. They live in `rules/<name>.md`.
+- **Design contracts** are project-level UI/visual source-of-truth files. In
+  this asset hub they live under `design/<name>.md`; when installed into a
+  product repository, the selected design contract is written as root
+  `DESIGN.md`.
 - **Runtime CLI code** lives in `cli/` as a TypeScript npm package.
 
 Skills, rules, MCP assets, and plugin assets should be authored in English. This
@@ -58,9 +65,9 @@ can be described directly.
 
 The source repository does not commit `registry.json`. `deweyou-cli agent update`
 clones or pulls `https://github.com/deweyou/agents.git` into
-`~/.deweyou/agents/source` by default, scans `skills/` and `rules/`, generates a
-registry with paths, descriptions, optional frontmatter tags, and `sha256:`
-content hashes, then writes that registry into the local cache at
+`~/.deweyou/agents/source` by default, scans `skills/`, `rules/`, and `design/`,
+generates a registry with paths, descriptions, optional frontmatter tags, and
+`sha256:` content hashes, then writes that registry into the local cache at
 `~/.deweyou/agents/assets/registry.json`.
 
 Set `DEWEYOU_AGENTS_SOURCE=/path/to/deweyou/agents` only when you want to scan a
@@ -84,6 +91,7 @@ mode and wire repository instruction files:
 
 - Skills are installed under `.agents/skills/<skill>/`.
 - Rules are installed under `.agents/rules/<rule>.md`.
+- A selected design contract is installed as root `DESIGN.md`.
 - `AGENTS.md` and `CLAUDE.md` receive managed rule sections when rules are
   selected.
 
@@ -97,6 +105,35 @@ Global installs keep instruction files lean:
   should read the rule body only when the description is relevant to the task.
 - Rule `inline` wiring writes full rule bodies and should be reserved for
   environments that cannot follow file references.
+
+## Creating Or Updating Design Contracts
+
+Design contracts are broader than component examples and more structured than
+ordinary rules. Use them for project-level UI/visual source-of-truth documents
+that agents can install into product repositories as `DESIGN.md`.
+
+Each design contract is a Markdown file with YAML frontmatter:
+
+```yaml
+---
+name: dewey-interface
+description: Short description of the design contract.
+---
+```
+
+The frontmatter `name` must match the filename without `.md`. Keep the body in
+English and include the design thesis, tokens or token guidance, principles,
+component/interaction guidance, accessibility expectations, and do/don't rules.
+
+After changing design contracts:
+
+```bash
+pnpm run lint:assets
+```
+
+Update the root README design section when the public design contract list or
+description changes. If `README_ZH.md` has matching prose, update it in the same
+change.
 
 ## Creating A New Skill
 

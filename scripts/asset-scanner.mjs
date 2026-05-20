@@ -21,6 +21,7 @@ export async function scanAssets(root) {
   return {
     skills: await scanSkills(root),
     rules: await scanRules(root),
+    designs: await scanDesigns(root),
   }
 }
 
@@ -68,6 +69,32 @@ async function scanRules(root) {
       description: String(frontmatter.description ?? ''),
       sourcePath: toPosix(relative(root, rulePath)),
       hash: await hashFile(rulePath),
+    }
+  }
+
+  return sortObject(assets)
+}
+
+async function scanDesigns(root) {
+  const designDir = join(root, 'design')
+  const assets = {}
+
+  for (const entry of await safeReaddir(designDir)) {
+    if (!entry.isFile()) continue
+    if (entry.name === 'README.md') continue
+    if (!entry.name.endsWith('.md')) continue
+
+    const designPath = join(designDir, entry.name)
+    const frontmatter = await parseFrontmatter(designPath)
+    const fallbackName = basename(entry.name, '.md')
+    const name = frontmatter.name ?? fallbackName
+
+    assets[name] = {
+      type: 'design',
+      name,
+      description: String(frontmatter.description ?? ''),
+      sourcePath: toPosix(relative(root, designPath)),
+      hash: await hashFile(designPath),
     }
   }
 

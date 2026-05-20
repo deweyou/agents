@@ -1,24 +1,25 @@
 # ui-design
 
-> Apply a bundled interface design workflow to UI planning, implementation, review, and AI design prompts.
+> Research, design, implement, and review UX/UI using practical interface quality rules and project `DESIGN.md` contracts.
 
 ## What it does
 
-`ui-design` turns a portable interface style into an executable workflow.
-It covers web components, dashboards, mobile/H5, iOS/Android, HarmonyOS, mini
-programs, macOS apps, landing pages, and Sleek or other AI design prompts. The
-skill emphasizes restrained Chinese-first product UI, neutral bordered
-surfaces, emerald primary emphasis, accessible behavior primitives, and
-platform-native interaction patterns.
+`ui-design` turns Dewey's UX/UI expectations into an executable workflow. It
+covers UX pattern research, flow and interaction design, practical interface
+quality, project design contracts such as `DESIGN.md`, production
+implementation, reviews, and Sleek or other AI design prompts. The skill
+separates general usability and platform quality from visual style, then applies
+only the layers needed for the task.
 
 ## When it triggers
 
-- "帮我设计", "优化 UI", "审一下界面"
+- "这个交互别人怎么做", "有没有 UX 参考", "这个流程顺不顺", "审一下体验"
+- "帮我设计这个交互", "帮我设计", "优化 UI", "审一下界面"
 - "我的风格", "Dewey 的设计风格", "专属于我风格"
 - Web, dashboard, component-library, landing page, H5, or mobile UI work
 - iOS/Android, HarmonyOS, WeChat/Alipay mini program, or macOS interface work
 - Sleek prompts or other AI design-generation prompts
-- UI review requests that need the bundled visual system and implementation checks
+- UX/UI review requests that need flow, state, accessibility, visual system, or implementation checks
 
 ## Installation
 

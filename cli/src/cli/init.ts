@@ -182,6 +182,10 @@ async function initGlobal({
   force: boolean
   dryRun: boolean
 }): Promise<InitResult> {
+  if (assets.design) {
+    throw new Error('Global installs currently do not support design contracts')
+  }
+
   const skillPlan = await buildGlobalSkillPlan({
     homeDir,
     assetsRoot: paths.assetsRoot,
@@ -270,15 +274,19 @@ export async function runInit(
   validateMode(mode)
 
   if (flags.yes && !scripted) {
-    throw new Error('--yes requires --all, --skills, or --rules')
+    throw new Error('--yes requires --all, --skills, --rules, or --design')
   }
 
   if (scripted) {
     selected = flags.all
-      ? selectAll(registry)
+      ? {
+          ...selectAll(registry),
+          ...(flags.design ? { design: flags.design } : {}),
+        }
       : {
           skills: flags.skills ?? [],
           rules: flags.rules ?? [],
+          design: flags.design ?? null,
         }
   } else {
     const prompt = promptForInit ?? (await loadPromptForInit())
@@ -299,7 +307,7 @@ export async function runInit(
 
   if (!hasSelectedAssets(selected)) {
     throw new Error(
-      'No assets selected. Pass --all, --skills, or --rules, or run interactive setup.',
+      'No assets selected. Pass --all, --skills, --rules, or --design, or run interactive setup.',
     )
   }
 
@@ -351,6 +359,8 @@ async function readCachedRegistry(assetsRoot: string): Promise<AssetRegistry> {
         skills: registry.assets?.skills ?? {},
         /* v8 ignore next -- legacy cache manifests may omit collections */
         rules: registry.assets?.rules ?? {},
+        /* v8 ignore next -- legacy cache manifests may omit collections */
+        designs: registry.assets?.designs ?? {},
       },
     } as AssetRegistry
   } catch (error) {
@@ -378,19 +388,21 @@ async function readCacheManifest(manifestPath: string): Promise<CacheManifest> {
 }
 
 function normalizeSelected(selected: SelectedAssets): SelectedAssets {
-  return {
+  const normalized: SelectedAssets = {
     skills: [...(selected.skills ?? [])],
     rules: [...(selected.rules ?? [])],
   }
+  if (selected.design) normalized.design = selected.design
+  return normalized
 }
 
 function hasSelectedAssets(selected: SelectedAssets | undefined): selected is SelectedAssets {
   if (!selected) return false
-  return selected.skills.length > 0 || selected.rules.length > 0
+  return selected.skills.length > 0 || selected.rules.length > 0 || Boolean(selected.design)
 }
 
 function hasScriptedSelectionFlags(flags: InitFlags): boolean {
-  return Boolean(flags.all || flags.skills || flags.rules)
+  return Boolean(flags.all || flags.skills || flags.rules || flags.design)
 }
 
 function validateMode(mode: unknown): asserts mode is InstallMode {
@@ -459,6 +471,13 @@ function validateSelectedAssets(
     }
     validateAssetId(rule, 'rule')
   }
+
+  if (selected.design) {
+    if (!registry.assets.designs[selected.design]) {
+      throw new Error(`Unknown Dewey design: ${selected.design}`)
+    }
+    validateAssetId(selected.design, 'design')
+  }
 }
 
 function validateAssetId(id: string, kind: AssetKind): void {
@@ -480,6 +499,7 @@ function snapshotSelectedAssetMetadata(
 ): {
   skills: Record<string, AssetMetadata>
   rules: Record<string, AssetMetadata>
+  designs?: Record<string, AssetMetadata>
 } {
   return {
     skills: Object.fromEntries(
@@ -494,6 +514,15 @@ function snapshotSelectedAssetMetadata(
         pickAssetMetadata(registry.assets.rules[name]),
       ]),
     ),
+    ...(selected.design
+      ? {
+          designs: {
+            [selected.design]: pickAssetMetadata(
+              registry.assets.designs[selected.design],
+            ),
+          },
+        }
+      : {}),
   }
 }
 
@@ -671,6 +700,20 @@ async function buildInitPlan({
               mode,
             }),
           ),
+          ...(assets.design
+            ? [
+                buildAssetPlan({
+                  kind: 'design',
+                  id: assets.design,
+                  source: join(
+                    assetsRoot,
+                    registry.assets.designs[assets.design].path,
+                  ),
+                  destination: join(repoRoot, 'DESIGN.md'),
+                  mode,
+                }),
+              ]
+            : []),
         ])
 
   return {
@@ -740,6 +783,7 @@ function manifestDestinations(agentsRoot: string, manifest: RepoManifest | null)
     ...(manifest.assets.rules ?? []).map((id) =>
       join(agentsRoot, 'rules', `${id}.md`),
     ),
+    ...(manifest.assets.design ? [join(dirname(agentsRoot), 'DESIGN.md')] : []),
   ]
 }
 

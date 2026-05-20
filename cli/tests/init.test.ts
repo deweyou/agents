@@ -52,7 +52,7 @@ Keep this outro.
     const manifest = await initRepo({
       homeDir,
       repoRoot,
-      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      selected: { skills: ['demo'], rules: ['demo-rule'], design: 'dewey-interface' },
       mode: 'link',
     })
     const paths = cachePaths({ homeDir })
@@ -74,6 +74,11 @@ Keep this outro.
       (await lstat(join(repoRoot, '.agents/rules/demo-rule.md'))).isSymbolicLink(),
       true,
     )
+    assert.equal(
+      await realpath(join(repoRoot, 'DESIGN.md')),
+      await realpath(join(paths.assetsRoot, 'design/dewey-interface.md')),
+    )
+    assert.equal((await lstat(join(repoRoot, 'DESIGN.md'))).isSymbolicLink(), true)
     assert.deepEqual(
       await readJson(join(repoRoot, '.agents/manifest.json')),
       manifest,
@@ -84,6 +89,7 @@ Keep this outro.
     assert.deepEqual(manifest.assets, {
       skills: ['demo'],
       rules: ['demo-rule'],
+      design: 'dewey-interface',
     })
     assert.deepEqual(manifest.assetSnapshot, {
       skills: {
@@ -96,6 +102,12 @@ Keep this outro.
         'demo-rule': {
           description: 'Demo rule',
           hash: registry.assets.rules['demo-rule'].hash,
+        },
+      },
+      designs: {
+        'dewey-interface': {
+          description: 'Dewey interface design contract',
+          hash: registry.assets.designs['dewey-interface'].hash,
         },
       },
     })
@@ -123,7 +135,7 @@ Keep this outro.
     await initRepo({
       homeDir,
       repoRoot,
-      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      selected: { skills: ['demo'], rules: ['demo-rule'], design: 'dewey-interface' },
       mode: 'copy',
     })
 
@@ -142,6 +154,10 @@ Keep this outro.
     assert.match(
       await readFile(join(repoRoot, '.agents/skills/demo/SKILL.md'), 'utf8'),
       /Demo skill/,
+    )
+    assert.match(
+      await readFile(join(repoRoot, 'DESIGN.md'), 'utf8'),
+      /Dewey interface design contract/,
     )
   })
 
@@ -663,7 +679,7 @@ Keep this outro.
             },
           },
         ),
-      /--yes requires --all, --skills, or --rules/,
+      /--yes requires --all, --skills, --rules, or --design/,
     )
 
     assert.equal(promptCalls, 0)
@@ -822,6 +838,7 @@ async function createAssetHub(options = {}) {
 
   await mkdir(join(root, skillPath), { recursive: true })
   await mkdir(join(root, 'rules'), { recursive: true })
+  await mkdir(join(root, 'design'), { recursive: true })
 
   await writeFile(
     join(root, skillPath, 'SKILL.md'),
@@ -842,6 +859,17 @@ description: Demo rule
 ---
 
 # Demo rule
+`,
+  )
+
+  await writeFile(
+    join(root, 'design/dewey-interface.md'),
+    `---
+name: dewey-interface
+description: Dewey interface design contract
+---
+
+# Dewey Interface
 `,
   )
 

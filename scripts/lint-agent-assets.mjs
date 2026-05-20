@@ -35,6 +35,19 @@ function findRuleFiles(dir) {
   return results
 }
 
+function findDesignFiles(dir) {
+  const results = []
+  try {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isFile()) continue
+      if (entry.name === 'README.md') continue
+      if (!entry.name.endsWith('.md')) continue
+      results.push({ path: join(dir, entry.name), fileName: entry.name })
+    }
+  } catch {}
+  return results
+}
+
 function parseFrontmatter(path, errors) {
   const content = readFileSync(path, 'utf8')
 
@@ -60,6 +73,7 @@ function parseFrontmatter(path, errors) {
 
 const skills = findSkillFiles('skills')
 const rules = findRuleFiles('rules')
+const designs = findDesignFiles('design')
 const errors = []
 
 for (const { path, dirName } of skills) {
@@ -100,12 +114,31 @@ for (const { path, fileName } of rules) {
 
 }
 
+for (const { path, fileName } of designs) {
+  const fm = parseFrontmatter(path, errors)
+  if (!fm) continue
+
+  for (const field of ['name', 'description']) {
+    if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
+  }
+  lintTags(path, fm?.tags, errors)
+
+  const expectedName = fileName.replace(/\.md$/, '')
+
+  if (fm?.name) {
+    if (!isKebabCase(fm.name))
+      errors.push(`${path}: name '${fm.name}' is not kebab-case`)
+    if (fm.name !== expectedName)
+      errors.push(`${path}: name '${fm.name}' does not match file '${expectedName}'`)
+  }
+}
+
 if (errors.length) {
   console.error('Agent asset lint errors:')
   for (const e of errors) console.error(`  ${e}`)
   process.exit(1)
 } else {
-  console.log(`✓ ${skills.length} SKILL.md file(s) and ${rules.length} rule file(s) passed`)
+  console.log(`✓ ${skills.length} SKILL.md file(s), ${rules.length} rule file(s), and ${designs.length} design file(s) passed`)
 }
 
 function lintTags(path, tags, errors) {

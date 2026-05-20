@@ -77,6 +77,34 @@ const ASSET_SCOPES = [
     label: 'rules only',
     hint: 'Choose rules without installing skills.',
   },
+  {
+    value: 'design',
+    label: 'design only',
+    hint: 'Install a design contract as DESIGN.md.',
+  },
+]
+
+const GLOBAL_ASSET_SCOPES = [
+  {
+    value: 'all',
+    label: 'all',
+    hint: 'Enable every cached skill and rule.',
+  },
+  {
+    value: 'custom',
+    label: 'custom',
+    hint: 'Choose skills and rules individually.',
+  },
+  {
+    value: 'skills',
+    label: 'skills only',
+    hint: 'Choose skills without installing rules.',
+  },
+  {
+    value: 'rules',
+    label: 'rules only',
+    hint: 'Choose rules without installing skills.',
+  },
 ]
 
 export async function promptForInit({
@@ -132,16 +160,17 @@ export async function promptForInit({
             options: SETUP_MODES,
           }) as Promise<InstallMode>,
         ))
-  const assetScope = await promptOrExit<'all' | 'custom' | 'skills' | 'rules'>(
+  const assetScope = await promptOrExit<'all' | 'custom' | 'skills' | 'rules' | 'design'>(
     select({
       message: 'Select asset scope',
-      options: ASSET_SCOPES,
-    }) as Promise<'all' | 'custom' | 'skills' | 'rules'>,
+      options: selectedScope === 'global' ? GLOBAL_ASSET_SCOPES : ASSET_SCOPES,
+    }) as Promise<'all' | 'custom' | 'skills' | 'rules' | 'design'>,
   )
 
   const selected = await selectAssets({
     registry,
     scope: assetScope,
+    installScope: selectedScope,
   })
   const selectedRuleWiring =
     ruleWiring ??
@@ -164,7 +193,7 @@ export async function promptForInit({
   )
   const accepted = await promptOrExit(
     confirm({
-      message: `Enable ${selected.skills.length} skill(s) and ${selected.rules.length} rule(s) using ${selectedMode} mode?`,
+      message: `Enable ${selected.skills.length} skill(s), ${selected.rules.length} rule(s), and ${selected.design ? 1 : 0} design contract(s) using ${selectedMode} mode?`,
     }),
   )
 
@@ -184,9 +213,11 @@ export async function promptForInit({
 async function selectAssets({
   registry,
   scope,
+  installScope,
 }: {
   registry: AssetRegistry
-  scope: 'all' | 'custom' | 'skills' | 'rules'
+  scope: 'all' | 'custom' | 'skills' | 'rules' | 'design'
+  installScope: InstallScope
 }): Promise<SelectedAssets> {
   if (scope === 'all') {
     return {
@@ -218,6 +249,24 @@ async function selectAssets({
         required: false,
       }) as Promise<string[]>,
     )
+  }
+
+  if (
+    installScope === 'project' &&
+    (scope === 'custom' || scope === 'design') &&
+    Object.keys(registry.assets.designs ?? {}).length > 0
+  ) {
+    const designOptions = [
+      { value: '', label: 'none', hint: 'Do not install DESIGN.md.' },
+      ...assetOptions(registry.assets.designs ?? {}),
+    ]
+    const design = await promptOrExit<string>(
+      select({
+        message: 'Select design contract',
+        options: designOptions,
+      }) as Promise<string>,
+    )
+    if (design) selected.design = design
   }
 
   return selected
@@ -277,6 +326,7 @@ function plannedFiles({
   files.push('.agents/manifest.json')
   if (selected.skills.length > 0) files.push('.agents/skills/<skill>/SKILL.md')
   if (selected.rules.length > 0) files.push('.agents/rules/<rule>.md')
+  if (selected.design) files.push('DESIGN.md')
   return `${repoRoot}\n\n${files.join('\n')}`
 }
 

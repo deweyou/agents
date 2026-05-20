@@ -182,12 +182,20 @@ function validateRegistry(
     checks.push(fail('registry assets.rules must be an object'))
   }
 
+  if (!isPlainObject(assets.designs)) {
+    checks.push(fail('registry assets.designs must be an object'))
+  }
+
   if (isPlainObject(assets.skills)) {
     validateRegistryAssetGroup(assets.skills, 'skill', checks)
   }
 
   if (isPlainObject(assets.rules)) {
     validateRegistryAssetGroup(assets.rules, 'rule', checks)
+  }
+
+  if (isPlainObject(assets.designs)) {
+    validateRegistryAssetGroup(assets.designs, 'design', checks)
   }
 
   return checks.length === before
@@ -243,6 +251,14 @@ function validateManifest(
     checks.push(fail('manifest assets.rules must be an array'))
   }
 
+  if (
+    assets.design !== undefined &&
+    assets.design !== null &&
+    typeof assets.design !== 'string'
+  ) {
+    checks.push(fail('manifest assets.design must be a string or null'))
+  }
+
   return checks.length === before
 }
 
@@ -262,14 +278,17 @@ async function checkSelectedAssets({
   const registryAssets = {
     skills: registry.assets?.skills ?? {},
     rules: registry.assets?.rules ?? {},
+    designs: registry.assets?.designs ?? {},
   }
   const selected = {
     skills: manifest.assets?.skills ?? [],
     rules: manifest.assets?.rules ?? [],
+    designs: manifest.assets?.design ? [manifest.assets.design] : [],
   }
   const snapshot = {
     skills: manifest.assetSnapshot?.skills ?? {},
     rules: manifest.assetSnapshot?.rules ?? {},
+    designs: manifest.assetSnapshot?.designs ?? {},
   }
 
   for (const name of selected.skills) {
@@ -337,6 +356,38 @@ async function checkSelectedAssets({
       name,
       filePath,
       linkPath: manifest.mode === 'pointer' ? null : filePath,
+      checks,
+    })
+  }
+
+  for (const name of selected.designs) {
+    const asset = registryAssets.designs[name]
+    if (!asset) {
+      checks.push(fail(`selected design ${name} is missing from the registry`))
+      continue
+    }
+
+    if (!isValidRegistryPath(asset.path)) {
+      checks.push(fail(`selected design ${name} has invalid registry path`))
+      continue
+    }
+
+    checkAssetHashSnapshot({
+      kind: 'design',
+      name,
+      currentHash: asset.hash,
+      snapshotHash: snapshot.designs[name]?.hash,
+      checks,
+    })
+
+    await checkAssetPath({
+      kind: 'design',
+      name,
+      filePath:
+        manifest.mode === 'pointer'
+          ? join(cacheRoot, asset.path)
+          : join(repoRoot, 'DESIGN.md'),
+      linkPath: manifest.mode === 'pointer' ? null : join(repoRoot, 'DESIGN.md'),
       checks,
     })
   }

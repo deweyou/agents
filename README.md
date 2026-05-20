@@ -12,6 +12,7 @@ or wired into other repositories consistently.
 |------|----------|---------|
 | Skills | [`skills/`](./skills/) | Active workflows that trigger for specific agent tasks. |
 | Rules | [`rules/`](./rules/) | Passive coding and development preferences shared across projects. |
+| Design | [`design/`](./design/) | Reusable interface design contracts for AI-assisted UI work. |
 | CLI | [`cli/`](./cli/) | TypeScript package for the `deweyou-cli` binary. |
 | Docs | [`docs/`](./docs/) | Repository workflow, design notes, and implementation plans. |
 | Tests | [`tests/`](./tests/) | Asset registry and scanning tests. |
@@ -21,8 +22,8 @@ in [`docs/asset-workflow.md`](./docs/asset-workflow.md).
 
 ## deweyou-cli
 
-`deweyou-cli` bootstraps reusable agent workflows into any local
-repository. It refreshes a local cache of skills and rules from this hub,
+`deweyou-cli` bootstraps reusable agent workflows into any local repository. It
+refreshes a local cache of skills, rules, and design contracts from this hub,
 initializes repositories with selected assets, renders the active agent context,
 and diagnoses whether a repository is wired correctly.
 
@@ -56,6 +57,7 @@ For scripted setup:
 ```bash
 deweyou-cli agent init --all --mode link --yes
 deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
+deweyou-cli agent init --skills ui-design --design dewey-interface
 deweyou-cli agent init --dry-run
 ```
 
@@ -64,7 +66,7 @@ deweyou-cli agent init --dry-run
 | Command | Purpose |
 |---------|---------|
 | `deweyou-cli agent update` | Refresh the local asset cache and generated registry. |
-| `deweyou-cli agent init` | Add selected skills and rules to the current repository. |
+| `deweyou-cli agent init` | Add selected skills, rules, and an optional `DESIGN.md` to the current repository. |
 | `deweyou-cli agent context --format markdown` | Print the active agent instructions for the current repository. |
 | `deweyou-cli agent context --format json` | Print structured context for tooling. |
 | `deweyou-cli agent doctor` | Check cache, manifest, symlinks, selected assets, and hash consistency. |
@@ -73,8 +75,8 @@ deweyou-cli agent init --dry-run
 
 | Mode | Repository Writes | Best For |
 |------|-------------------|----------|
-| `link` | Symlinks selected assets into `.agents/skills/` and `.agents/rules/`. | Daily local work where cache updates should be visible immediately. |
-| `copy` | Copies selected assets into `.agents/skills/` and `.agents/rules/`. | Repositories that should keep a snapshot of selected assets. |
+| `link` | Symlinks selected assets into `.agents/skills/`, `.agents/rules/`, and optionally root `DESIGN.md`. | Daily local work where cache updates should be visible immediately. |
+| `copy` | Copies selected assets into `.agents/skills/`, `.agents/rules/`, and optionally root `DESIGN.md`. | Repositories that should keep a snapshot of selected assets. |
 | `pointer` | Writes `.agents/manifest.json` and `AGENTS.md`; assets stay in the global cache. | Minimal repository footprint. |
 
 ## Skills
@@ -89,7 +91,8 @@ include references, scripts, assets, previews, or eval cases.
 | `spec-driven-coding` | Spec-driven coding workflow for features, behavior changes, and multi-step implementation. It keeps Superpowers specs, plans, TDD, verification, and requirement updates aligned before and during coding. | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | Repository-local evaluation workflow for skills. It generates eval cases, runs routing or execution tests through an agent CLI, grades transcripts, and summarizes trigger accuracy. | [`skills/skill-eval/`](./skills/skill-eval/) |
 | `product-notes` | Living product note workflow for classifying and capturing product ideas, positioning changes, iteration specs, decisions, insights, and reviews. | [`skills/product-notes/`](./skills/product-notes/) |
-| `ui-design` | Interface design workflow for planning, implementing, reviewing, and prompting UI across web, mobile, HarmonyOS, mini programs, macOS, dashboards, and tools. | [`skills/ui-design/`](./skills/ui-design/) |
+| `ui-design` | Dewey's UX/UI design workflow for pattern research, flow design, visual style, implementation, review, and AI design prompts across web, mobile, HarmonyOS, mini programs, macOS, dashboards, and tools. | [`skills/ui-design/`](./skills/ui-design/) |
+| `product-design` | Product design workflow for Dewey's personal products. It researches existing products when needed, avoids enterprise process theater, and recommends right-sized directions, versions, or validation steps. | [`skills/product-design/`](./skills/product-design/) |
 
 ### Installing Skills Directly
 
@@ -107,10 +110,11 @@ npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
 npx skills add https://github.com/deweyou/agents --skill skill-eval
 npx skills add https://github.com/deweyou/agents --skill product-notes
 npx skills add https://github.com/deweyou/agents --skill ui-design
+npx skills add https://github.com/deweyou/agents --skill product-design
 ```
 
-For repository-wide setup, prefer `deweyou-cli agent init` so the chosen skills
-and rules are recorded together in `.agents/manifest.json`.
+For repository-wide setup, prefer `deweyou-cli agent init` so the chosen skills,
+rules, and design contract are recorded together in `.agents/manifest.json`.
 
 ## Rules
 
@@ -121,6 +125,19 @@ and are selected per repository through `deweyou-cli`.
 |------|-------------|--------|
 | `code-style` | Code expression preferences for naming, functions, comments, errors, and tests. | [`rules/code-style.md`](./rules/code-style.md) |
 | `engineering-principles` | Design preferences for module boundaries, abstraction, dependencies, state, and easy-to-delete code. | [`rules/engineering-principles.md`](./rules/engineering-principles.md) |
+
+## Design
+
+Design contracts live under [`design/`](./design/) in this asset hub. They are
+project-level design contracts: part design rule, part token map, and part
+component guidance. `ui-design` reads project-local `DESIGN.md` files before
+applying visual style, and `deweyou-cli agent init --design dewey-interface`
+installs [`design/dewey-interface.md`](./design/dewey-interface.md) into a target
+repository as `DESIGN.md`.
+
+| Design Contract | Description | Source |
+|-----------------|-------------|--------|
+| `dewey-interface` | Dewey's restrained, typographic, component-driven interface style for personal products. | [`design/dewey-interface.md`](./design/dewey-interface.md) |
 
 ## Development
 

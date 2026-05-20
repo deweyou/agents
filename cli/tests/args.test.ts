@@ -41,6 +41,19 @@ describe('parseArgs', () => {
     )
   })
 
+  it('parses a selected design contract', () => {
+    assert.deepEqual(
+      parseArgs(['agent', 'init', '--design', 'dewey-interface']),
+      {
+        topic: 'agent',
+        command: 'init',
+        flags: {
+          design: 'dewey-interface',
+        },
+      },
+    )
+  })
+
   it('parses scope, tools, and rule wiring for agent init', () => {
     assert.deepEqual(
       parseArgs([

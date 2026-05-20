@@ -1,13 +1,15 @@
 # deweyou-cli
 
-`deweyou-cli` bootstraps reusable agent workflows into any local
-repository. It manages the repo-level wiring for selected skills and rules while
-keeping the source assets in the central `deweyou/agents` hub.
+`deweyou-cli` bootstraps reusable agent workflows into any local repository. It
+manages the repo-level wiring for selected skills, rules, and design contracts
+while keeping the source assets in the central `deweyou/agents` hub.
 
 The v0 scope is intentionally small:
 
-- cache skills and rules from a local `deweyou/agents` checkout
-- initialize a repository with selected skills and rules
+- cache skills, rules, and design contracts from a local `deweyou/agents`
+  checkout
+- initialize a repository with selected skills, rules, and an optional
+  `DESIGN.md`
 - render the active agent context for the current repository
 - diagnose whether the current repository is wired correctly
 
@@ -49,7 +51,7 @@ deweyou-cli agent init --all --mode link --yes
 
 ## Mental Model
 
-`deweyou/agents` is the asset hub. It owns `skills/` and `rules/`.
+`deweyou/agents` is the asset hub. It owns `skills/`, `rules/`, and `design/`.
 
 `deweyou-cli` is the workflow manager. It scans the hub assets, generates a
 cache registry under your home directory, then writes a small
@@ -57,7 +59,8 @@ cache registry under your home directory, then writes a small
 assets are active.
 
 Each repository chooses its own asset set. A coding repo can select coding
-skills and rules; a writing or design repo can select different ones.
+skills and rules; a writing or design repo can select different ones and install
+a design contract as root `DESIGN.md`.
 
 ## Commands
 
@@ -94,7 +97,8 @@ Source selection:
 
 ### `deweyou-cli agent init`
 
-Initializes the current repository with selected skills and rules.
+Initializes the current repository with selected skills, rules, and an optional
+design contract.
 
 ```bash
 deweyou-cli agent init
@@ -103,7 +107,7 @@ deweyou-cli agent init
 Usage:
 
 ```text
-deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
+deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--design name] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
 ```
 
 Without selection flags, this opens an interactive setup where you choose:
@@ -111,12 +115,14 @@ Without selection flags, this opens an interactive setup where you choose:
 - install mode
 - skills
 - rules
+- design contract
 
 Scripted examples:
 
 ```bash
 deweyou-cli agent init --all --mode link --yes
 deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
+deweyou-cli agent init --skills ui-design --design dewey-interface --mode link
 deweyou-cli agent init --scope project --tools codex,claude --rules code-style --mode link
 deweyou-cli agent init --scope global --tools codex,claude --skills repo-memory,git-delivery --yes
 deweyou-cli agent init --scope global --tools all --rules code-style --rule-wiring reference --yes
@@ -127,11 +133,12 @@ Flags:
 
 | Flag | Meaning |
 |------|---------|
-| `--all` | Select every skill and rule from the cached registry. |
+| `--all` | Select every skill and rule from the cached registry. Design contracts are explicit via `--design`. |
 | `--skills a,b` | Select only the listed skill ids. Values are comma-separated. |
 | `--rules a,b` | Select only the listed rule ids. Values are comma-separated. |
+| `--design name` | Install the selected design contract as root `DESIGN.md`. Project scope only. |
 | `--mode link\|copy\|pointer` | Choose how project repositories reference selected assets. Global skill installs always use symlinks. |
-| `--yes` | Run without prompts. Requires `--all`, `--skills`, or `--rules`. |
+| `--yes` | Run without prompts. Requires `--all`, `--skills`, `--rules`, or `--design`. |
 | `--dry-run` | Print the planned files without writing them. |
 | `--force` | Replace existing Dewey-managed asset destinations when needed. |
 
@@ -154,9 +161,9 @@ Formats:
 | `markdown` | Human-readable instructions and asset paths. This is the default. |
 | `json` | Structured context for tooling or future integrations. |
 
-The context output tells an agent which skills and rules are active, where their
-files live, whether the hub commit changed, and whether any selected asset hash
-changed in the local cache.
+The context output tells an agent which skills, rules, and design contracts are
+active, where their files live, whether the hub commit changed, and whether any
+selected asset hash changed in the local cache.
 
 ### `deweyou-cli agent doctor`
 
@@ -171,7 +178,7 @@ It verifies:
 - local cache registry exists and is valid
 - repository `.agents/manifest.json` exists and is valid
 - `AGENTS.md` exists
-- selected skills and rules still exist in the registry
+- selected skills, rules, and design contracts still exist in the registry
 - selected asset hashes match the repository's initialized snapshot
 - selected asset files are present
 - symlinks are valid when using `link` mode
@@ -182,8 +189,8 @@ The command exits with a non-zero status when a check fails.
 
 | Mode | Repository Writes | Best For |
 |------|-------------------|----------|
-| `link` | Symlinks selected assets into `.agents/skills/` and `.agents/rules/`. | Daily local work where updates should be immediately visible after cache refresh. |
-| `copy` | Copies selected assets into `.agents/skills/` and `.agents/rules/`. | Repositories that should keep a snapshot of the selected assets. |
+| `link` | Symlinks selected assets into `.agents/skills/`, `.agents/rules/`, and optionally root `DESIGN.md`. | Daily local work where updates should be immediately visible after cache refresh. |
+| `copy` | Copies selected assets into `.agents/skills/`, `.agents/rules/`, and optionally root `DESIGN.md`. | Repositories that should keep a snapshot of the selected assets. |
 | `pointer` | Writes only `.agents/manifest.json` and `AGENTS.md`; assets stay in the global cache. | Minimal repo footprint and tooling that can follow absolute cache paths. |
 
 ## Files Created
@@ -195,6 +202,7 @@ AGENTS.md
 .agents/manifest.json
 .agents/skills/<skill>/SKILL.md
 .agents/rules/<rule>.md
+DESIGN.md
 ```
 
 `AGENTS.md` receives a managed Dewey section that points agents at the selected
@@ -247,8 +255,8 @@ Release commit rules:
 
 ## Relationship To `deweyou/agents`
 
-`deweyou/agents` continues to provide the actual skills, rules, and asset
-validation workflow. The CLI generates the cache registry during
+`deweyou/agents` continues to provide the actual skills, rules, design
+contracts, and asset validation workflow. The CLI generates the cache registry during
 `deweyou-cli agent update`.
 
 `deweyou-cli` does not replace those assets. It gives every repository a

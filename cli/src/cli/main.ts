@@ -70,7 +70,7 @@ Options:
 
 function agentUsage(): string {
   return `Usage:
-  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
+  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--design name] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
   deweyou-cli agent update
   deweyou-cli agent context [--format markdown|json]
   deweyou-cli agent doctor
@@ -81,12 +81,13 @@ Run \`deweyou-cli agent <command> -h\` for command-specific help.`
 function commandUsage(command: AgentCommand): string {
   if (command === 'init') {
     return `Usage:
-  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
+  deweyou-cli agent init [--all] [--skills a,b] [--rules a,b] [--design name] [--mode link|copy|pointer] [--scope project|global] [--tools codex,claude|all] [--rule-wiring reference|inline] [--yes] [--dry-run] [--force]
 
 Options:
   --all                         Select every skill and rule.
   --skills a,b                  Select comma-separated skill ids.
   --rules a,b                   Select comma-separated rule ids.
+  --design name                 Install a design contract as DESIGN.md.
   --mode link|copy|pointer      Choose how assets are referenced.
   --scope project|global        Write project or user-level instructions.
   --tools codex,claude|all      Select target agent tools.

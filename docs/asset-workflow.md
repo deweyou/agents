@@ -15,7 +15,7 @@ flowchart TD
     Global --> GlobalRules["user-level instruction rule sections"]
 ```
 
-*Last updated: 2026-05-21 | Reason: Clarified neutral skill wording and CI follow-up semantics.*
+*Last updated: 2026-05-21 | Reason: Added the skill README maintenance contract.*
 
 ## Repository Conventions
 
@@ -72,8 +72,9 @@ Public README descriptions should explain what each skill or rule does. Avoid
 leading with ownership language such as a person's name when the functionality
 can be described directly.
 
-For skills specifically, also check `README.md`, `SKILL.md`, `evals/`, and
-`references/` before handoff:
+For skills specifically, also check `README.md`, `README_ZH.md`, `SKILL.md`,
+`evals/`, and `references/` before handoff. Skill README requirements live in
+[`docs/skill-readmes.md`](./skill-readmes.md):
 
 ```bash
 rg -i "personal-name-or-brand-pattern" skills
@@ -206,7 +207,10 @@ the directory.
 
 ### 5. Create Skill README
 
-Every skill directory gets a `README.md` alongside `SKILL.md`:
+Every skill directory gets `README.md` and `README_ZH.md` alongside `SKILL.md`.
+Follow [`docs/skill-readmes.md`](./skill-readmes.md) and include a practical
+summary, installation command, features, SOP, and Mermaid diagram when it
+clarifies the workflow:
 
 ```markdown
 # <skill-name>
@@ -217,15 +221,19 @@ Every skill directory gets a `README.md` alongside `SKILL.md`:
 
 <2-4 sentences describing the skill's capabilities, trigger context, and output.>
 
-## When it triggers
-
-<List the user phrases or contexts that cause agents to invoke this skill.>
-
 ## Installation
 
 \`\`\`bash
-npx skills add https://github.com/deweyou/agents --skill <kebab-name>
+npx skills add deweyou/agents --skill <kebab-name>
 \`\`\`
+
+## Features
+
+<List notable behaviors, boundaries, and guarantees.>
+
+## SOP
+
+<List the normal operating procedure.>
 
 ## Source
 
@@ -254,7 +262,10 @@ entry exists in `README_ZH.md` and update it in the same change.
 6. Test with prompts that cover the changed behavior. Run the eval suite only
    when the user explicitly requests execution.
 7. Run `pnpm run lint:assets` so frontmatter and naming stay valid.
-8. Update the root README skills table when the public description changes.
+8. Update `skills/<name>/README.md` and `skills/<name>/README_ZH.md` whenever
+   triggers, workflow, dependencies, side effects, output, or installation
+   changed. README-only edits do not require eval changes.
+9. Update the root README skills table when the public description changes.
    If `README_ZH.md` has a matching entry, update it in the same change.
 
 ## Creating Or Updating Rules

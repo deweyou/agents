@@ -10,11 +10,14 @@ description: >
   staging, commit, base-branch conflict check, rebase when safe, push, PR creation
   or exact blocker reporting, and CI follow-up. For CI follow-up, always include
   an immediate first check after about 10 seconds, visible workflow/job/step
-  status, rough ETA when possible, and a short active polling plan such as a
-  1-minute heartbeat/reminder for fresh PR CI. When CI polling finds a clear
-  failure, automatically inspect, fix, verify, commit, and push the repair; stop
-  and ask the user when the failure is ambiguous, risky, or has multiple reasonable
-  solutions. After completing work with local changes, ask whether to submit,
+  status, rough ETA when possible, and a lightweight active polling plan for
+  fresh PR CI. Prefer in-session polling or a small provider-specific watch loop;
+  create a temporary automation/reminder only when the current session cannot
+  reasonably keep watching or the user asks for later follow-up. When CI polling
+  finds a clear failure, automatically inspect, fix, verify, commit, and push the
+  repair; stop and ask the user when the failure is ambiguous, risky, or has
+  multiple reasonable solutions. After completing work with local changes, ask
+  whether to submit,
   push, and open a PR unless the user already requested delivery or opted out.
   Before creating a new commit on a branch with CI polling, pause the previous
   CI follow-up automation so stale checks do not report on superseded commits.
@@ -170,8 +173,9 @@ report exact blockers only when a step cannot be completed safely.
    detached HEAD, no GitHub CLI, or no network.
 12. Only after push succeeds and a PR or pushed branch head exists, start CI
     follow-up: wait about 10 seconds for the first CI check, inspect visible
-    workflow/job/step status, then create/update a short polling automation when
-    supported.
+    workflow/job/step status, then use lightweight in-session polling when
+    practical. Create/update a temporary automation only when the session cannot
+    reasonably keep watching or the user asks for later follow-up.
 13. Summarize the problem, solution, and verification in the PR body.
 
 Never include unrelated dirty files in the commit. If unrelated changes exist, leave
@@ -237,18 +241,21 @@ state:
 
 - `ci_followup_start`: after push succeeds and PR/new head exists; never before
   commit or push.
-- `ci_followup_action`: create, update, or resume a follow-up
-  automation/reminder after push when the environment supports it; otherwise say
-  unavailable and fall back to a manual check.
+- `ci_followup_action`: prefer lightweight in-session polling or a
+  provider-specific watch loop after push. Create, update, or resume a temporary
+  automation/reminder only when the session cannot reasonably keep watching or
+  the user asks for later follow-up; otherwise say unavailable and fall back to a
+  manual check.
 - `ci_initial_check`: wait about 10 seconds after push or PR creation, then check
   once immediately. Use the words "about 10 seconds" or "10s" in the plan.
 - `ci_visible_status`: workflow/run/job/step/status details that will be read
   when available.
 - `ci_eta`: rough remaining-time estimate from current metadata or recent similar
   runs, or `unknown`.
-- `ci_poll_interval`: create or update a follow-up automation/reminder when the
-  environment supports it; use about 1 minute for active fresh PR CI, then slow
-  down or stop after pass/fail/blocker.
+- `ci_poll_interval`: for active fresh PR CI, prefer a lightweight loop at about
+  1 minute or the provider's watch command. Use automation/reminders as a
+  temporary fallback for later follow-up, then slow down or stop after
+  pass/fail/blocker.
 - `ci_poll_stop`: terminal CI states must stop the follow-up. When CI passes,
   clearly fails for an ambiguous/blocked reason, or requires the user's decision,
   report the final status and pause/delete the automation so it does not keep
@@ -265,15 +272,16 @@ state:
   comparable runs. Say the estimate is rough when history is unavailable. For
   fast lint/typecheck jobs, prefer a near-term follow-up instead of a long
   default delay.
-- Create a follow-up automation or reminder to check CI when the environment
-  supports it. Prefer a short interval such as 1 minute for active PR CI
-  immediately after a new push; slow down or stop polling once CI passes, clearly
-  fails, or becomes blocked by permissions, secrets, or an external system.
-- CI follow-up automations are temporary. They must end themselves on terminal
-  states: passed, failed-but-ambiguous, blocked, cancelled, or no matching run
-  after a reasonable provider delay. On terminal state, report the final workflow,
-  job, step, status, elapsed time when available, and `ci_poll_stop`, then pause
-  or delete the automation.
+- Prefer lightweight in-session polling for active PR CI immediately after a new
+  push, such as checking every minute or using the provider's watch command. Slow
+  down or stop polling once CI passes, clearly fails, or becomes blocked by
+  permissions, secrets, or an external system.
+- Use follow-up automation or reminders only as a temporary fallback when the
+  session cannot reasonably keep watching or the user asks for later follow-up.
+  They must end themselves on terminal states: passed, failed-but-ambiguous,
+  blocked, cancelled, or no matching run after a reasonable provider delay. On
+  terminal state, report the final workflow, job, step, status, elapsed time when
+  available, and `ci_poll_stop`, then pause or delete the automation.
 - When CI polling finds a failure, inspect the failing job, failing step, and
   relevant logs before deciding whether to repair or stop.
 - In routing or planning output, explicitly list the decision order: inspect

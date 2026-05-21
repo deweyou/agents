@@ -84,6 +84,13 @@ If no structure exists in the chosen root, create only the minimum directories
 needed for the current note plus an index when useful. Do not force every default
 directory into existence.
 
+If no root can be resolved, ask where product notes should live and offer common
+directory conventions only as choices or recommendations, such as `product/`,
+`docs/product/`, `docs/products/<product-name>/`, `products/<product-name>/`, or
+an Obsidian project folder. Do not silently create any of them. In routing or
+planning output, explicitly list those choices instead of only saying "ask for a
+root."
+
 When the root is resolved, state it explicitly before writing:
 
 ```text
@@ -126,8 +133,11 @@ Use these planning cues:
   - In routing output, explicitly say: "Ask which product to use when a future
     note request does not name a product."
 - Remembered location: explain that long-term location memory comes from a
-  persisted convention file, record the root and relative subpaths, and read that
-  persisted convention before asking for the path on future runs.
+  persisted convention file, not model memory; record the root and relative
+  subpaths, and read that persisted convention before asking for the path on
+  future runs.
+  - In routing output, explicitly say: "This is persisted in a convention file,
+    not remembered through model memory."
   - In routing output, include the root and relative subpaths: `iterations/`,
     `decisions/`, `insights/`, and `process/`.
 

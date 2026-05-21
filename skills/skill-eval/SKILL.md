@@ -46,6 +46,9 @@ example:
 Do not run evals just because a skill changed. In this repository, every new or
 modified skill should receive an updated eval case file, but executing those
 cases still requires an explicit user request because it spends LLM tokens.
+If the user says a skill changed and asks to finish the task, treat that as a
+request to update that skill's `evals/evals.json` when the behavior changed, but
+not as permission to execute the LLM-backed eval runner.
 
 ## A. Generate Eval Cases
 
@@ -61,6 +64,11 @@ Generating `evals.json` is a creative task. Do not use the runner for this.
    - Which similar prompts should route somewhere else?
    - Which prompts are ambiguous enough to require clarification?
    - Which workflow constraints must be visible after triggering?
+   - Positive triggers, negative triggers, workflow constraints, and ambiguous
+     prompts must all be named in routing/planning output for non-trivial skills.
+   In routing or planning output for "complete missing evals" requests,
+   explicitly say the update will cover positive triggers, negative triggers,
+   workflow constraints, and ambiguous prompts when applicable.
 3. If boundaries are unclear, ask the user. If the user already gave an explicit
    policy, derive cases from that policy.
 4. Write `<skill_root>/evals/evals.json` using this schema:
@@ -161,6 +169,10 @@ Use `auto` unless the user explicitly asks for a specific harness. Do not ask
 the user whether the current harness is Claude or Codex; the runner detects
 that from environment markers.
 
+When running evals for a skill, first use the existing
+`skills/<skill>/evals/evals.json` file if it exists. If it does not exist, stop
+and generate or ask to generate the eval file before running.
+
 ### Output
 
 By default, runs are written under a system temp directory and deleted after the
@@ -181,6 +193,10 @@ that directory to prevent transcripts and grading output from being committed.
 Use `--keep-runs` with the default temp directory or a repository-external
 `--out` path when you need to inspect artifacts.
 
+When the user asks to keep artifacts, explicitly state that artifacts must not be
+kept under `<skill>/evals/runs/`; use a temp directory or repository-external
+`--out` path with `--keep-runs`.
+
 ### Reporting
 
 After running evals, report a table the user can paste into review:
@@ -191,6 +207,9 @@ After running evals, report a table the user can paste into review:
 
 Then summarize failure categories, timeout retries, and whether the run
 directory was retained or deleted.
+
+In routing or planning output for eval execution, explicitly promise this
+case-level PASS/FAIL table and failure summary.
 
 ## Mode Selection
 

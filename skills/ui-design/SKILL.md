@@ -61,7 +61,8 @@ from scratch, or when comparable products/platform conventions could change the
 answer.
 
 Read `references/ux-pattern-research-playbook.md`. Inspect references before
-proposing a solution. If browsing, screenshots, or product access are
+proposing a solution. Inspect 3-6 relevant products, screens, or UX references
+when the question asks how others solve a flow. If browsing, screenshots, or product access are
 unavailable, state the limitation and mark the recommendation as lower
 confidence.
 
@@ -84,6 +85,16 @@ Read `references/design-md-workflow.md`, then read the relevant `DESIGN.md`
 according to that workflow. If the visual work also changes user flow or
 interaction, handle UX structure first.
 
+When routing or planning personal-style work, explicitly mention concrete style
+checks from the design contract, such as neutral surfaces, restrained hierarchy,
+bordered structure, compact copy, primary emphasis, token usage, and avoiding
+arbitrary raw colors, shadows, radii, nested cards, generic gradients, or
+oversized hero treatment in tool UIs.
+
+For H5 or mobile-web visual design, also explicitly mention mobile checks:
+safe-area handling, tap-first interactions, touch target size, responsive layout,
+and viewport-height behavior.
+
 ### Implementation / Prototype
 
 Use when editing UI code, building a prototype, generating a Sleek prompt, or
@@ -94,6 +105,17 @@ library work, also read `references/component-library-snapshot.md` when relevant
 For Sleek or another AI design tool, read
 `references/ai-design-tool-playbook.md`.
 
+For mini programs, explicitly check capsule/menu safe area, page stack
+navigation, startup performance, and native component availability. For mobile
+or generated-app prompts, explicitly mention safe areas, navigation, fonts,
+icons, generated source handoff, and post-generation screenshot or rendered
+output inspection.
+
+For Sleek or AI-generated mobile app prompts, routing or planning output must
+also mention workflow/state requirements, not only visual adjectives. Include
+the generated-source handoff and post-generation screenshot or rendered-output
+inspection in the next action summary.
+
 ### Review
 
 Use when the user asks to review UI, UX, flow, accessibility, visual style, or
@@ -102,6 +124,14 @@ implementation quality.
 Lead with concrete findings. Prioritize flow clarity, accessibility, interaction
 states, layout, token/style drift, and implementation risks. Cite file/line
 references when files are available.
+
+For personal-style reviews, explicitly look for style drift such as nested
+cards, raw colors, arbitrary radii or shadows, generic gradients, oversized hero
+treatment in tool UIs, and missing design-token usage.
+
+When the prompt explicitly asks for "web design guidelines", also trigger or
+reference the `web-design-guidelines` skill/source and say the review should use
+the latest Web Interface Guidelines source before reporting compliance findings.
 
 ## Operating Workflow
 

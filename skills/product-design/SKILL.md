@@ -84,6 +84,20 @@ and mark the recommendation as lower confidence instead of pretending.
    to avoid for now.
 7. Capture open questions only when they affect the next decision.
 
+Even for concise routing or planning output, explicitly separate current
+judgment, assumptions, validation needs, and next action when the user asks
+whether a feature or product move is worth doing.
+
+Routing or planning output must still be concrete enough to grade. Do not only
+say "identify validation points" or "synthesize a recommendation later." When
+the user states a narrow scope, name what that small version validates. For
+example, a local-session-only version validates whether users return to saved
+work and tolerate local-only limits before accounts or cloud sync exist. When a
+research request asks for a next version after inspecting products, promise a
+right-sized next-version recommendation and describe its likely shape, such as a
+smaller onboarding flow, one default path, or one experiment instead of a broad
+roadmap.
+
 ## Output Patterns
 
 For exploration-heavy answers:
@@ -108,6 +122,11 @@ Why this scope
 What to validate
 Next action
 ```
+
+When recommending a deliberately small version, make the validation value
+concrete: name what the smaller scope will prove or disprove, such as demand for
+the workflow, frequency of use, retention, willingness to tolerate local-only
+limits, or whether excluded complexity is actually needed.
 
 Keep outputs concise for simple decisions. For deeper research requests, provide
 enough evidence and synthesis for Dewey to judge the recommendation.

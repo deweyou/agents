@@ -91,6 +91,11 @@ For a new memory setup, explicitly plan all required artifacts:
 - apply `rule.md` quality in the plan itself: Mermaid-first docs, concise prose,
   relative repo links with `#L` anchors where useful, and update footers
 
+In routing or planning output for initialization, explicitly state the doc quality
+contract in the next action summary: `Mermaid diagram first`, concise prose,
+`relative links with #L anchors`, and update footer. Do not only say "read
+rule.md"; name these obligations.
+
 ### 3. Judge Memory Value
 
 Update memory only for durable knowledge:
@@ -131,6 +136,10 @@ the likely affected topic doc before editing. Prefer a specific existing doc suc
 `docs/order-lifecycle.md` over broad docs like `project-structure.md`. If the
 business meaning is unclear, ask the user or add a `TODO`; never silently invent the
 semantics.
+
+For routing or planning output about lifecycle/state-machine changes, explicitly
+say that unclear business semantics will be asked about or recorded as a focused
+`TODO` instead of invented.
 
 For order lifecycle or state-machine changes, always plan to find and update the
 existing relevant order lifecycle/state-machine doc first, such as

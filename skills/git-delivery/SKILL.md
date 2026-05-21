@@ -46,6 +46,8 @@ code or asset change, even if the request arrives after a long design discussion
    - create a new task branch from `origin/<primary>` for new implementation work;
    - or rebase the current task branch onto `origin/<primary>` before editing when
      it is already a task branch.
+   In routing or planning output, explicitly say
+   `prework_decision=start_from_fetched_baseline`.
 6. If the current branch is behind `origin/<primary>` and the worktree is clean,
    rebase before editing. If the branch has local commits and the rebase would be
    risky, stop and report the blocker.
@@ -65,24 +67,12 @@ Always report the pre-edit gate:
 - `prework_decision`: safe to edit, continuing by explicit user instruction, or
   blocked.
 
-1. Check `git status --short` and the current branch.
-2. Identify the primary branch, usually `main`.
-3. Fetch the latest remote state for the primary branch, for example
-   `git fetch origin <primary>`, without switching branches.
-4. Stay on the current branch by default. State the current branch and the fetched
-   baseline, such as `origin/main`.
-5. Create a dedicated task branch only when the user explicitly asks to prepare a
-   branch, start a fresh branch, or similar. If creating a branch, branch from the
-   fetched baseline when the worktree is clean and the user has not asked to
-   continue from the current branch.
-6. For parallel work, prefer a separate worktree or an explicit new branch instead
-   of moving the existing worktree away from an active task.
-7. Do not discard or overwrite existing user changes. If local changes block a safe
-   branch creation or worktree setup, stop and ask how to handle them.
-
-If the user says "continue here", "use this branch", or similar, stay on the current
-branch and state that choice. If the user only asks to start implementation, do not
-switch branches unless they also ask for branch preparation.
+If the user says "continue here", "use this branch", or similar, stay on the
+current branch and state that choice. If the user explicitly asks for parallel
+work, prefer a separate worktree or explicit new branch instead of moving the
+existing worktree away from an active task. Do not discard or overwrite existing
+user changes. If local changes block a safe branch creation, rebase, or worktree
+setup, stop and ask how to handle them.
 
 Always report the dirty-work decision:
 
@@ -111,7 +101,9 @@ the final handoff:
 Do not silently commit, push, or open a PR without confirmation. If Dewey
 confirms, run the full Finish Work delivery path. If Dewey declines, leave files
 unstaged unless they were already intentionally staged, and report verification
-plus remaining local changes.
+plus remaining local changes. In routing or planning output, explicitly mention
+both `if_confirmed=full_delivery_path` and
+`if_declined=leave_changes_uncommitted_and_report_status`.
 
 Do not ask this question when the user has already given a clear delivery intent;
 in that case, continue through the requested delivery path.
@@ -146,7 +138,8 @@ cannot be completed safely.
    the same PR, branch, or thread. This prevents old polling jobs from reporting
    stale results after a new commit changes the head SHA. If no matching
    automation exists, report `ci_poll_pause=not_needed`; if automation support is
-   unavailable, report `ci_poll_pause=unavailable`.
+   unavailable, report `ci_poll_pause=unavailable`. This step also applies to
+   commit-only delivery and to follow-up commits that update an existing PR.
 5. Stage only intended files.
 6. Commit with a concise conventional message when the repo uses conventional
    commits, otherwise match local history.
@@ -186,6 +179,10 @@ base:
 6. If conflict resolution is ambiguous, abort or pause safely and report the exact
    files plus the decision needed from the user.
 
+In routing or planning output, explicitly say that conflict resolution is allowed
+only for clear conflicts, otherwise report exact conflict files and blocker; also
+say verification must run after any successful rebase before pushing.
+
 Always report:
 
 - `base_branch`: target branch checked
@@ -214,6 +211,13 @@ After a PR is opened or a pushed branch has CI:
   supports it.
 - When CI polling finds a failure, inspect the failing job, failing step, and
   relevant logs before deciding whether to repair or stop.
+- In routing or planning output, explicitly list the decision order: inspect
+  failing job, inspect failing step, inspect logs, then decide whether the failure
+  is clear or ambiguous.
+- If the user already frames the CI failure as a choice between multiple plausible
+  fixes, still inspect the failing job, step, logs, and relevant files first, then
+  classify it as ambiguous unless that inspection proves there is only one safe
+  repair.
 - Automatically repair clear, low-risk failures. This includes deterministic
   lint, format, typecheck, unit test, snapshot, dependency-lock, or obvious
   compatibility failures where the intended fix follows directly from the code,
@@ -221,7 +225,8 @@ After a PR is opened or a pushed branch has CI:
 - For an automatic repair, edit only the necessary files, run the smallest
   relevant verification first, then rerun the broader failed check when practical.
   Commit the repair with a concise conventional message, push the same branch,
-  and report the conclusion.
+  and report `ci_failure`, `repair_commit`, `verification`, `push`, and `ci_poll`
+  status.
 - When the CI failure is from a previous commit on the same delivery branch,
   include the repair in a new follow-up commit unless amending is explicitly safer
   and the branch has not been shared.
@@ -245,8 +250,14 @@ Stop and ask Dewey instead of guessing when any of these are true:
   protected branch, failed force-with-lease, or unexpected divergence.
 
 When stopping, give Dewey the exact blocker, the failing job or step, the relevant
-file paths, and the concrete decision needed. Do not continue by picking one of
-several plausible fixes.
+file paths, and the concrete decision needed. If job, step, or file paths cannot
+be known until CI is inspected, say they are `unknown_pending_ci_log_inspection`
+and do not claim a repair. Do not continue by picking one of several plausible
+fixes.
+
+For ambiguous CI, report the blocker, plausible options, failing job/step if
+known, and relevant files if known. If they are not known yet, say they must be
+inspected before finalizing the blocker.
 
 Always report the CI repair boundary:
 
@@ -256,6 +267,9 @@ Always report the CI repair boundary:
 - `ci_repair_commit`: hash and message, or not created
 - `ci_repair_verification`: commands run, or exact blocker
 - `ci_repair_push`: destination, or exact blocker
+
+For follow-up commits on an existing PR, always report both `ci_poll_pause` for
+the stale polling job and the new `ci_poll` plan for the updated head commit.
 
 ## Output
 

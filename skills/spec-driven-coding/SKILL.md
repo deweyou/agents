@@ -41,6 +41,9 @@ user and ask them to install or enable Superpowers before continuing with strict
 SDD. If installation is not possible, continue with the equivalent fallback steps
 in this skill and state that fallback clearly.
 
+In routing or planning output for full spec flow, explicitly mention this
+Superpowers gate and list the required skills to check before implementation.
+
 ## Full Spec Flow
 
 Do not write implementation code until the spec is aligned.

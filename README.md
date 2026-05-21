@@ -83,11 +83,12 @@ deweyou-cli agent init --dry-run
 ## Skills
 
 Skills are active workflows. They live in `skills/<name>/SKILL.md` and may also
-include references, scripts, assets, previews, or eval cases.
+include human-facing `README.md` and `README_ZH.md` files, references, scripts,
+assets, previews, or eval cases.
 
 | Skill | Description | Source |
 |-------|-------------|--------|
-| `repo-memory` | Hermes-style long-term repository memory workflow. It initializes and refreshes durable repo context, runs pre-commit memory checks, updates docs when work changes important knowledge, and checks local skill drift. | [`skills/repo-memory/`](./skills/repo-memory/) |
+| `repo-memory` | Durable repository memory workflow. It initializes and refreshes repo context, runs pre-commit memory checks, updates docs when work changes important knowledge, and checks local skill drift. | [`skills/repo-memory/`](./skills/repo-memory/) |
 | `git-delivery` | Branch-aware git delivery workflow for start-of-work checks, intentional staging, commits, base-branch conflict checks, safe rebases, pushes, PR creation, CI follow-up, and automatic low-risk CI repair. | [`skills/git-delivery/`](./skills/git-delivery/) |
 | `spec-driven-coding` | Spec-driven coding workflow for features, behavior changes, and multi-step implementation. It keeps Superpowers specs, plans, TDD, verification, and requirement updates aligned before and during coding. | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | Repository-local evaluation workflow for skills. It generates eval cases, runs routing or execution tests through an agent CLI, grades transcripts, and summarizes trigger accuracy. | [`skills/skill-eval/`](./skills/skill-eval/) |
@@ -100,18 +101,18 @@ include references, scripts, assets, previews, or eval cases.
 Install one skill with the Skills CLI:
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill repo-memory
+npx skills add deweyou/agents --skill repo-memory
 ```
 
 Replace the skill name as needed:
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill git-delivery
-npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
-npx skills add https://github.com/deweyou/agents --skill skill-eval
-npx skills add https://github.com/deweyou/agents --skill product-notes
-npx skills add https://github.com/deweyou/agents --skill ui-design
-npx skills add https://github.com/deweyou/agents --skill product-design
+npx skills add deweyou/agents --skill git-delivery
+npx skills add deweyou/agents --skill spec-driven-coding
+npx skills add deweyou/agents --skill skill-eval
+npx skills add deweyou/agents --skill product-notes
+npx skills add deweyou/agents --skill ui-design
+npx skills add deweyou/agents --skill product-design
 ```
 
 For repository-wide setup, prefer `deweyou-cli agent init` so the chosen skills,
@@ -168,3 +169,7 @@ cd cli && npm pack --dry-run
 Every new or modified skill must include updated eval cases at
 `skills/<name>/evals/evals.json`. Running LLM-backed evals is separate and should
 only happen when explicitly requested.
+
+Every skill directory must include `README.md` and `README_ZH.md` with a summary,
+installation command, features, SOP, and a Mermaid diagram when useful. Update
+both READMEs whenever the skill workflow changes.

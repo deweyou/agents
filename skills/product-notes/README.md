@@ -1,33 +1,67 @@
 # product-notes
 
-> Turn evolving product ideas, iterations, decisions, insights, and reviews into a living product note system.
+> Turn product ideas, positioning, iterations, decisions, insights, and reviews
+> into durable product notes.
 
 ## What it does
 
-`product-notes` helps agents classify product discussions before writing them
-down. It first resolves the product notes root, which can be a repo directory,
-Obsidian project folder, or another user-provided path, and persists that
-location in a readable convention file when the user wants it remembered. It then
-routes input into positioning notes, iteration specs, decision records, insight
-notes, process notes, or iteration reviews.
+`product-notes` maintains a living product note system. It resolves the product
+notes root, classifies the input before writing, preserves why product direction
+changed, and updates the right note type instead of flattening everything into a
+generic PRD.
 
-## When it triggers
-
-- "I have a new product idea"
-- "Help me capture this product discussion"
-- "整理产品文档", "沉淀这个想法", "写迭代文档"
-- Product positioning changes
-- Version or MVP scope planning
-- Product or technical trade-off decisions
-- User feedback, competitor observations, or release reviews
-- Requests to use a custom product notes directory or Obsidian product folder
+```mermaid
+flowchart TD
+    Request["Capture product thinking"] --> Root["Resolve product notes root"]
+    Root --> Classify["Classify note type"]
+    Classify --> Enough{"Enough context?"}
+    Enough -->|No| Clarify["Ask focused questions or mark open questions"]
+    Enough -->|Yes| Write["Write or update the right note"]
+    Clarify --> Write
+    Write --> Index["Update nearest index when useful"]
+    Index --> Quality["Check note quality"]
+```
 
 ## Installation
 
 ```bash
-npx skills add <agents-repo-url> --skill product-notes
+npx skills add deweyou/agents --skill product-notes
 ```
+
+For repository-wide setup, prefer:
+
+```bash
+deweyou-cli agent init --skills product-notes
+```
+
+## Features
+
+- Resolves custom product-note roots from user input, repository conventions, or
+  existing workspace structure.
+- Persists location conventions in readable files when the user wants the
+  location remembered.
+- Classifies notes as positioning, iteration specs, decision records, insight
+  notes, process notes, or reviews.
+- Preserves facts, judgments, assumptions, status, and supersession history.
+- Updates navigation only where it helps future readers.
+- Respects existing workspace language, filenames, and Obsidian-style links.
+
+## SOP
+
+1. Resolve and state the product notes root.
+2. Inspect existing structure, index files, positioning docs, iteration folders,
+   decisions, insights, process notes, and archive conventions.
+3. Classify the input into one or more note types.
+4. Check whether the note has enough substance; ask up to three focused
+   questions when needed.
+5. Write or update the smallest useful note while separating facts, judgments,
+   and assumptions.
+6. Mark superseded or historical notes instead of deleting context.
+7. Update the nearest useful index.
+8. Report whether the note is ready to guide future work and what is still
+   missing.
 
 ## Source
 
-This skill is maintained in `<agents-repo-url>` and indexed by `agent asset CLI update`.
+This skill is maintained in `deweyou/agents` and indexed by
+`deweyou-cli agent update`.

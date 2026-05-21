@@ -77,11 +77,12 @@ deweyou-cli agent init --dry-run
 
 ## Skills
 
-Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包含 references、scripts、assets、previews 或 eval cases。
+Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包含面向人的
+`README.md` 和 `README_ZH.md`、references、scripts、assets、previews 或 eval cases。
 
 | Skill | 介绍 | 来源 |
 |-------|------|------|
-| `repo-memory` | Hermes 风格的仓库长期记忆工作流。它初始化和刷新 durable repo context，运行提交前记忆检查，在工作改变重要知识时更新文档，并检查本地 skill drift。 | [`skills/repo-memory/`](./skills/repo-memory/) |
+| `repo-memory` | 仓库长期记忆工作流。它初始化和刷新 durable repo context，运行提交前记忆检查，在工作改变重要知识时更新文档，并检查本地 skill drift。 | [`skills/repo-memory/`](./skills/repo-memory/) |
 | `git-delivery` | 分支感知的 git 交付工作流，覆盖分支准备、有意 staging、提交、base 分支冲突检查、安全 rebase、push、PR 创建、CI 跟进和明确低风险 CI 失败的自动修复。 | [`skills/git-delivery/`](./skills/git-delivery/) |
 | `spec-driven-coding` | 面向功能、行为变更和多步骤实现的 spec-driven coding 工作流。它让 Superpowers spec、plan、TDD、验证和需求更新在编码前后保持一致。 | [`skills/spec-driven-coding/`](./skills/spec-driven-coding/) |
 | `skill-eval` | 仓库本地的 skill 评测工作流。它可以生成 eval cases，通过 agent CLI 运行 routing 或 execution 测试，给 transcript 打分并汇总触发准确率。 | [`skills/skill-eval/`](./skills/skill-eval/) |
@@ -94,18 +95,18 @@ Skills 是主动工作流。它们位于 `skills/<name>/SKILL.md`，也可能包
 用 Skills CLI 安装单个 skill：
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill repo-memory
+npx skills add deweyou/agents --skill repo-memory
 ```
 
 按需替换 skill 名称：
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill git-delivery
-npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
-npx skills add https://github.com/deweyou/agents --skill skill-eval
-npx skills add https://github.com/deweyou/agents --skill product-notes
-npx skills add https://github.com/deweyou/agents --skill ui-design
-npx skills add https://github.com/deweyou/agents --skill product-design
+npx skills add deweyou/agents --skill git-delivery
+npx skills add deweyou/agents --skill spec-driven-coding
+npx skills add deweyou/agents --skill skill-eval
+npx skills add deweyou/agents --skill product-notes
+npx skills add deweyou/agents --skill ui-design
+npx skills add deweyou/agents --skill product-design
 ```
 
 如果要给整个仓库接入一组选中的 skills、rules 和设计契约，更推荐使用
@@ -159,3 +160,7 @@ cd cli && npm pack --dry-run
 
 每个新增或修改过的 skill 都必须更新 `skills/<name>/evals/evals.json`
 中的 eval cases。执行 LLM-backed evals 是单独步骤，只有在用户明确要求时才运行。
+
+每个 skill 目录都必须包含 `README.md` 和 `README_ZH.md`，说明概括、安装方式、
+特点、SOP，并在有帮助时加入 Mermaid 图。每次 skill 工作流变化时都要同步更新两份
+README。

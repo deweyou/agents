@@ -15,7 +15,7 @@ flowchart TD
     Global --> GlobalRules["user-level instruction rule sections"]
 ```
 
-*Last updated: 2026-05-21 | Reason: Documented design contract assets and global skill install semantics.*
+*Last updated: 2026-05-21 | Reason: Clarified neutral skill wording and CI follow-up semantics.*
 
 ## Repository Conventions
 
@@ -32,12 +32,17 @@ These rules apply to every agent asset in this repo:
    assets in English. Keep frontmatter, instructions, examples, prompts, script
    help text, and user-facing runtime messages in English unless an asset exists
    specifically to translate or process non-English content.
-4. **Skill eval coverage**: Every new or modified skill must include an updated
+4. **Neutral skill wording**: Files under `skills/` should avoid personal-name
+   or owner-name wording in descriptions, instructions, references, READMEs, and
+   eval cases. Prefer neutral phrases such as `the user`, `the owner`, `personal
+   style`, `the active product`, or `the current component library`. Keep real
+   package names only when they are required executable identifiers.
+5. **Skill eval coverage**: Every new or modified skill must include an updated
    eval suite at `skills/<name>/evals/evals.json`. Use the `skill-eval` workflow
    to generate or complete cases that cover positive triggers, negative triggers,
    and workflow constraints. Running the eval suite is still a separate,
    explicit user decision because it invokes LLMs.
-5. **Validation**: Run `pnpm run lint:assets` after changing skills, rules, or
+6. **Validation**: Run `pnpm run lint:assets` after changing skills, rules, or
    design contracts. Run `pnpm test` after changing asset-scanning behavior.
 
 ## Asset Types
@@ -60,6 +65,13 @@ plain for registry and CLI consumption.
 Public README descriptions should explain what each skill or rule does. Avoid
 leading with ownership language such as a person's name when the functionality
 can be described directly.
+
+For skills specifically, also check `README.md`, `SKILL.md`, `evals/`, and
+`references/` before handoff:
+
+```bash
+rg -i "personal-name-or-brand-pattern" skills
+```
 
 ## Generated Registry
 

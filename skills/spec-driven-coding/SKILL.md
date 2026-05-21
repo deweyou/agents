@@ -1,7 +1,7 @@
 ---
 name: spec-driven-coding
 description: >
-  Enforce Dewey's spec-driven coding workflow for new features, behavior changes,
+  Enforce the repository's spec-driven coding workflow for new features, behavior changes,
   and multi-step implementation work. Use this skill when starting a requirement,
   feature, refactor with behavior impact, or ambiguous coding task. It requires
   Superpowers brainstorming/spec/plan/task flow before coding unless the task is a

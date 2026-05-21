@@ -32,9 +32,9 @@ or right fix is ambiguous.
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill git-delivery
+npx skills add <agents-repo-url> --skill git-delivery
 ```
 
 ## Source
 
-This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.
+This skill is maintained in `<agents-repo-url>` and indexed by `agent asset CLI update`.

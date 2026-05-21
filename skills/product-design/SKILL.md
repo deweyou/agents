@@ -1,7 +1,7 @@
 ---
 name: product-design
 description: >
-  Help Dewey design and iterate personal products with the right amount of
+  Help the user design and iterate personal products with the right amount of
   depth, from quick product judgment to deeper research-backed product design.
   Use this skill when the user asks whether a product idea or feature is worth
   doing, how to shape the next version, how similar products handle a product
@@ -11,14 +11,14 @@ description: >
   "别人怎么做", "这个想法怎么落地", and English phrases such as
   "product design", "research similar products", or "next version". The skill
   should be research-driven when external examples matter, avoid enterprise
-  process theater, and stay focused on what Dewey can build, test, or decide.
+  process theater, and stay focused on what the user can build, test, or decide.
 ---
 
 # Product Design
 
-Use this skill as a product design partner for Dewey's personal products. The
+Use this skill as a product design partner for personal products. The
 goal is not to produce enterprise PRDs or roadmap theater by default. The goal
-is to help Dewey see the product problem clearly, inspect relevant existing
+is to help the user see the product problem clearly, inspect relevant existing
 products when needed, and choose the right next move.
 
 Depth should match the decision. A small feature tradeoff may need a concise
@@ -45,7 +45,7 @@ requires research, synthesis, or a fuller product design proposal.
 Use this mode when the user asks to inspect similar products, competitor
 patterns, market examples, pricing, onboarding, positioning, or "how others do
 it." Also use it when the user's iteration question depends on current product
-behavior outside Dewey's own product.
+behavior outside the active product.
 
 Do not invent advice from general intuition when the answer depends on external
 examples. Gather references first.
@@ -78,7 +78,7 @@ and mark the recommendation as lower confidence instead of pretending.
 2. Decide whether external references are needed.
 3. If needed, inspect 3-6 relevant products or examples.
 4. Extract patterns, not a long catalog.
-5. Evaluate fit for Dewey's personal product: audience, scope, complexity,
+5. Evaluate fit for the personal product: audience, scope, complexity,
    product taste, implementation cost, and validation value.
 6. Recommend the next product direction, version shape, or decision, plus what
    to avoid for now.
@@ -129,7 +129,7 @@ the workflow, frequency of use, retention, willingness to tolerate local-only
 limits, or whether excluded complexity is actually needed.
 
 Keep outputs concise for simple decisions. For deeper research requests, provide
-enough evidence and synthesis for Dewey to judge the recommendation.
+enough evidence and synthesis for the user to judge the recommendation.
 
 ## Anti-Patterns
 
@@ -138,7 +138,7 @@ enough evidence and synthesis for Dewey to judge the recommendation.
 - Do not recommend a heavy roadmap framework by default.
 - Do not pad the answer with generic market categories.
 - Do not imply a hypothesis is validated just because other products do it.
-- Do not copy a competitor pattern without checking whether it fits Dewey's
+- Do not copy a competitor pattern without checking whether it fits the user's
   product size, taste, and constraints.
 
 ## Hand-Offs

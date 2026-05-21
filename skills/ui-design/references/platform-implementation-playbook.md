@@ -10,10 +10,10 @@ model should come from the platform.
 
 ### Web
 
-- Prefer the current Dewey component library when it is available.
-- Use `@deweyou-design/react` components before making custom local UI.
+- Prefer the current component library when it is available.
+- Use `@design-system/react` components before making custom local UI.
 - Use `references/design-tokens.css` for standalone HTML prototypes or
-  non-Dewey web projects.
+  external web projects.
 - Use Ark UI or another headless primitive for complex browser interactions.
 - Verify keyboard navigation, focus order, hover/focus/active states, reduced
   motion, responsive breakpoints, and no horizontal overflow.
@@ -47,7 +47,7 @@ model should come from the platform.
 
 - Treat HarmonyOS as a native mobile platform, not H5 with a different shell.
 - Use ArkTS/ArkUI or the host app's Harmony components when implementing.
-- Translate Dewey tokens into Harmony theme values: surfaces, text, brand/danger
+- Translate design tokens into Harmony theme values: surfaces, text, brand/danger
   colors, radius, divider, shadow/elevation, and motion.
 - Respect Harmony navigation patterns, window/status areas, back behavior,
   gestures, font scaling, and accessibility labels.
@@ -64,7 +64,7 @@ model should come from the platform.
   area, limited viewport, subpackage/load performance, and platform component
   availability.
 - Use native mini-program components where they improve reliability and
-  accessibility; style them with Dewey tokens instead of rebuilding everything.
+  accessibility; style them with design tokens instead of rebuilding everything.
 - Keep interactions tap-first, lightweight, and resilient to slow startup.
 - Avoid heavy web effects, large custom font payloads, and desktop-style layouts.
 - Design explicit empty, loading, permission-denied, login-required, and
@@ -74,7 +74,7 @@ model should come from the platform.
 
 - Favor quiet density, clear sidebars/toolbars, keyboard access, and precise
   alignment.
-- Use native macOS controls where they improve familiarity; apply Dewey tokens
+- Use native macOS controls where they improve familiarity; apply design tokens
   through color, typography, spacing, and icon style rather than replacing
   platform behavior.
 - Support pointer hover, focus rings, keyboard shortcuts, menu commands,
@@ -101,7 +101,7 @@ For Web / React component-library work:
 
 For Web app/page work:
 
-- Prefer existing `@deweyou-design/react` components before making custom local
+- Prefer existing `@design-system/react` components before making custom local
   UI.
 - Use root imports when a file consumes several components; use subpath imports
   for focused examples and docs.

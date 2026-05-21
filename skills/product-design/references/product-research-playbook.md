@@ -43,7 +43,7 @@ After inspecting references, summarize:
 - common pattern: what most products do
 - strong exception: one product that does something differently
 - hidden cost: complexity the user may not want
-- personal-product fit: what Dewey can borrow without becoming too heavy
+- personal-product fit: what the user can borrow without becoming too heavy
 
 ## Recommend
 

@@ -1,6 +1,6 @@
 # Current Component Library Snapshot
 
-This is a copied standalone snapshot of Dewey's current component-library design facts. Use it without reading any external repository files.
+This is a copied standalone snapshot of the current component-library design facts. Use it without reading any external repository files.
 
 ## Visual Identity
 

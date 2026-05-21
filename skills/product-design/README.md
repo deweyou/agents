@@ -20,9 +20,9 @@ right-sized recommendations, product directions, or version plans.
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill product-design
+npx skills add <agents-repo-url> --skill product-design
 ```
 
 ## Source
 
-This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.
+This skill is maintained in `<agents-repo-url>` and indexed by `agent asset CLI update`.

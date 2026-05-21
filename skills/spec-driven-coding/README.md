@@ -20,9 +20,9 @@ bugfixes, and reminds the agent to update specs when requirements change mid-bui
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill spec-driven-coding
+npx skills add <agents-repo-url> --skill spec-driven-coding
 ```
 
 ## Source
 
-This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.
+This skill is maintained in `<agents-repo-url>` and indexed by `agent asset CLI update`.

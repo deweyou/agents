@@ -1,16 +1,19 @@
 ---
 name: git-delivery
 description: >
-  Manage Dewey's git delivery workflow. Use this skill at the start of a coding
+  Manage the git delivery workflow. Use this skill at the start of a coding
   session or before editing files for a new task to inspect the current branch,
   protect dirty work, fetch the primary branch, and pass a pre-edit base gate.
   Also use when the user says "提交吧", "commit it", "ship it", "开 PR",
   "push", or asks to finish work, so the agent treats it as a full delivery intent
   unless the user narrows the scope: memory check, verification, intentional
   staging, commit, base-branch conflict check, rebase when safe, push, PR creation
-  or exact blocker reporting, and CI follow-up. When CI polling finds a clear
+  or exact blocker reporting, and CI follow-up. For CI follow-up, always include
+  an immediate first check after about 10 seconds, visible workflow/job/step
+  status, rough ETA when possible, and a short active polling plan such as a
+  1-minute heartbeat/reminder for fresh PR CI. When CI polling finds a clear
   failure, automatically inspect, fix, verify, commit, and push the repair; stop
-  and ask Dewey when the failure is ambiguous, risky, or has multiple reasonable
+  and ask the user when the failure is ambiguous, risky, or has multiple reasonable
   solutions. After completing work with local changes, ask whether to submit,
   push, and open a PR unless the user already requested delivery or opted out.
   Before creating a new commit on a branch with CI polling, pause the previous
@@ -98,8 +101,8 @@ the final handoff:
 要我现在提交、push 并开 PR 吗？
 ```
 
-Do not silently commit, push, or open a PR without confirmation. If Dewey
-confirms, run the full Finish Work delivery path. If Dewey declines, leave files
+Do not silently commit, push, or open a PR without confirmation. If the user
+confirms, run the full Finish Work delivery path. If the user declines, leave files
 unstaged unless they were already intentionally staged, and report verification
 plus remaining local changes. In routing or planning output, explicitly mention
 both `if_confirmed=full_delivery_path` and
@@ -119,9 +122,9 @@ Treat these as delivery intents:
 
 Default to the fullest safe delivery path implied by the request:
 
-- If Dewey says **"提交吧"** or **"提交一下"** without explicitly narrowing
+- If the user says **"提交吧"** or **"提交一下"** without explicitly narrowing
   scope, treat it as complete delivery: commit → base check/rebase → push → PR.
-  This is Dewey's default local convention for "submit this work", not a
+  This is the local default convention for "submit this work", not a
   commit-only request.
 - If the user asks for **PR**, run commit → base check/rebase → push → PR.
 - If the user asks for **push** and changes are uncommitted, run commit → base
@@ -165,7 +168,11 @@ report exact blockers only when a step cannot be completed safely.
 11. Open a pull request using the repository's normal tool or hosting CLI. If a PR
    cannot be created, report the exact blocker, such as missing auth, missing remote,
    detached HEAD, no GitHub CLI, or no network.
-12. Summarize the problem, solution, and verification in the PR body.
+12. Only after push succeeds and a PR or pushed branch head exists, start CI
+    follow-up: wait about 10 seconds for the first CI check, inspect visible
+    workflow/job/step status, then create/update a short polling automation when
+    supported.
+13. Summarize the problem, solution, and verification in the PR body.
 
 Never include unrelated dirty files in the commit. If unrelated changes exist, leave
 them unstaged and call them out.
@@ -214,8 +221,59 @@ Always report the finish-work boundary:
 
 After a PR is opened or a pushed branch has CI:
 
+Do not start CI polling before the delivery commit is created and pushed. The
+order is: pause stale CI polling before commit, commit, base check/rebase,
+verification after rebase when needed, push, create or update PR, confirm the new
+head, then start CI initial check and follow-up polling.
+
+When GitHub CLI is needed, resolve it robustly before declaring it unavailable:
+try `gh` from `PATH`, then common local install paths such as
+`/opt/homebrew/bin/gh` on Apple Silicon macOS. If a fallback path works, use it
+and report `github_cli=found_at_<path>`. Only report `github_cli=unavailable`
+after checking these common locations.
+
+In routing or planning output, do not compress this to "poll CI". Explicitly
+state:
+
+- `ci_followup_start`: after push succeeds and PR/new head exists; never before
+  commit or push.
+- `ci_followup_action`: create, update, or resume a follow-up
+  automation/reminder after push when the environment supports it; otherwise say
+  unavailable and fall back to a manual check.
+- `ci_initial_check`: wait about 10 seconds after push or PR creation, then check
+  once immediately. Use the words "about 10 seconds" or "10s" in the plan.
+- `ci_visible_status`: workflow/run/job/step/status details that will be read
+  when available.
+- `ci_eta`: rough remaining-time estimate from current metadata or recent similar
+  runs, or `unknown`.
+- `ci_poll_interval`: create or update a follow-up automation/reminder when the
+  environment supports it; use about 1 minute for active fresh PR CI, then slow
+  down or stop after pass/fail/blocker.
+- `ci_poll_stop`: terminal CI states must stop the follow-up. When CI passes,
+  clearly fails for an ambiguous/blocked reason, or requires the user's decision,
+  report the final status and pause/delete the automation so it does not keep
+  running forever. The next action summary must include `ci_poll_stop`.
+- `ci_repair_boundary`: inspect logs first; auto-repair only clear low-risk
+  failures; report `ci_failure`, `repair_commit`, `verification`, `push`, and
+  `ci_poll` status. Use these exact fields in the plan and next action summary.
+
+- Do an immediate first CI check after push before relying on a background
+  automation: wait about 10 seconds, then inspect the PR/check run status once.
+  If the provider exposes workflow runs, jobs, or steps, report which workflow is
+  queued/running/passed/failed and the current job or step when available.
+- Estimate remaining CI time when possible from current run metadata and recent
+  comparable runs. Say the estimate is rough when history is unavailable. For
+  fast lint/typecheck jobs, prefer a near-term follow-up instead of a long
+  default delay.
 - Create a follow-up automation or reminder to check CI when the environment
-  supports it.
+  supports it. Prefer a short interval such as 1 minute for active PR CI
+  immediately after a new push; slow down or stop polling once CI passes, clearly
+  fails, or becomes blocked by permissions, secrets, or an external system.
+- CI follow-up automations are temporary. They must end themselves on terminal
+  states: passed, failed-but-ambiguous, blocked, cancelled, or no matching run
+  after a reasonable provider delay. On terminal state, report the final workflow,
+  job, step, status, elapsed time when available, and `ci_poll_stop`, then pause
+  or delete the automation.
 - When CI polling finds a failure, inspect the failing job, failing step, and
   relevant logs before deciding whether to repair or stop.
 - In routing or planning output, explicitly list the decision order: inspect
@@ -234,14 +292,17 @@ After a PR is opened or a pushed branch has CI:
   Commit the repair with a concise conventional message, push the same branch,
   and report `ci_failure`, `repair_commit`, `verification`, `push`, and `ci_poll`
   status.
+  In routing or planning output, repeat these report fields explicitly so the
+  repair handoff cannot collapse into "report conclusion."
 - When the CI failure is from a previous commit on the same delivery branch,
   include the repair in a new follow-up commit unless amending is explicitly safer
   and the branch has not been shared.
 - If the automation environment can continue polling after the repair push,
   continue watching until CI passes or another failure appears. Apply the same
-  repair-or-stop decision to each new failure.
+  repair-or-stop decision to each new failure. Do not keep polling after the
+  repaired head reaches a terminal state.
 
-Stop and ask Dewey instead of guessing when any of these are true:
+Stop and ask the user instead of guessing when any of these are true:
 
 - The root cause is unclear after inspecting the logs and local reproduction.
 - Several fixes are reasonable and the choice changes product behavior,
@@ -249,14 +310,14 @@ Stop and ask Dewey instead of guessing when any of these are true:
 - The repair would require deleting or rewriting substantial code, changing
   unrelated files, or touching user-owned dirty work.
 - The fix depends on secrets, permissions, deployment configuration, CI provider
-  settings, billing, or another external system Dewey controls.
+  settings, billing, or another external system the user controls.
 - Local verification cannot reproduce or confirm the failure and the proposed
   change would be speculative.
 - The test expectation appears wrong, stale, or intentionally changed by the user.
 - The branch or PR state is unsafe, such as a detached HEAD, missing remote,
   protected branch, failed force-with-lease, or unexpected divergence.
 
-When stopping, give Dewey the exact blocker, the failing job or step, the relevant
+When stopping, give the user the exact blocker, the failing job or step, the relevant
 file paths, and the concrete decision needed. If job, step, or file paths cannot
 be known until CI is inspected, say they are `unknown_pending_ci_log_inspection`
 and do not claim a repair. Do not continue by picking one of several plausible
@@ -268,9 +329,15 @@ inspected before finalizing the blocker.
 
 Always report the CI repair boundary:
 
-- `ci_poll`: automation/reminder created, checked manually, or unavailable
+- `ci_initial_check`: checked after about 10 seconds, skipped with reason, or
+  unavailable
+- `ci_poll`: automation/reminder created, interval, checked manually, or
+  unavailable
+- `ci_poll_stop`: paused/deleted on terminal status, still polling with reason, or
+  unavailable
+- `ci_eta`: rough estimated remaining time, unknown, or not applicable
 - `ci_failure`: failing job and step, or none
-- `ci_decision`: auto-repaired, still polling, passed, or stopped for Dewey
+- `ci_decision`: auto-repaired, still polling, passed, or stopped for the user
 - `ci_repair_commit`: hash and message, or not created
 - `ci_repair_verification`: commands run, or exact blocker
 - `ci_repair_push`: destination, or exact blocker
@@ -290,4 +357,4 @@ Report:
 - verification commands run
 - CI follow-up status
 - CI repair decision, repair commit, verification, push, or the exact question for
-  Dewey when repair is ambiguous
+  the user when repair is ambiguous

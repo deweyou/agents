@@ -17,7 +17,7 @@
     {
       "id": 1,
       "prompt": "不要凭空想，先帮我看看类似产品都是怎么做 onboarding 的，然后再建议我的下一版。",
-      "expected_output": "The agent should trigger product-design in Exploration Mode, inspect or plan to inspect relevant product references before recommending, summarize observed patterns, identify what fits or does not fit Dewey's product, and end with a right-sized next-version recommendation.",
+      "expected_output": "The agent should trigger product-design in Exploration Mode, inspect or plan to inspect relevant product references before recommending, summarize observed patterns, identify what fits or does not fit the active product, and end with a right-sized next-version recommendation.",
       "files": [],
       "expectations": [
         "Triggered the product-design skill",

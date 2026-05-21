@@ -1,6 +1,6 @@
 # DESIGN.md Workflow
 
-Use this reference when a UI task involves project style, Dewey's style, visual
+Use this reference when a UI task involves project style, user style, visual
 direction, design-system persistence, or a request to create or update a design
 contract.
 
@@ -26,12 +26,12 @@ Before applying visual style, look for design contracts in this order:
 2. A project-local `DESIGN.md` at the repository root.
 3. A product-local `DESIGN.md` near the app or package being edited.
 4. A documented design convention in `AGENTS.md` or project docs.
-5. Dewey's bundled design contract, `design/dewey-interface.md`, when the user
-   asks for "my style", "Dewey style", or similar and no closer project design
+5. the bundled design contract, when the user
+   asks for "my style", "my style", or similar and no closer project design
    contract exists.
 
-If a project-local `DESIGN.md` conflicts with Dewey's style, follow the local
-project design contract unless the user explicitly asks to use Dewey's personal
+If a project-local `DESIGN.md` conflicts with user style, follow the local
+project design contract unless the user explicitly asks to use the user's personal
 style. If the request is ambiguous, ask which design contract should win.
 
 ## Recommended Structure
@@ -85,7 +85,7 @@ Create or update `DESIGN.md` when:
 
 - the user asks to make a durable design system or style guide
 - a project repeatedly needs the same visual rules
-- Dewey's style is being applied to a repository that does not yet have a design
+- user style is being applied to a repository that does not yet have a design
   contract
 - a UI implementation introduces new tokens, component conventions, or style
   decisions that future work should preserve

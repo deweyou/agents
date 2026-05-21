@@ -212,7 +212,7 @@ section instead of blocking.
 
 Use the existing language and naming style of the workspace. If the workspace uses
 Chinese filenames and Obsidian links, continue that style. Keep the skill itself
-English, but product note content may match the user's product language.
+English, but product note content may match the active product language.
 
 Always include status when historical confusion is possible:
 

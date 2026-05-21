@@ -78,7 +78,7 @@
     {
       "id": 13,
       "prompt": "提交吧。",
-      "expected_output": "按照 Dewey 的默认交付约定，将“提交吧”识别为完整 delivery intent，而不是 commit-only；运行 repo-memory、验证、暂停旧 CI 轮询、只 stage 意图内文件并提交；随后检查目标主分支、必要时安全 rebase 并重新验证；push 当前分支；创建或更新 PR；不要反问是否需要 push 或 PR，除非遇到具体 blocker。",
+      "expected_output": "按照 the user 的默认交付约定，将“提交吧”识别为完整 delivery intent，而不是 commit-only；运行 repo-memory、验证、暂停旧 CI 轮询、只 stage 意图内文件并提交；随后检查目标主分支、必要时安全 rebase 并重新验证；push 当前分支；创建或更新 PR；不要反问是否需要 push 或 PR，除非遇到具体 blocker。",
       "files": [],
       "expectations": [
         "The run treats bare Chinese submit phrasing as full delivery",
@@ -97,8 +97,8 @@
       "expectations": [
         "The run asks for submit/push/PR confirmation after completed work with local changes",
         "The run does not silently commit, push, or create a PR without confirmation",
-        "The run proceeds through the full delivery path if Dewey confirms",
-        "The run leaves changes uncommitted and reports local status if Dewey declines"
+        "The run proceeds through the full delivery path if the user confirms",
+        "The run leaves changes uncommitted and reports local status if the user declines"
       ]
     },
     {
@@ -142,10 +142,16 @@
     {
       "id": 3,
       "prompt": "PR 开好了，帮我盯一下 CI，如果挂了，能明确修的话就直接修完提交。",
-      "expected_output": "创建或建议一个 CI follow-up automation/reminder；CI 失败时先检查失败 job、step 和日志；如果是明确、低风险的 lint、format、typecheck、单测、snapshot、lockfile 或明显兼容性问题，就自动修复、运行相关验证、提交并推送，然后报告失败原因、修复内容、验证命令、修复 commit 和 push 状态。",
+      "expected_output": "只有在 delivery commit 已创建、push 成功并存在 PR/新 head 后，才开始 CI 查询；不能先创建 CI 查询任务再 commit/push。需要 GitHub CLI 时先查 PATH 里的 gh，找不到再试 /opt/homebrew/bin/gh 等常见安装路径，不能因为 PATH 缺失就直接判定 gh 不可用。先做即时 CI 检查：push/PR 后等约 10 秒查一次 PR/check run 状态；如果能看到 workflow、job、step、状态或历史耗时，就报告当前进度并粗略估算剩余时间；随后创建或建议短间隔 follow-up automation/reminder（active PR CI 优先 1 分钟级，而不是 15 分钟）；轮询任务必须是临时的，CI passed、失败但不明确、blocked、cancelled 或需要用户决策时要报告终态并暂停/删除 automation，不能一直跑；CI 失败时先检查失败 job、step 和日志；如果是明确、低风险的 lint、format、typecheck、单测、snapshot、lockfile 或明显兼容性问题，就自动修复、运行相关验证、提交并推送，然后报告失败原因、修复内容、验证命令、修复 commit 和 push 状态。",
       "files": [],
       "expectations": [
+        "The run starts CI follow-up only after commit, push, and PR or new head exist",
+        "The run tries common GitHub CLI fallback paths such as /opt/homebrew/bin/gh before reporting gh unavailable",
+        "The run plans an immediate first CI check about 10 seconds after push or PR creation",
         "The run creates or proposes a CI follow-up using available automation support",
+        "The run prefers a short active polling interval such as 1 minute instead of a 15 minute default for fresh PR CI",
+        "The run plans to stop or delete the CI polling automation once CI reaches a terminal state",
+        "The run reports visible CI workflow/job/step status and gives a rough ETA when possible",
         "The run inspects failing CI jobs, steps, and logs before deciding what to do",
         "The run automatically repairs clear low-risk CI failures without asking for extra approval",
         "The run verifies, commits, and pushes automatic CI repairs",
@@ -160,7 +166,7 @@
       "expectations": [
         "The run treats the CI failure as ambiguous after inspecting the failure context",
         "The run does not guess between changing product behavior and changing test expectations",
-        "The run stops and asks Dewey for a concrete decision",
+        "The run stops and asks the user for a concrete decision",
         "The run reports the failing job or step, relevant files, blocker, and plausible options"
       ]
     }

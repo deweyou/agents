@@ -1,7 +1,7 @@
 ---
 name: ui-design
 description: >
-  Use this skill whenever Dewey asks to research, design, implement, refine, or
+  Use this skill whenever the user asks to research, design, implement, refine, or
   review UX/UI across web, component libraries, H5/mobile screens, iOS/Android
   apps, HarmonyOS apps, WeChat/Alipay mini programs, macOS apps, dashboards,
   tools, landing pages, or Sleek prompts. This skill has two layers: practical
@@ -9,10 +9,10 @@ description: >
   interaction, usability, onboarding, settings, editor, list, search, sharing,
   empty state, "别人怎么做", "有没有 UX 参考", "这个流程顺不顺", "审一下体验",
   "帮我设计这个交互", as well as personal-style phrases such as "我的风格",
-  "Dewey 的设计风格", "专属于我风格", "帮我设计", "优化 UI", "审一下界面",
+  "我的设计风格", "专属于我风格", "帮我设计", "优化 UI", "审一下界面",
   "做个移动端/H5", "鸿蒙", "HarmonyOS", "小程序", "微信小程序",
   "支付宝小程序", "mac app", "生成 Sleek prompt", "组件库风格", or English
-  phrases such as "UX pattern research", "review this flow", "Dewey interface",
+  phrases such as "UX pattern research", "review this flow", "personal interface style",
   and "UI design". Start with UX structure and interaction quality when the
   request is about flow or usability; apply the relevant `DESIGN.md` only when
   the user asks for a visual style, interface taste, component-library fidelity,
@@ -21,7 +21,7 @@ description: >
 
 # UI Design
 
-Use this skill as Dewey's general UX/UI design workflow. It covers both
+Use this skill as the general UX/UI design workflow. It covers both
 practical interface quality and project-level design contracts, but those layers
 are not the same thing:
 
@@ -41,10 +41,10 @@ Read only the references needed for the task:
 | --- | --- |
 | `references/ux-pattern-research-playbook.md` | The user asks how other products solve a flow, asks for UX references, or the answer depends on existing patterns. |
 | `references/interface-quality-playbook.md` | Designing or reviewing flows, states, accessibility, information hierarchy, responsive behavior, or practical UX/UI quality. |
-| `references/design-md-workflow.md` | The task involves project style, Dewey's style, visual direction, design-system persistence, `DESIGN.md`, component taste, tokens, typography, color, density, copy, or Sleek prompts. |
+| `references/design-md-workflow.md` | The task involves project style, user style, visual direction, design-system persistence, `DESIGN.md`, component taste, tokens, typography, color, density, copy, or Sleek prompts. |
 | `references/ai-design-tool-playbook.md` | The user asks for Sleek prompts, AI-generated mobile app screens, design variations, generated-screen review, or implementation handoff from generated designs. |
 | `references/platform-implementation-playbook.md` | The task targets web, H5/mobile web, native mobile, HarmonyOS, mini programs, macOS, component libraries, or implementation verification. |
-| `references/component-library-snapshot.md` | Working with Dewey's React component library or needing current component-system facts. |
+| `references/component-library-snapshot.md` | Working with the current React component library or needing current component-system facts. |
 | `references/design-tokens.css` | Building standalone prototypes or examples that need portable CSS tokens. |
 
 If the host repository has newer or more specific UI rules, follow the host
@@ -77,7 +77,7 @@ recovery paths, copy notes, and acceptance criteria before visual styling.
 
 ### UI Visual Design
 
-Use when the user asks for visual design, Dewey's style, component-library
+Use when the user asks for visual design, user style, component-library
 fidelity, project `DESIGN.md`, page layout, visual hierarchy, tokens,
 typography, color, or a design prompt.
 
@@ -212,8 +212,8 @@ For implementation:
 
 - Do not use this skill for unrelated backend/debugging tasks just because a UI
   word appears.
-- Do not impose Dewey's restrained style when the user explicitly requests a
+- Do not impose the active restrained style when the user explicitly requests a
   different visual direction, unless they ask to reconcile that direction with
-  Dewey's `DESIGN.md`.
+  the active `DESIGN.md`.
 - Use `product-design` when the question becomes product positioning, feature
   priority, market fit, or version scope rather than interface behavior.

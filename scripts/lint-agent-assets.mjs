@@ -3,6 +3,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { load } from 'js-yaml'
 
+const MAX_SKILL_DESCRIPTION_BYTES = 900
+
 function isKebabCase(s) {
   return /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(s)
 }
@@ -83,6 +85,7 @@ for (const { path, dirName } of skills) {
   for (const field of ['name', 'description']) {
     if (!fm?.[field]) errors.push(`${path}: missing required field '${field}'`)
   }
+  lintSkillDescription(path, fm?.description, errors)
   lintTags(path, fm?.tags, errors)
 
   if (fm?.name) {
@@ -152,5 +155,16 @@ function lintTags(path, tags, errors) {
     if (typeof tag !== 'string' || tag.length === 0) {
       errors.push(`${path}: tags[${index}] must be a non-empty string`)
     }
+  }
+}
+
+function lintSkillDescription(path, description, errors) {
+  if (typeof description !== 'string') return
+
+  const byteLength = Buffer.byteLength(description, 'utf8')
+  if (byteLength > MAX_SKILL_DESCRIPTION_BYTES) {
+    errors.push(
+      `${path}: description is ${byteLength} bytes; keep skill descriptions at or below ${MAX_SKILL_DESCRIPTION_BYTES} bytes so agent discovery metadata stays portable`,
+    )
   }
 }

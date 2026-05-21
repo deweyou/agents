@@ -109,6 +109,18 @@
         "Asked the user where product notes should live when no root could be resolved",
         "Offered possible directory conventions only as choices or recommendations"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "把刚才讨论的发布节奏取舍整理成产品笔记，放到这个项目现有的产品文档里。",
+      "expected_output": "The agent should trigger product-notes from the compact description and body trigger guidance, resolve the product notes root from existing project conventions, classify the note type before writing, and avoid defaulting to a generic PRD.",
+      "files": [],
+      "expectations": [
+        "Triggered the product-notes skill",
+        "Resolved or planned to resolve the existing product notes root before writing",
+        "Classified the note type before writing",
+        "Did not default to a generic PRD"
+      ]
     }
   ]
 }

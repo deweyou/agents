@@ -1,27 +1,10 @@
 ---
 name: git-delivery
 description: >
-  Manage the git delivery workflow. Use this skill at the start of a coding
-  session or before editing files for a new task to inspect the current branch,
-  protect dirty work, fetch the primary branch, and pass a pre-edit base gate.
-  Also use when the user says "提交吧", "commit it", "ship it", "开 PR",
-  "push", or asks to finish work, so the agent treats it as a full delivery intent
-  unless the user narrows the scope: memory check, verification, intentional
-  staging, commit, base-branch conflict check, rebase when safe, push, PR creation
-  or exact blocker reporting, and CI follow-up. For CI follow-up, always include
-  an immediate first check after about 10 seconds, visible workflow/job/step
-  status, rough ETA when possible, and a lightweight active polling plan for
-  fresh PR CI. Prefer in-session polling or a small provider-specific watch loop;
-  create a temporary automation/reminder only when the current session cannot
-  reasonably keep watching or the user asks for later follow-up. When CI polling
-  finds a clear failure, automatically inspect, fix, verify, commit, and push the
-  repair; stop and ask the user when the failure is ambiguous, risky, or has
-  multiple reasonable solutions. After completing work with local changes, ask
-  whether to submit,
-  push, and open a PR unless the user already requested delivery or opted out.
-  Before creating a new commit on a branch with CI polling, pause the previous
-  CI follow-up automation so stale checks do not report on superseded commits.
-  Always protect dirty work: never discard, overwrite, or stage unrelated files.
+  Branch-aware git delivery workflow. Use before editing new coding or asset
+  tasks to check branch, dirty work, and base sync; use when the user asks to
+  commit, submit, push, open a PR, ship work, resolve base conflicts, or follow
+  PR CI, while protecting unrelated work.
 ---
 
 # Git Delivery
@@ -31,6 +14,77 @@ Run the repository delivery flow without making the user spell out every git ste
 When invoked, make the safety and delivery decisions explicit. Reviewers need to
 see the branch choice, dirty-work protection, intended staging boundary, PR
 creation or blocker, base-branch conflict/rebase status, and CI repair decision.
+
+## When To Use
+
+Use this skill when the user is starting, continuing, or finishing code or asset
+work that touches a git repository:
+
+- Before editing files for implementation, bug fixes, refactors, skill updates,
+  rule updates, CLI changes, docs with workflow impact, or other asset changes.
+- When the user asks to inspect or prepare git state, create a branch, continue
+  on the current branch, or set up parallel work.
+- When the user asks to submit, commit, save a commit, push, ship, open a PR,
+  create a pull request, finish work, or handle delivery blockers.
+- When the user asks about base-branch conflicts, rebasing, merge readiness, or
+  whether a PR branch is current with the primary branch.
+- When the user asks to watch PR CI, follow checks, inspect CI failures, or fix
+  clear low-risk CI failures.
+
+Use the delivery intent rules below for exact phrases such as "提交吧",
+"commit it", "ship it", "push", "开 PR", and "create a PR". Keep protecting
+dirty work even when the user sounds casual or terse.
+
+## When Not To Use
+
+- Do not use this skill for read-only git questions that do not affect branch,
+  staging, commit, push, PR, base sync, or CI delivery decisions.
+- Do not perform commit, push, or PR actions when the user explicitly says not
+  to submit, not to push, not to open a PR, or that they will handle delivery.
+- Do not move branches, rebase, stage, or discard unrelated dirty work unless
+  the user explicitly authorizes that exact action.
+
+## Routing And Planning Visibility
+
+When the environment asks for routing or planning only, still expose the delivery
+decisions. Do not collapse them into "do the git workflow."
+
+- Start of work: say whether HEAD is detached and would be fixed by creating a
+  task branch; whether a clean worktree with no current-branch opt-in will start
+  from the fetched baseline; whether a clean branch behind the base will be
+  rebased before editing; and whether dirty work blocks base sync.
+  Even when the actual state is unknown until commands run, state these
+  conditionals explicitly:
+  `base_sync=identify_primary_and_fetch_or_check_origin_primary`,
+  `if_detached=create_codex_task_branch_before_editing`,
+  `if_clean_no_current_branch_opt_in=start_from_fetched_baseline`,
+  `if_clean_behind_base=rebase_before_editing_when_safe`, and
+  `if_dirty=stop_before_editing_if_dirty_work_blocks_base_sync`.
+- Finish work: say the exact intended boundary for staging, verification,
+  commit, base check/rebase, push, PR creation, and CI follow-up. The summary
+  must include `ci_poll_pause=paused_not_needed_unavailable_or_blocked` and
+  `pr=url_or_exact_blocker`, not only "open a PR".
+- CI follow-up: say it starts only after commit, push, and PR/new head exist;
+  include `ci_poll_pause`, the GitHub CLI fallback path check, the about-10s
+  initial check, a rough ETA or `unknown`, and the `ci_poll_stop` terminal
+  outcome.
+  Include these exact fields in routing/planning output:
+  `ci_followup_start=after_commit_push_and_pr_or_new_head`,
+  `github_cli_fallback=/opt/homebrew/bin/gh`, `ci_eta`, `ci_poll_stop`,
+  `ci_poll_interval=about_1_minute_for_fresh_pr_ci`,
+  `ci_repair_verification`, `ci_repair_commit`, and `ci_repair_push`.
+  Also say `ci_poll=automation_or_reminder_created_updated_or_unavailable` and
+  `ci_visible_status=workflow_job_step_status_plus_rough_eta_when_possible`.
+  When automatic repair is possible, also include
+  `ci_repair_report=ci_failure,ci_repair_commit,ci_repair_verification,ci_repair_push`.
+- Ambiguous CI: say the blocker, plausible options, failing job/step if known,
+  relevant files if known, and the user decision needed. Do not choose between
+  plausible behavior-changing fixes without inspection and confirmation.
+  If the user frames the failure as "maybe test expectation, maybe behavior/API
+  change", treat it as ambiguous after inspecting the failure context unless the
+  logs prove one clear low-risk fix. Include
+  `ci_blocker`, `plausible_options`, `failing_job_or_step`, and
+  `relevant_files` in the summary.
 
 ## Start Of Work
 

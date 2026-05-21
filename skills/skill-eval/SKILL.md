@@ -1,15 +1,9 @@
 ---
 name: skill-eval
 description: >
-  Repository-local skill evaluation workflow. Use this skill only when the user
-  explicitly asks to generate skill eval cases, complete a skill's eval suite,
-  run skill evals, test skill routing, or evaluate whether prompts trigger the
-  right skill. It supports two actions: generate `<skill>/evals/evals.json`
-  from a target `SKILL.md`, and run that eval set through `scripts/run.js`
-  using a configurable agent CLI plus an LLM grader. Default to routing mode
-  when running evals so the agent judges skill selection without executing the
-  user's real task. Running evals calls LLMs and can cost money, so do not run
-  evals unless the user explicitly asks for execution.
+  Skill evaluation workflow. Use only when the user explicitly asks to generate
+  or complete skill eval cases, run a skill eval suite, test skill routing, or
+  evaluate whether prompts trigger the right skill.
 argument-hint: <generate | run> <skill-name> [--agent <cmd>] [--grader <cmd>]
 user-invocable: true
 allowed-tools: Bash, Read, Write, Edit
@@ -49,6 +43,36 @@ cases still requires an explicit user request because it spends LLM tokens.
 If the user says a skill changed and asks to finish the task, treat that as a
 request to update that skill's `evals/evals.json` when the behavior changed, but
 not as permission to execute the LLM-backed eval runner.
+
+## Routing And Planning Visibility
+
+When the task is about improving skill routing, make the repair model visible in
+the first plan or routing summary:
+
+- If the user asks whether every failing trigger phrase should be added to a
+  `description`, answer no by default. First classify the failure, then name
+  alternatives such as splitting or narrowing the skill, fixing installation,
+  manifest selection, global/project wiring, AGENTS.md navigation, adding or
+  adjusting eval coverage, updating the `SKILL.md` body, or clarifying ambiguous
+  cases. Change a description only for a missing broad primary context and keep
+  it inside the repository description budget. In routing or planning output,
+  explicitly include the phrase `description budget`.
+- If the user asks whether skills can contain trigger conditions, answer yes.
+  Say that skills can and should include trigger conditions. The stable layering
+  is: frontmatter `description` holds broad trigger categories; `SKILL.md` body
+  holds detailed when-to-use and when-not-to-use semantics; `evals/evals.json`
+  holds realistic positive, negative, and ambiguous prompt regressions.
+  In routing or planning output, explicitly say eval cases should include
+  `positive prompts`, `negative prompts`, and `ambiguous prompts`.
+- If the user asks to audit all skill descriptions and then run routing evals,
+  review every frontmatter description as discovery metadata, update eval cases
+  for any modified skill behavior, and run routing evals because the user
+  explicitly requested execution. Do not imply eval execution is automatic for
+  ordinary skill edits.
+- If the user asks to evaluate whether prompts trigger the wrong skill, plan to
+  use the existing `<skill>/evals/evals.json` file if present, run in routing
+  mode by default after the LLM-cost notice, and report a case-level PASS/FAIL
+  table plus failure summary after execution.
 
 ## A. Generate Eval Cases
 
@@ -234,6 +258,37 @@ or grader preset.
 - Agent CLI interfaces vary, so presets live in `references/`.
 - Each case runs `agent -> grader` sequentially. Multiple cases may run
   concurrently.
+
+## Failure Triage
+
+After generating or running evals, do not treat every failed or missing trigger
+as a reason to expand the target skill's frontmatter `description`. First
+classify the problem:
+
+| Failure type | Signal | Repair |
+|---|---|---|
+| Skill boundary issue | The prompt exposes several unrelated primary contexts or the skill needs a very broad description to route. | Split or narrow the skill before adding more description text. |
+| Installation or navigation issue | The skill is relevant but absent, disabled, not selected in the repo manifest, or hidden from the agent's active skill list. | Fix installation, manifest selection, global/project wiring, AGENTS.md navigation, or manual invocation guidance. |
+| Test coverage issue | The broad context is already in the description, but a specific phrase or edge case was not protected. | Add or adjust eval cases; do not add that phrase list to the description. |
+| Description category gap | The description omits a broad primary context that the skill truly owns. | Add one compact phrase to the description, staying within the repo description budget. |
+| Trigger layering issue | The skill needs explicit trigger guidance, but the guidance mixes primary contexts, detailed phrase lists, boundaries, and workflow steps in one place. | Layer trigger guidance: description gets broad trigger categories, `SKILL.md` gets full trigger semantics and boundaries, evals get realistic prompt regressions. |
+| Workflow issue | The skill triggered, but missed a step, safety rule, output shape, or variant. | Update `SKILL.md` body, references, scripts, or eval expectations. |
+| Ambiguous prompt issue | More than one skill could reasonably apply, or the prompt should ask a clarifying question. | Add ambiguous or negative eval coverage and clarify boundaries; avoid longer descriptions. |
+
+For routing failures, report the selected repair category before editing. Prefer
+the smallest durable repair that preserves cross-agent discovery: split skills,
+fix wiring, add eval coverage, or tune body instructions before changing
+description text. Change the description only when a missing broad category is
+the true root cause.
+
+Skills may and should include trigger conditions. The repair is to put each
+trigger detail at the right layer:
+
+- `description`: broad trigger categories and the most important boundary.
+- `SKILL.md` body: fuller "when to use / when not to use" semantics, examples,
+  and tradeoffs.
+- `evals/evals.json`: real positive, negative, and ambiguous user prompts that
+  preserve routing behavior over time.
 
 ## Optional Enforcement
 

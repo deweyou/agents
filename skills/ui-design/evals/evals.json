@@ -110,10 +110,10 @@
     {
       "id": 9,
       "prompt": "帮我做一个产品官网首页，要求年轻、有冲击力、彩色渐变多一点。",
-      "expected_output": "The agent should not trigger ui-design unless the user asks for personal style or a review against it. It should treat this as a generic landing-page design request and avoid imposing a restrained emerald-neutral system.",
+      "expected_output": "The agent should trigger ui-design for the landing-page design request, treat this as a generic landing-page or visual design task, and avoid imposing a restrained emerald-neutral personal style because the user requested a different visual direction.",
       "files": [],
       "expectations": [
-        "Did NOT trigger the ui-design skill",
+        "Triggered the ui-design skill",
         "Treated the task as a generic landing-page or visual design request",
         "Did not impose the user's personal style when the user requested a different visual direction",
         "Did not reject colorful gradients solely because they conflict with ui-design constraints"
@@ -185,6 +185,18 @@
         "Planned to read the specified file before reporting findings",
         "Prioritized accessibility, interaction states, layout, performance, or implementation risks",
         "Planned file/line grounded findings rather than generic design advice"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "帮我看一下这个设置页的 UX 和视觉层级，顺便给一点移动端适配建议。",
+      "expected_output": "The agent should trigger ui-design from the compact description, classify this as UX/UI review or refinement, inspect flow and visual hierarchy, and include mobile adaptation checks without requiring a long phrase list in the frontmatter.",
+      "files": [],
+      "expectations": [
+        "Triggered the ui-design skill",
+        "Classified the request as UX/UI review or refinement",
+        "Planned to assess flow, hierarchy, states, or interaction quality",
+        "Included mobile adaptation concerns such as safe areas, touch targets, responsive layout, or viewport behavior"
       ]
     }
   ]

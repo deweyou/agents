@@ -170,6 +170,18 @@
         "The run stops and asks the user for a concrete decision",
         "The run reports the failing job or step, relevant files, blocker, and plausible options"
       ]
+    },
+    {
+      "id": 14,
+      "prompt": "我准备改一个 skill，先检查一下分支和本地改动，别影响其他文件。",
+      "expected_output": "识别为编辑 agent asset 前的新任务准备；触发 git-delivery 的 pre-edit base gate；检查当前分支、dirty work 和远端主分支基线；如果工作树干净且没有明确要求继续当前分支，则从最新基线创建或更新任务分支；明确保护无关本地改动。",
+      "files": [],
+      "expectations": [
+        "The run treats agent asset edits as a coding or asset task that needs the start-of-work git workflow",
+        "The run performs the pre-edit base gate before modifying skill files",
+        "The run checks dirty work and protects unrelated files",
+        "The run checks or fetches the primary branch baseline"
+      ]
     }
   ]
 }

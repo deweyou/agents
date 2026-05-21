@@ -607,6 +607,45 @@ Keep this outro.
     await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
   })
 
+  it('scripted --global shortcut links selected skills into tool skill directories', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    const output = await captureLog(() =>
+      runInit({
+        homeDir,
+        repoRoot,
+        global: true,
+        skills: ['demo'],
+        tools: ['codex'],
+        yes: true,
+      }),
+    )
+
+    assert.match(output, /Initialized Dewey workflow globally\./)
+    assert.equal(
+      await readlink(join(homeDir, '.codex/skills/demo')),
+      await realpath(join(homeDir, '.deweyou/agents/assets/skills/demo')),
+    )
+    await assert.rejects(() => stat(join(repoRoot, '.agents')), { code: 'ENOENT' })
+  })
+
+  it('rejects conflicting global shortcut and project scope', async () => {
+    const { homeDir, repoRoot } = await createInitFixture()
+
+    await assert.rejects(
+      () =>
+        runInit({
+          homeDir,
+          repoRoot,
+          global: true,
+          scope: 'project',
+          skills: ['demo'],
+          yes: true,
+        }),
+      /--global cannot be combined with --scope project/,
+    )
+  })
+
   it('rejects invalid interactive mode before prompting or writing files', async () => {
     const { homeDir, repoRoot } = await createInitFixture()
     let promptCalls = 0
@@ -829,6 +868,23 @@ async function createInitFixture() {
   await updateCache({ homeDir, sourceRoot, cliVersion: '0.1.0' })
 
   return { homeDir, repoRoot, sourceRoot }
+}
+
+async function captureLog(callback) {
+  const originalLog = console.log
+  const messages = []
+
+  console.log = (message) => {
+    messages.push(message)
+  }
+
+  try {
+    await callback()
+  } finally {
+    console.log = originalLog
+  }
+
+  return messages.join('\n')
 }
 
 async function createAssetHub(options = {}) {

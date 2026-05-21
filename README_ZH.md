@@ -53,6 +53,7 @@ deweyou-cli agent context --format markdown
 deweyou-cli agent init --all --mode link --yes
 deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
 deweyou-cli agent init --skills ui-design --design dewey-interface
+deweyou-cli agent init --global --tools codex --skills repo-memory,git-delivery --yes
 deweyou-cli agent init --dry-run
 ```
 
@@ -61,7 +62,7 @@ deweyou-cli agent init --dry-run
 | 命令 | 用途 |
 |------|------|
 | `deweyou-cli agent update` | 刷新本地资产缓存和生成的 registry。 |
-| `deweyou-cli agent init` | 把选中的 skills、rules 和可选 `DESIGN.md` 加入当前仓库。 |
+| `deweyou-cli agent init` | 把选中的 skills、rules 和可选 `DESIGN.md` 加入当前仓库；也可用 `--global` 做用户级安装。 |
 | `deweyou-cli agent context --format markdown` | 输出当前仓库启用的 agent instructions。 |
 | `deweyou-cli agent context --format json` | 输出给工具使用的结构化 context。 |
 | `deweyou-cli agent doctor` | 检查缓存、manifest、符号链接、已选资产和 hash 是否一致。 |

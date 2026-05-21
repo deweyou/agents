@@ -58,6 +58,7 @@ For scripted setup:
 deweyou-cli agent init --all --mode link --yes
 deweyou-cli agent init --skills repo-memory,spec-driven-coding,git-delivery --rules code-style
 deweyou-cli agent init --skills ui-design --design dewey-interface
+deweyou-cli agent init --global --tools codex --skills repo-memory,git-delivery --yes
 deweyou-cli agent init --dry-run
 ```
 
@@ -66,7 +67,7 @@ deweyou-cli agent init --dry-run
 | Command | Purpose |
 |---------|---------|
 | `deweyou-cli agent update` | Refresh the local asset cache and generated registry. |
-| `deweyou-cli agent init` | Add selected skills, rules, and an optional `DESIGN.md` to the current repository. |
+| `deweyou-cli agent init` | Add selected skills, rules, and an optional `DESIGN.md` to the current repository, or use `--global` for user-level installs. |
 | `deweyou-cli agent context --format markdown` | Print the active agent instructions for the current repository. |
 | `deweyou-cli agent context --format json` | Print structured context for tooling. |
 | `deweyou-cli agent doctor` | Check cache, manifest, symlinks, selected assets, and hash consistency. |

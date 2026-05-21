@@ -12,6 +12,7 @@ export async function loadRegistry(root: string): Promise<AssetRegistry> {
     assets: {
       skills: await scanSkills(root),
       rules: await scanRules(root),
+      designs: await scanDesigns(root),
     },
   }
 }
@@ -64,6 +65,35 @@ async function scanRules(root: string): Promise<Record<string, RegistryAsset>> {
       path: toPosix(relative(root, rulePath)),
       description: frontmatter.description,
       hash: await hashFile(rulePath),
+      tags: frontmatter.tags,
+    }
+  }
+
+  return sortObject(assets)
+}
+
+async function scanDesigns(root: string): Promise<Record<string, RegistryAsset>> {
+  const designDir = join(root, 'design')
+  const assets: Record<string, RegistryAsset> = {}
+
+  for (const entry of await safeReaddir(designDir)) {
+    if (!entry.isFile()) continue
+    if (entry.name === 'README.md') continue
+    if (!entry.name.endsWith('.md')) continue
+
+    const designPath = join(designDir, entry.name)
+    const frontmatter = await parseFrontmatter(designPath)
+    const expectedName = basename(entry.name, '.md')
+    const name = frontmatter.name
+
+    if (name !== expectedName) {
+      throw new Error(`design ${expectedName} name must match frontmatter`)
+    }
+
+    assets[name] = {
+      path: toPosix(relative(root, designPath)),
+      description: frontmatter.description,
+      hash: await hashFile(designPath),
       tags: frontmatter.tags,
     }
   }

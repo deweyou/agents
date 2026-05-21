@@ -25,11 +25,11 @@
     },
     {
       "id": 3,
-      "prompt": "Run the deweyou-design skill evals and test routing accuracy.",
-      "expected_output": "The agent should trigger skill-eval run mode and plan a routing-mode eval run for deweyou-design.",
+      "prompt": "Run the design-system skill evals and test routing accuracy.",
+      "expected_output": "The agent should trigger skill-eval run mode and plan a routing-mode eval run for design-system.",
       "expectations": [
         "Triggered the skill-eval skill",
-        "Planned to run the deweyou-design eval suite",
+        "Planned to run the design-system eval suite",
         "Planned to use routing mode by default",
         "Planned to notify the user that running evals invokes LLMs and may cost money"
       ]

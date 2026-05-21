@@ -7,22 +7,35 @@ import { tmpdir } from 'node:os'
 import { loadRegistry } from '../src/cli/registry.ts'
 
 describe('loadRegistry', () => {
-  it('generates a registry from skills and rules in an asset hub', async () => {
+  it('generates a registry from skills, rules, and designs in an asset hub', async () => {
     const root = await createAssetHub({
       skillFrontmatter: 'tags: [demo, skill]',
       ruleFrontmatter: 'tags: [demo, rule]',
     })
     await mkdir(join(root, 'skills/demo/references'), { recursive: true })
     await mkdir(join(root, 'rules/nested'), { recursive: true })
+    await mkdir(join(root, 'design'), { recursive: true })
     await writeFile(join(root, 'skills/README.md'), '# Skills')
     await writeFile(join(root, 'skills/demo/references/note.md'), 'Nested note')
     await writeFile(join(root, 'rules/README.md'), '# Rules')
     await writeFile(join(root, 'rules/ignore.txt'), 'ignore me')
+    await writeFile(
+      join(root, 'design/dewey-interface.md'),
+      `---
+name: dewey-interface
+description: Dewey interface design contract
+tags: [demo, design]
+---
+
+# Dewey Interface
+`,
+    )
 
     const registry = await loadRegistry(root)
 
     assert.deepEqual(Object.keys(registry.assets.skills), ['demo'])
     assert.deepEqual(Object.keys(registry.assets.rules), ['demo-rule'])
+    assert.deepEqual(Object.keys(registry.assets.designs), ['dewey-interface'])
     assert.equal(registry.assets.skills.demo.path, 'skills/demo')
     assert.equal(registry.assets.skills.demo.description, 'Demo skill')
     assert.match(registry.assets.skills.demo.hash, /^sha256:[a-f0-9]{64}$/)
@@ -32,6 +45,23 @@ describe('loadRegistry', () => {
     assert.equal(registry.assets.rules['demo-rule'].description, 'Demo rule')
     assert.match(registry.assets.rules['demo-rule'].hash, /^sha256:[a-f0-9]{64}$/)
     assert.deepEqual(registry.assets.rules['demo-rule'].tags, ['demo', 'rule'])
+
+    assert.equal(
+      registry.assets.designs['dewey-interface'].path,
+      'design/dewey-interface.md',
+    )
+    assert.equal(
+      registry.assets.designs['dewey-interface'].description,
+      'Dewey interface design contract',
+    )
+    assert.match(
+      registry.assets.designs['dewey-interface'].hash,
+      /^sha256:[a-f0-9]{64}$/,
+    )
+    assert.deepEqual(registry.assets.designs['dewey-interface'].tags, [
+      'demo',
+      'design',
+    ])
   })
 
   it('defaults missing asset directories and tags to empty collections', async () => {
@@ -43,6 +73,7 @@ describe('loadRegistry', () => {
       assets: {
         skills: {},
         rules: {},
+        designs: {},
       },
     })
   })

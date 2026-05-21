@@ -64,7 +64,7 @@
     },
     {
       "id": 5,
-      "prompt": "以后 Weave 的产品笔记都放在 /Users/deweyou/Library/Mobile Documents/iCloud~md~obsidian/Documents/Dewey Ou/作品/Weave，不要新建 product 目录。帮我把这个目录规范也沉淀进文档体系。",
+      "prompt": "以后 Weave 的产品笔记都放在 /Users/the user_LOWERou/Library/Mobile Documents/iCloud~md~obsidian/Documents/the user Ou/作品/Weave，不要新建 product 目录。帮我把这个目录规范也沉淀进文档体系。",
       "expected_output": "The agent should treat the provided path as the product notes root, keep note paths relative to that root, update or propose the doc-system/index convention there, and avoid creating a separate top-level product/ directory.",
       "files": [],
       "expectations": [

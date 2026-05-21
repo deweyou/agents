@@ -46,6 +46,7 @@ export async function updateCache({
     await writeJson(join(tempAssetsRoot, 'registry.json'), registry)
     await copyAssetDirectory(sourceRoot, tempAssetsRoot, 'skills')
     await copyAssetDirectory(sourceRoot, tempAssetsRoot, 'rules')
+    await copyAssetDirectory(sourceRoot, tempAssetsRoot, 'design')
 
     await rm(paths.assetsRoot, { recursive: true, force: true })
     await rename(tempAssetsRoot, paths.assetsRoot)

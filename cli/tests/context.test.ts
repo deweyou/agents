@@ -34,6 +34,10 @@ describe('resolveContext', () => {
       context.assets.rules.map((asset) => asset.name),
       ['demo-rule'],
     )
+    assert.deepEqual(
+      context.assets.designs.map((asset) => asset.name),
+      ['dewey-interface'],
+    )
     assert.equal(context.assets.skills[0].description, 'Demo skill')
     assert.match(context.assets.skills[0].hash, /^sha256:[a-f0-9]{64}$/)
     assert.equal(
@@ -45,6 +49,12 @@ describe('resolveContext', () => {
     assert.equal(
       context.assets.rules[0].path,
       join(homeDir, '.deweyou/agents/assets/rules/demo-rule.md'),
+    )
+    assert.equal(context.assets.designs[0].description, 'Dewey interface design contract')
+    assert.match(context.assets.designs[0].hash, /^sha256:[a-f0-9]{64}$/)
+    assert.equal(
+      context.assets.designs[0].path,
+      join(homeDir, '.deweyou/agents/assets/design/dewey-interface.md'),
     )
     assert.deepEqual(context._notice, {
       update: null,
@@ -70,7 +80,7 @@ describe('resolveContext', () => {
     await initRepo({
       homeDir,
       repoRoot,
-      selected: { skills: ['demo'], rules: ['demo-rule'] },
+      selected: { skills: ['demo'], rules: ['demo-rule'], design: 'dewey-interface' },
       mode: 'copy',
     })
     await updateCache({
@@ -128,6 +138,8 @@ describe('renderMarkdownContext', () => {
     assert.match(markdown, /demo/)
     assert.match(markdown, /## Active Rules/)
     assert.match(markdown, /demo-rule/)
+    assert.match(markdown, /## Active Design/)
+    assert.match(markdown, /dewey-interface/)
     assert.doesNotMatch(markdown, /# Demo skill body/)
   })
 })
@@ -158,7 +170,7 @@ async function createContextFixture({ mode = 'pointer' } = {}) {
   await initRepo({
     homeDir,
     repoRoot,
-    selected: { skills: ['demo'], rules: ['demo-rule'] },
+    selected: { skills: ['demo'], rules: ['demo-rule'], design: 'dewey-interface' },
     mode,
   })
 
@@ -172,6 +184,7 @@ async function createAssetHub(options = {}) {
 
   await mkdir(join(root, 'skills/demo'), { recursive: true })
   await mkdir(join(root, 'rules'), { recursive: true })
+  await mkdir(join(root, 'design'), { recursive: true })
 
   await writeFile(
     join(root, 'skills/demo/SKILL.md'),
@@ -192,6 +205,17 @@ description: ${ruleDescription}
 ---
 
 # Demo rule body
+`,
+  )
+
+  await writeFile(
+    join(root, 'design/dewey-interface.md'),
+    `---
+name: dewey-interface
+description: Dewey interface design contract
+---
+
+# Dewey Interface
 `,
   )
 

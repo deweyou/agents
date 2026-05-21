@@ -21,9 +21,9 @@ repository.
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill repo-memory
+npx skills add <agents-repo-url> --skill repo-memory
 ```
 
 ## Source
 
-This skill is maintained in `deweyou/agents` and indexed by `deweyou-cli agent update`.
+This skill is maintained in `<agents-repo-url>` and indexed by `agent asset CLI update`.

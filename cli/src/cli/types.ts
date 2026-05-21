@@ -1,4 +1,4 @@
-export type AssetKind = 'skill' | 'rule'
+export type AssetKind = 'skill' | 'rule' | 'design'
 export type InstallMode = 'link' | 'copy' | 'pointer'
 export type InstallScope = 'project' | 'global'
 export type InstallTool = 'codex' | 'claude'
@@ -20,12 +20,14 @@ export interface AssetRegistry {
   assets: {
     skills: Record<string, RegistryAsset>
     rules: Record<string, RegistryAsset>
+    designs: Record<string, RegistryAsset>
   }
 }
 
 export interface SelectedAssets {
   skills: string[]
   rules: string[]
+  design?: string | null
 }
 
 export interface SourceSnapshot {
@@ -42,6 +44,7 @@ export interface RepoManifest {
   assetSnapshot?: {
     skills?: Record<string, AssetMetadata>
     rules?: Record<string, AssetMetadata>
+    designs?: Record<string, AssetMetadata>
   }
   tools?: InstallTool[]
   ruleWiring?: RuleWiring
@@ -56,6 +59,7 @@ export interface GlobalManifest {
   assetSnapshot?: {
     skills?: Record<string, AssetMetadata>
     rules?: Record<string, AssetMetadata>
+    designs?: Record<string, AssetMetadata>
   }
   tools: InstallTool[]
   ruleWiring: RuleWiring
@@ -102,6 +106,7 @@ export interface InitFlags extends InitRepoOptions {
   all?: boolean
   skills?: string[]
   rules?: string[]
+  design?: string
   yes?: boolean
 }
 
@@ -152,6 +157,7 @@ export interface AgentContext {
   assets: {
     skills: ContextAsset[]
     rules: ContextAsset[]
+    designs: ContextAsset[]
   }
   _notice: {
     update: string | null

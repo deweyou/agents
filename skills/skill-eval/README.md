@@ -251,10 +251,10 @@ retained.
 ## Installation
 
 ```bash
-npx skills add https://github.com/deweyou/agents --skill skill-eval
+npx skills add <agents-repo-url> --skill skill-eval
 ```
 
 ## Source
 
-This skill is maintained in `deweyou/agents` and indexed by
-`deweyou-cli agent update`.
+This skill is maintained in `<agents-repo-url>` and indexed by
+`agent asset CLI update`.

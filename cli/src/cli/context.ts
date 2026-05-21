@@ -86,6 +86,14 @@ export async function resolveContext({
         useManifestMetadata: manifest.mode === 'copy',
         pathForAsset: (name, asset) => rulePath({ repoRoot, manifest, name, asset }),
       }),
+      designs: selectedAssets({
+        names: manifest.assets?.design ? [manifest.assets.design] : [],
+        registryAssets: registry.assets?.designs ?? {},
+        manifestAssets: manifest.assetSnapshot?.designs ?? {},
+        useManifestMetadata: manifest.mode === 'copy',
+        pathForAsset: (name, asset) =>
+          designPath({ repoRoot, manifest, name, asset }),
+      }),
     },
     _notice: {
       update: sourceNotice(cacheManifest, manifest),
@@ -119,6 +127,8 @@ ${context.error}
 - Use the active skills and rules listed here for this repository.
 - Read only the referenced asset files when their instructions are needed.
 - Do not dump full skill or rule bodies into chat context.
+- Treat active design contracts as visual source-of-truth files; read them before
+  applying project style.
 
 ## Active Skills
 
@@ -127,6 +137,10 @@ ${renderAssets(context.assets.skills)}
 ## Active Rules
 
 ${renderAssets(context.assets.rules)}
+
+## Active Design
+
+${renderAssets(context.assets.designs)}
 
 ## Runtime Notices
 
@@ -164,6 +178,7 @@ async function readRegistry(path: string): Promise<AssetRegistry | null> {
       assets: {
         skills: registry.assets?.skills ?? {},
         rules: registry.assets?.rules ?? {},
+        designs: registry.assets?.designs ?? {},
       },
     } as AssetRegistry
   } catch (error) {
@@ -183,6 +198,9 @@ function findMissingAssets(manifest: RepoManifest, registry: AssetRegistry): str
     ...(manifest.assets?.rules ?? [])
       .filter((name) => !registry.assets.rules[name])
       .map((name) => `rule:${name}`),
+    ...(manifest.assets?.design && !registry.assets.designs[manifest.assets.design]
+      ? [`design:${manifest.assets.design}`]
+      : []),
   ]
 }
 
@@ -249,6 +267,23 @@ function rulePath({
   return join(repoRoot, '.agents', 'rules', `${name}.md`)
 }
 
+function designPath({
+  repoRoot,
+  manifest,
+  asset,
+}: {
+  repoRoot: string
+  manifest: RepoManifest
+  name: string
+  asset: RegistryAsset
+}): string {
+  if (manifest.mode === 'pointer') {
+    return join(manifest.cacheRoot, asset.path)
+  }
+
+  return join(repoRoot, 'DESIGN.md')
+}
+
 function renderAssets(assets: ContextAsset[]): string {
   if (assets.length === 0) return '- None selected.'
 
@@ -288,6 +323,12 @@ function selectedAssetNotice(
       names: manifest.assets?.rules ?? [],
       registryAssets: registry.assets?.rules ?? {},
       manifestAssets: manifest.assetSnapshot?.rules ?? {},
+    }),
+    ...changedAssets({
+      prefix: 'design',
+      names: manifest.assets?.design ? [manifest.assets.design] : [],
+      registryAssets: registry.assets?.designs ?? {},
+      manifestAssets: manifest.assetSnapshot?.designs ?? {},
     }),
   ]
 
@@ -331,6 +372,7 @@ async function findMissingPaths(context: AgentContext): Promise<string[]> {
   const paths = [
     ...context.assets.skills.map((asset) => asset.path),
     ...context.assets.rules.map((asset) => asset.path),
+    ...context.assets.designs.map((asset) => asset.path),
   ]
   const missing = await Promise.all(
     paths.map(async (path) => {

@@ -10,14 +10,16 @@ the primary branch, and passes a pre-edit base gate so new work starts from the
 right baseline whenever it is safe. At task finish it recognizes commit, push,
 ship, and PR requests as delivery intents, then runs the complete requested path:
 repo memory, verification, intentional staging, commit, base check or rebase,
-push, PR creation, and CI follow-up. When a completed task leaves local changes
-and the user has not asked for delivery or opted out, it prompts for confirmation
-to submit, push, and open a PR. Before making a new commit on a branch with CI
-polling, it pauses the previous CI follow-up automation so old checks do not
-report on superseded commits. When CI polling finds a clear failure, it
-automatically inspects logs, repairs the issue, verifies, commits, pushes, and
-reports the result; it stops and asks for a concrete decision when the root cause
-or right fix is ambiguous.
+push, PR creation, and CI follow-up. CI follow-up starts with an immediate check
+and prefers lightweight in-session polling; temporary automation or reminders are
+reserved for later follow-up when the session cannot reasonably keep watching.
+When a completed task leaves local changes and the user has not asked for
+delivery or opted out, it prompts for confirmation to submit, push, and open a
+PR. Before making a new commit on a branch with CI polling, it pauses the
+previous CI follow-up automation so old checks do not report on superseded
+commits. When CI polling finds a clear failure, it automatically inspects logs,
+repairs the issue, verifies, commits, pushes, and reports the result; it stops
+and asks for a concrete decision when the root cause or right fix is ambiguous.
 
 ## When it triggers
 

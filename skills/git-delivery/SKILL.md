@@ -4,7 +4,7 @@ description: >
   Manage Dewey's git delivery workflow. Use this skill at the start of a coding
   session or before editing files for a new task to inspect the current branch,
   protect dirty work, fetch the primary branch, and pass a pre-edit base gate.
-  Also use when the user says "提交吧", "commit it", "发一下", "ship it", "开 PR",
+  Also use when the user says "提交吧", "commit it", "ship it", "开 PR",
   "push", or asks to finish work, so the agent treats it as a full delivery intent
   unless the user narrows the scope: memory check, verification, intentional
   staging, commit, base-branch conflict check, rebase when safe, push, PR creation
@@ -112,24 +112,30 @@ in that case, continue through the requested delivery path.
 
 Treat these as delivery intents:
 
-- "提交吧", "commit it", "commit this", "保存成提交"
-- "push", "发一下", "ship it", "发布这个分支"
+- "提交吧", "提交一下", "commit it", "commit this", "保存成提交"
+- "push", "ship it", "发布这个分支"
 - "开 PR", "提 PR", "create/open a PR", "提交并建 PR"
 - "可以了", "收尾", "finish this", when code or asset changes are present
 
 Default to the fullest safe delivery path implied by the request:
 
+- If Dewey says **"提交吧"** or **"提交一下"** without explicitly narrowing
+  scope, treat it as complete delivery: commit → base check/rebase → push → PR.
+  This is Dewey's default local convention for "submit this work", not a
+  commit-only request.
 - If the user asks for **PR**, run commit → base check/rebase → push → PR.
 - If the user asks for **push** and changes are uncommitted, run commit → base
   check/rebase → push. Do not stop after committing.
-- If the user asks only for **commit**, commit intentionally, then report that push
-  and PR were not requested.
-- If the user says **ship it** or **发一下**, treat it as commit → push → PR unless
+- If the user says **ship it**, treat it as commit → push → PR unless
   the repository has no remote or the user explicitly narrows the scope.
+- Do not maintain a separate commit-only delivery path. If the user explicitly
+  says not to submit, not to push, or not to open a PR, treat that as opting out
+  of delivery and leave local changes uncommitted unless they clarify a different
+  desired flow.
 
-Do not ask "should I push/open a PR?" after a clear delivery intent. Continue
-through the requested delivery path and report exact blockers only when a step
-cannot be completed safely.
+Do not ask "should I push/open a PR?" after a clear delivery intent such as
+"提交吧" or "ship it". Continue through the requested delivery path and
+report exact blockers only when a step cannot be completed safely.
 
 1. Inspect `git status --short`.
 2. Run `repo-memory` before committing when that skill is available.
@@ -138,8 +144,9 @@ cannot be completed safely.
    the same PR, branch, or thread. This prevents old polling jobs from reporting
    stale results after a new commit changes the head SHA. If no matching
    automation exists, report `ci_poll_pause=not_needed`; if automation support is
-   unavailable, report `ci_poll_pause=unavailable`. This step also applies to
-   commit-only delivery and to follow-up commits that update an existing PR.
+   unavailable, report `ci_poll_pause=unavailable`. This step applies before
+   every new delivery commit, including follow-up commits that update an existing
+   PR.
 5. Stage only intended files.
 6. Commit with a concise conventional message when the repo uses conventional
    commits, otherwise match local history.

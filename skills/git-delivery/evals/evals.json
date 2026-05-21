@@ -76,16 +76,17 @@
       ]
     },
     {
-      "id": 9,
-      "prompt": "发一下。",
-      "expected_output": "识别为完整 delivery intent，而不是只 commit；如果有未提交改动，运行 repo-memory、验证、只 stage 意图内文件并提交；随后检查目标主分支、必要时安全 rebase 并重新验证；push 当前任务分支；在有远端和 PR 工具时创建 PR，或者报告不能创建 PR 的具体 blocker。不要在明确 delivery intent 后停下来反问是否需要 push 或 PR。",
+      "id": 13,
+      "prompt": "提交吧。",
+      "expected_output": "按照 Dewey 的默认交付约定，将“提交吧”识别为完整 delivery intent，而不是 commit-only；运行 repo-memory、验证、暂停旧 CI 轮询、只 stage 意图内文件并提交；随后检查目标主分支、必要时安全 rebase 并重新验证；push 当前分支；创建或更新 PR；不要反问是否需要 push 或 PR，除非遇到具体 blocker。",
       "files": [],
       "expectations": [
-        "The run treats ship/push phrasing as commit plus push and PR unless the user narrows scope",
-        "The run does not stop after commit when the user asked to ship",
-        "The run performs base branch conflict check before pushing",
-        "The run creates a PR or reports the exact PR blocker",
-        "The run does not ask unnecessary follow-up questions for a clear delivery intent"
+        "The run treats bare Chinese submit phrasing as full delivery",
+        "The run invokes or accounts for repo-memory and verification before committing",
+        "The run does not stop after creating a local commit",
+        "The run pushes the branch after committing",
+        "The run creates or updates a PR, or reports an exact blocker",
+        "The run does not ask whether to push or open a PR after this clear delivery intent"
       ]
     },
     {
@@ -102,15 +103,15 @@
     },
     {
       "id": 10,
-      "prompt": "只提交一下，不要 push，也不要开 PR。",
-      "expected_output": "识别用户明确缩小范围为 commit-only；运行 repo-memory 和相关验证；提交前暂停同一 PR/分支已有的 CI 轮询任务，避免旧任务查询过期 commit；只 stage 意图内文件并提交；不 push、不创建 PR；最后明确报告 push 和 PR 是按用户要求跳过的。",
+      "prompt": "只改代码，先别提交，也不要 push 或开 PR。",
+      "expected_output": "识别用户明确 opt out delivery；不要 commit、不要 push、不要开 PR；继续保护本地改动和无关文件；如果已经完成修改，则最终只报告验证结果和未提交的本地变更状态。",
       "files": [],
       "expectations": [
-        "The run respects an explicit commit-only scope",
-        "The run still runs repo-memory and verification before committing",
-        "The run pauses matching previous CI polling before creating a commit",
-        "The run stages only intended files",
-        "The run does not push or create a PR when the user explicitly opted out"
+        "The run treats the prompt as an explicit delivery opt-out, not commit-only delivery",
+        "The run does not commit when the user said not to submit",
+        "The run does not push or create a PR when the user explicitly opted out",
+        "The run leaves local changes uncommitted and reports status",
+        "The run still protects unrelated dirty files"
       ]
     },
     {

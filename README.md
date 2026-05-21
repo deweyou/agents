@@ -124,6 +124,7 @@ and are selected per repository through `deweyou-cli`.
 
 | Rule | Description | Source |
 |------|-------------|--------|
+| `collaboration-defaults` | Default agent collaboration behavior for language, ambiguity, context, task order, parallel work, evidence, safety, and handoff. | [`rules/collaboration-defaults.md`](./rules/collaboration-defaults.md) |
 | `code-style` | Code expression preferences for naming, functions, comments, errors, and tests. | [`rules/code-style.md`](./rules/code-style.md) |
 | `engineering-principles` | Design preferences for module boundaries, abstraction, dependencies, state, and easy-to-delete code. | [`rules/engineering-principles.md`](./rules/engineering-principles.md) |
 

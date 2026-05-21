@@ -117,6 +117,7 @@ Rules 是被动偏好和约束。它们位于 `rules/<name>.md`，并通过 `dew
 
 | Rule | 介绍 | 来源 |
 |------|------|------|
+| `collaboration-defaults` | 默认 agent 协作行为，覆盖语言、歧义、上下文、任务顺序、并行工作、证据、安全和交付。 | [`rules/collaboration-defaults.md`](./rules/collaboration-defaults.md) |
 | `code-style` | 命名、函数、注释、错误处理和测试的局部代码表达偏好。 | [`rules/code-style.md`](./rules/code-style.md) |
 | `engineering-principles` | 模块边界、抽象、依赖、状态和易删除代码的设计偏好。 | [`rules/engineering-principles.md`](./rules/engineering-principles.md) |
 

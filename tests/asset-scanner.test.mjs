@@ -21,6 +21,7 @@ describe('asset scanner', () => {
     ])
     assert.deepEqual(Object.keys(scanned.rules).sort(), [
       'code-style',
+      'collaboration-defaults',
       'engineering-principles',
     ])
     assert.deepEqual(Object.keys(scanned.designs).sort(), [

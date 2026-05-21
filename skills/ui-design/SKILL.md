@@ -1,22 +1,10 @@
 ---
 name: ui-design
 description: >
-  Use this skill whenever the user asks to research, design, implement, refine, or
-  review UX/UI across web, component libraries, H5/mobile screens, iOS/Android
-  apps, HarmonyOS apps, WeChat/Alipay mini programs, macOS apps, dashboards,
-  tools, landing pages, or Sleek prompts. This skill has two layers: practical
-  UX/UI quality and project design contracts such as `DESIGN.md`. Trigger for flow,
-  interaction, usability, onboarding, settings, editor, list, search, sharing,
-  empty state, "别人怎么做", "有没有 UX 参考", "这个流程顺不顺", "审一下体验",
-  "帮我设计这个交互", as well as personal-style phrases such as "我的风格",
-  "我的设计风格", "专属于我风格", "帮我设计", "优化 UI", "审一下界面",
-  "做个移动端/H5", "鸿蒙", "HarmonyOS", "小程序", "微信小程序",
-  "支付宝小程序", "mac app", "生成 Sleek prompt", "组件库风格", or English
-  phrases such as "UX pattern research", "review this flow", "personal interface style",
-  and "UI design". Start with UX structure and interaction quality when the
-  request is about flow or usability; apply the relevant `DESIGN.md` only when
-  the user asks for a visual style, interface taste, component-library fidelity,
-  visual design, implementation, or review against a design system.
+  UX/UI design workflow for research, flow design, visual style, implementation,
+  review, and AI design prompts. Use for web, mobile/H5, native apps, HarmonyOS,
+  mini programs, macOS, dashboards, tools, component libraries, onboarding,
+  settings, empty states, UX references, or explicit UI/UX/style requests.
 ---
 
 # UI Design
@@ -32,6 +20,40 @@ are not the same thing:
 
 Solve the experience first, then the interface structure, then the design
 contract. Do not let visual style override usability.
+
+## When To Use
+
+Use this skill when the user asks to research, design, implement, refine, or
+review UX/UI. Relevant surfaces include web pages, component libraries,
+H5/mobile web, iOS/Android, HarmonyOS, WeChat or Alipay mini programs, macOS
+apps, dashboards, tools, landing pages, and AI design prompts.
+
+Common trigger contexts include:
+
+- Flow, interaction, usability, onboarding, settings, editors, lists, search,
+  sharing, empty states, loading states, error recovery, and permission/login
+  blockers.
+- UX reference requests such as "别人怎么做", "有没有 UX 参考", "这个流程顺不顺",
+  "审一下体验", "UX pattern research", or "review this flow".
+- Visual style requests such as "我的风格", "我的设计风格", "专属于我风格",
+  "优化 UI", "审一下界面", "personal interface style", or "UI design".
+- Platform-specific UI requests such as "做个移动端/H5", "鸿蒙", "HarmonyOS",
+  "小程序", "微信小程序", "支付宝小程序", "mac app", component-library style,
+  or Sleek / AI-generated mobile app prompts.
+
+Start with UX structure and interaction quality when the request is about flow
+or usability. Apply `DESIGN.md` only when the user asks for visual style,
+interface taste, component-library fidelity, visual design, implementation, or a
+review against a design system.
+
+## When Not To Use
+
+- Do not use this skill for unrelated backend, infrastructure, CLI, or data
+  debugging tasks just because the prompt mentions a UI word.
+- Do not impose the active personal style when the user explicitly asks for a
+  different visual direction unless they ask to reconcile it with that style.
+- Use `product-design` instead when the request is about product positioning,
+  feature priority, market fit, or version scope rather than interface behavior.
 
 ## Reference Map
 
@@ -74,6 +96,8 @@ flow feels smooth.
 
 Read `references/interface-quality-playbook.md`. Output the flow, state model,
 recovery paths, copy notes, and acceptance criteria before visual styling.
+For deliberately simple first-version pages, explicitly name `what_can_wait` so
+the plan does not grow into an enterprise-scale settings or workflow system.
 
 ### UI Visual Design
 
@@ -87,13 +111,22 @@ interaction, handle UX structure first.
 
 When routing or planning personal-style work, explicitly mention concrete style
 checks from the design contract, such as neutral surfaces, restrained hierarchy,
-bordered structure, compact copy, primary emphasis, token usage, and avoiding
-arbitrary raw colors, shadows, radii, nested cards, generic gradients, or
-oversized hero treatment in tool UIs.
+bordered structure, Chinese-first compact copy, emerald primary emphasis when
+present in the active design contract, token usage, and avoiding arbitrary raw
+colors, shadows, radii, nested cards, generic gradients, or oversized hero
+treatment in tool UIs.
 
 For H5 or mobile-web visual design, also explicitly mention mobile checks:
 safe-area handling, tap-first interactions, touch target size, responsive layout,
 and viewport-height behavior.
+
+For H5 or mobile-web personal-style work, routing or planning output must include
+both of these field groups:
+
+- `personal_style_checks`: neutral surfaces, emerald primary emphasis when
+  present, bordered structure, Chinese-first compact copy, and token usage.
+- `mobile_checks`: safe areas, tap-first interactions, touch targets, responsive
+  layout, and viewport-height behavior.
 
 ### Implementation / Prototype
 
@@ -125,6 +158,13 @@ Lead with concrete findings. Prioritize flow clarity, accessibility, interaction
 states, layout, token/style drift, and implementation risks. Cite file/line
 references when files are available.
 
+If the prompt names a specific file, read that file before reporting findings.
+Plan file/line-grounded findings rather than generic design advice, and mention
+the file read in routing or planning output.
+For file-based web UI reviews, explicitly list the review priorities in routing
+or planning output: accessibility, interaction states, layout, performance, and
+implementation risks.
+
 For personal-style reviews, explicitly look for style drift such as nested
 cards, raw colors, arbitrary radii or shadows, generic gradients, oversized hero
 treatment in tool UIs, and missing design-token usage.
@@ -132,6 +172,8 @@ treatment in tool UIs, and missing design-token usage.
 When the prompt explicitly asks for "web design guidelines", also trigger or
 reference the `web-design-guidelines` skill/source and say the review should use
 the latest Web Interface Guidelines source before reporting compliance findings.
+In routing or planning output, use the exact phrase "latest Web Interface
+Guidelines source" so the review dependency is visible.
 
 ## Operating Workflow
 

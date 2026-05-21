@@ -1,17 +1,10 @@
 ---
 name: product-design
 description: >
-  Help the user design and iterate personal products with the right amount of
-  depth, from quick product judgment to deeper research-backed product design.
-  Use this skill when the user asks whether a product idea or feature is worth
-  doing, how to shape the next version, how similar products handle a product
-  problem, or explicitly says to research existing products before giving
-  advice. Trigger for Chinese phrases such as "这个功能要不要做",
-  "下一版怎么迭代", "帮我看看类似产品", "不要凭空想", "先调研一下",
-  "别人怎么做", "这个想法怎么落地", and English phrases such as
-  "product design", "research similar products", or "next version". The skill
-  should be research-driven when external examples matter, avoid enterprise
-  process theater, and stay focused on what the user can build, test, or decide.
+  Product design workflow for personal products. Use when the user asks whether
+  to build an idea or feature, how to shape the next version, how similar
+  products solve a problem, or how to turn product thinking into a buildable
+  decision without enterprise process theater.
 ---
 
 # Product Design
@@ -24,6 +17,32 @@ products when needed, and choose the right next move.
 Depth should match the decision. A small feature tradeoff may need a concise
 answer. A product direction, positioning question, or ambiguous market pattern
 may need deeper research and a fuller product design proposal.
+
+## When To Use
+
+Use this skill when the user asks product-design or iteration questions such as:
+
+- whether a product idea or feature is worth doing
+- how to scope, sequence, or shape the next version
+- how similar products solve a product problem
+- how to land an idea as a buildable product direction
+- whether to research existing products before recommending
+- Chinese phrases such as "这个功能要不要做", "下一版怎么迭代",
+  "帮我看看类似产品", "不要凭空想", "先调研一下", "别人怎么做",
+  or "这个想法怎么落地"
+- English phrases such as "product design", "research similar products",
+  "next version", or "is this feature worth building"
+
+Use research when external examples could change the answer. Stay focused on
+what the user can build, test, decide, or deliberately postpone.
+
+## When Not To Use
+
+- Do not use this skill for coding/debugging tasks with no product decision.
+- Use `ui-design` when the core question is interface flow, visual design, or UI
+  implementation rather than product scope or market pattern.
+- Use `product-notes` when the user wants to write durable product notes rather
+  than decide what to build next.
 
 ## Core Principles
 

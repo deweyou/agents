@@ -1,14 +1,10 @@
 ---
 name: product-notes
 description: >
-  Turn ongoing product thinking into a living product notes system. Use this
-  skill whenever the user wants to capture a product idea, product positioning,
-  roadmap or version iteration, product decision, user insight, competitor
-  observation, release review, or asks to "沉淀", "整理产品文档", "记录这个想法",
-  "写迭代文档", "产品定位变了", or "turn this discussion into notes". The skill
-  should route the input to the right note type before writing; do not default to
-  a generic PRD. Always support a custom product notes root directory instead of
-  assuming a fixed `product/` path.
+  Product notes workflow for turning product thinking into durable notes. Use
+  when the user wants to capture ideas, positioning, iteration plans, decisions,
+  insights, competitor observations, release reviews, or discussion outcomes in
+  a custom product notes workspace.
 ---
 
 # Product Notes
@@ -20,6 +16,32 @@ decisions were made, and what evidence or assumptions shaped those decisions.
 Use this skill for product work that is still evolving through conversation with
 an AI partner. Product notes are not an archive of finished work; they are active
 working memory for future positioning, iteration planning, and review.
+
+## When To Use
+
+Use this skill when the user wants to preserve product thinking as notes or
+structured product memory:
+
+- product ideas, product positioning, roadmap or version iteration, decisions,
+  user insights, competitor observations, release reviews, or process notes
+- requests such as "沉淀", "整理产品文档", "记录这个想法", "写迭代文档",
+  "产品定位变了", "turn this discussion into notes", or "capture this product
+  decision"
+- custom product note roots, multi-product conventions, or durable path memory
+  for where product notes should live
+
+Always classify the note type before writing. Do not default to a generic PRD,
+and do not assume a fixed `product/` directory when the user or repository uses
+a custom workspace.
+
+## When Not To Use
+
+- Use `product-design` when the user wants help deciding what to build, not
+  writing the decision down.
+- Use `repo-memory` when the knowledge belongs to the repository's engineering
+  memory rather than a product notes workspace.
+- Ask for the product notes root before writing if no reliable root can be
+  resolved.
 
 ## Core Principles
 
@@ -138,6 +160,8 @@ Use these planning cues:
   future runs.
   - In routing output, explicitly say: "This is persisted in a convention file,
     not remembered through model memory."
+  - In routing output, explicitly say: "On future runs, read the persisted
+    convention before asking for the product notes path."
   - In routing output, include the root and relative subpaths: `iterations/`,
     `decisions/`, `insights/`, and `process/`.
 

@@ -44,6 +44,18 @@
         "Repository-owned skills are updated directly when the current work changes their expected behavior",
         "External dependency skill changes are deferred as issue/PR/TODO rather than edited in-place"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "刚刚调整了 AGENTS.md 和 docs/asset-workflow.md，帮我更新一下仓库知识库，别漏掉 skill drift。",
+      "expected_output": "识别为仓库记忆更新请求；检查 AGENTS.md、docs 和 local skills；更新相关 durable docs；明确报告 owned_skill_updates 和 dependency_skill_followups。",
+      "files": [],
+      "expectations": [
+        "The run treats AGENTS.md and docs workflow changes as repository memory work",
+        "The run checks local skill drift",
+        "The run updates focused durable docs rather than broad unrelated documentation",
+        "The run reports owned skill updates and dependency skill follow-ups"
+      ]
     }
   ]
 }

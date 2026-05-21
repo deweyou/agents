@@ -42,7 +42,13 @@ These rules apply to every agent asset in this repo:
    to generate or complete cases that cover positive triggers, negative triggers,
    and workflow constraints. Running the eval suite is still a separate,
    explicit user decision because it invokes LLMs.
-6. **Validation**: Run `pnpm run lint:assets` after changing skills, rules, or
+6. **Skill description budget**: Keep skill frontmatter `description` values
+   short and trigger-focused. The hard repository limit is 900 UTF-8 bytes, with
+   a preferred target of 300-700 bytes. Put detailed trigger lists, edge cases,
+   and workflow requirements in the skill body, references, and eval cases
+   instead of the frontmatter so Codex, Claude, Copilot, Gemini, and Cursor-style
+   discovery surfaces can index the metadata reliably.
+7. **Validation**: Run `pnpm run lint:assets` after changing skills, rules, or
    design contracts. Run `pnpm test` after changing asset-scanning behavior.
 
 ## Asset Types
@@ -168,9 +174,14 @@ Write the draft at `skills/<kebab-name>/SKILL.md`. The frontmatter must include:
 ---
 name: <kebab-name>
 description: >
-  <What it does and when to trigger. Be specific enough that agents use it.>
+  <What it does and when to trigger, within 900 UTF-8 bytes.>
 ---
 ```
+
+Write the description as one compact discovery summary: name the capability, the
+primary contexts that should trigger it, and the most important negative boundary
+when needed. Move long phrase lists, exact workflow steps, examples, output
+format, and edge cases into the skill body, references, and eval cases.
 
 Then write the skill body: instructions, examples, output format, and edge cases.
 
@@ -182,6 +193,10 @@ Use `skill-eval` to create the first eval suite:
 - Cover positive triggers, negative triggers, workflow constraints, and ambiguous
   prompts when ambiguity matters.
 - Use objectively gradable `expectations[]` entries.
+- Treat eval failures as routing failures, workflow failures, or ambiguous prompt
+  failures before editing. Only broad routing failures should change the
+  frontmatter description; workflow misses belong in `SKILL.md`, references, or
+  eval expectations.
 - Do not run the eval suite unless the user explicitly asks to spend LLM tokens.
 
 ### 4. Finalize

@@ -1,14 +1,10 @@
 ---
 name: repo-memory
 description: >
-  Maintain Hermes-style long-term memory for a repository. Use this skill before
-  commits, before pull requests, after meaningful code changes, when the user
-  asks to "沉淀", "更新知识库", "precommit", "archive this work", "初始化知识库",
-  or whenever AGENTS.md, CLAUDE.md, docs/, repo context, durable project knowledge,
-  or local skill updates may need to be created or refreshed from current work.
-  Always consider skill drift: repository-owned skills may need direct updates,
-  while dependency skills should be deferred to a separate issue, PR, TODO, or
-  subagent follow-up instead of blocking the main task.
+  Repository memory workflow for durable project knowledge. Use before commits
+  or PRs, after meaningful code or workflow changes, when initializing or
+  updating AGENTS.md/docs/CLAUDE.md, or when local skills and repo conventions
+  may need knowledge updates.
 ---
 
 # Repo Memory

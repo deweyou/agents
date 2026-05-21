@@ -104,6 +104,7 @@ export interface InitRepoOptions {
 
 export interface InitFlags extends InitRepoOptions {
   all?: boolean
+  global?: boolean
   skills?: string[]
   rules?: string[]
   design?: string

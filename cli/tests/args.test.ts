@@ -20,6 +20,21 @@ describe('parseArgs', () => {
     )
   })
 
+  it('parses the global init shortcut', () => {
+    assert.deepEqual(
+      parseArgs(['agent', 'init', '--global', '--skills', 'repo-memory', '--yes']),
+      {
+        topic: 'agent',
+        command: 'init',
+        flags: {
+          global: true,
+          skills: ['repo-memory'],
+          yes: true,
+        },
+      },
+    )
+  })
+
   it('parses comma-separated asset lists', () => {
     assert.deepEqual(
       parseArgs([

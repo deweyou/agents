@@ -266,7 +266,7 @@ export async function runInit(
   const registry = await readCachedRegistry(paths.assetsRoot)
   const scripted = hasScriptedSelectionFlags(flags)
   let mode = flags.mode ?? 'link'
-  let scope = flags.scope
+  let scope = initScopeFromFlags(flags)
   let tools = flags.tools
   let ruleWiring = flags.ruleWiring
   let selected: SelectedAssets | undefined
@@ -294,7 +294,7 @@ export async function runInit(
       registry,
       repoRoot,
       mode: flags.mode,
-      scope: flags.scope,
+      scope,
       tools: flags.tools,
       ruleWiring: flags.ruleWiring,
     })
@@ -334,6 +334,8 @@ export async function runInit(
     for (const file of (manifest as Extract<InitResult, { dryRun: true }>).files) {
       console.log(`- ${file}`)
     }
+  } else if (manifest.scope === 'global') {
+    console.log('Initialized Dewey workflow globally.')
   } else {
     console.log('Initialized Dewey workflow for this repository.')
   }
@@ -403,6 +405,14 @@ function hasSelectedAssets(selected: SelectedAssets | undefined): selected is Se
 
 function hasScriptedSelectionFlags(flags: InitFlags): boolean {
   return Boolean(flags.all || flags.skills || flags.rules || flags.design)
+}
+
+function initScopeFromFlags(flags: InitFlags): InstallScope | undefined {
+  if (flags.global && flags.scope === 'project') {
+    throw new Error('--global cannot be combined with --scope project')
+  }
+  if (flags.global) return 'global'
+  return flags.scope
 }
 
 function validateMode(mode: unknown): asserts mode is InstallMode {

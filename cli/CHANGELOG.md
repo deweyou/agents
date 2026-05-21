@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- add `--global` shortcut for global skill and rule installs
+
+### Changed
+
+- clarify global init success output and help text
+
 ## 0.5.0 - 2026-05-17
 
 ### Added
